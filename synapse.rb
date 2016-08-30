@@ -5,10 +5,10 @@ require_relative 'pipe'
 module Smash
   module CloudPowers
     module Synapse
-      include Smash::CloudPower::Helper
-      include Smash::CloudPower::Pipe
-      include Smash::CloudPower::Queue
-      include Smash::CloudPower::SelfAwareness
+      include Smash::CloudPowers::Helper
+      include Smash::CloudPowers::Pipe
+      include Smash::CloudPowers::Queue
+      include Smash::CloudPowers::SelfAwareness
     end
   end
 end

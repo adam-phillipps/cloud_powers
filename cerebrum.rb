@@ -23,12 +23,5 @@ module Smash
         visibility_timeout: 10
       }.merge(opts)
     end
-
-    def ec2
-      @ec2 ||= Aws::EC2::Client.new(
-        region: region,
-        credentials: creds
-      )
-    end
   end
 end

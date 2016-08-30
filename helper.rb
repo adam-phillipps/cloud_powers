@@ -1,4 +1,5 @@
-require_relative 'errors_without_borders'
+require_relative 'smash_error'
+require 'byebug'
 
 module Smash
   module CloudPowers
@@ -13,12 +14,12 @@ module Smash
       end
 
       def env(key)
-        ENV[key.upcase] if ENV.keys.include?(key.upcase)
+        ENV[key.to_s.upcase] if ENV.keys.include?(key.to_s.upcase)
       end
 
       def errors
         # TODO: needs work
-        $errors ||= ErrorsWithoutBorders.instance(:ruby, :workflow)
+        $errors ||= SmashError.instance
       end
 
       def format_error_message(error)
@@ -33,7 +34,7 @@ module Smash
       # Sample usage:
       # check_stuff = lambda { |params| return true }
       # retry(3, check_stuff(params)) { do_stuff_that_needs_to_be_checked }
-      def retry(&block, allowed_attempts = Float::Infinity)
+      def retry(allowed_attempts = Float::Infinity, &block)
         result = yield if block_given?
         tries = 1
         until block.call(result) || tries >= allowed_attempts

@@ -1,11 +1,12 @@
 module Smash
-  modul Delegator
+  module Delegator
     def build_job(id, opts)
       type = opts.delete(:type)
       if approved_job? type
         eval("#{type}.new(opts)")
       else
         DefaultTask.new(id, opts)
+      end
     end
 
     def approved_task?(type = nil)
