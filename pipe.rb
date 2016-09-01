@@ -5,9 +5,16 @@ module Smash
   module CloudPowers
     module Synapse
       module Pipe
+        def stream_config(opts = {})
+          config = {
+            stream_name: env('status_stream'),
+            shard_count: 1
+          }.merge(opts)
+        end
 
         def create_stream(name)
           begin
+
             config = stream_config(stream_name: env(name))
             resp = kinesis.create_stream(config)
             kinesis.wait_until(:stream_exists, stream_name: config[:stream_name])
@@ -24,12 +31,17 @@ module Smash
               logger.error error_message
               errors.push_error!(:ruby, error_message) # throws: :die, :failed_job
               errors[:ruby] << error_message
-              false # the request was not successful
+              false # "request" was not successful
             end
           end
         end
 
         def flow_from_pipe(stream)
+          throw NotImplementedError
+        end
+
+        def from_pipe(stream)
+          # implemented get_records and/or other consuming app stuff
           throw NotImplementedError
         end
 
@@ -44,20 +56,11 @@ module Smash
           # TODO: what to return? true?
         end
 
-        def from_pipe(stream)
-          # implemented get_records and/or other consuming app stuff
-          throw NotImplementedError
-        end
-
         def kinesis
           @kinesis ||= Aws::Kinesis::Client.new(
             region: region,
             credentials: Auth.creds,
           )
-        end
-
-        def message_body_collection(records)
-          throw NotImplementedError
         end
 
         def pipe_message_body(opts = {})
@@ -68,21 +71,8 @@ module Smash
           }
         end
 
-        def pipe_to(stream)
-          create_stream(stream) unless stream_exists? stream
-          message = yield if block_given?
-          body = update_message_body(content: message)
-          resp = kinesis.put_record pipe_message_body(data: body)
-          # TODO: implement retry logic for failed request
-          @last_sequence_number = resp.sequence_number
-          # TODO: return message id or something
-        end
-
-        def stream_config(opts = {})
-          config = {
-            stream_name: env('status_stream'),
-            shard_count: 1
-          }.merge(opts)
+        def message_body_collection(records)
+          throw NotImplementedError
         end
 
         def stream_exists?(name)
@@ -91,6 +81,16 @@ module Smash
           rescue Aws::Kinesis::Errors::ResourceNotFoundException => e
             false
           end
+        end
+
+        def pipe_to(stream)
+          create_stream(stream) unless stream_exists? stream
+          message = yield if block_given?
+          body = update_message_body(message)
+          resp = kinesis.put_record pipe_message_body(data: body)
+          # TODO: implement retry logic for failed request
+          @last_sequence_number = resp.sequence_number
+          # TODO: what to return? true?
         end
       end
     end

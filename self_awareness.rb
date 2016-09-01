@@ -10,6 +10,12 @@ require_relative './synapse/synapse'
 
 module Smash
   module CloudPowers
+    # extend Auth
+    # extend Helper
+    extend Smash::CloudPowers::Synapse::Pipe
+    extend Smash::CloudPowers::Synapse::Queue
+    # extend AwsResources
+
     module SelfAwareness
       # extend Auth
       extend Smash::CloudPowers::Helper

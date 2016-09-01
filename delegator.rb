@@ -2,6 +2,7 @@ require_relative 'helper'
 require 'byebug'
 
 module Smash
+<<<<<<< HEAD
   include CloudPowers::Helper
   module Delegator
     def build_job(id, msg)
@@ -24,6 +25,15 @@ module Smash
             extraInfo: message
           }
         end
+=======
+  module Delegator
+    def build_job(id, opts)
+      type = opts.delete(:type)
+      if approved_job? type
+        eval("#{type}.new(opts)")
+      else
+        DefaultTask.new(id, opts)
+>>>>>>> 7e4749ab855d2300f6e8e48095519e33c17e4fc3
       end
     end
 
