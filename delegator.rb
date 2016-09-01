@@ -1,11 +1,30 @@
+require_relative 'helper'
+require 'byebug'
+
 module Smash
-  modul Delegator
-    def build_job(id, opts)
-      type = opts.delete(:type)
-      if approved_job? type
-        eval("#{type}.new(opts)")
-      else
-        DefaultTask.new(id, opts)
+  include CloudPowers::Helper
+  module Delegator
+    def build_job(id, msg)
+      begin
+        type = JSON.parse(msg.body).delete(:job_type)
+        if approved_task? type
+          eval("#{type}.new(id, msg)")
+        else
+          DefaultTask.new(id, msg)
+        end
+      rescue JSON::ParserError => e
+        message = [msg.body, format_error_message(e)].join("\n")
+        logger.info "Message in backlog is ill-formatted\n#{message}"
+
+        pipe_to(:status_stream) do
+          {
+            instanceID: @instance_id,
+            type: 'SitRep',
+            content: 'TaskError',
+            extraInfo: message
+          }
+        end
+      end
     end
 
     def approved_task?(type = nil)
@@ -21,7 +40,7 @@ module Smash
       #           etc
       #         }
 
-      type.nil?
+      false
     end
   end
 end

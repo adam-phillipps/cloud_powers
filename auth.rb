@@ -1,14 +1,13 @@
-require_relative 'helper'
+require 'aws-sdk'
+Aws.use_bundled_cert!
 
 module Smash
   module CloudPowers
     module Auth
-      include Smash::CloudPowers::Helper
-
-      def creds
+      def self.creds
         @creds ||= Aws::Credentials.new(
-          env('AWS_ACCESS_KEY_ID'),
-          env('AWS_SECRET_ACCESS_KEY')
+          ENV['AWS_ACCESS_KEY_ID'],
+          ENV['AWS_SECRET_ACCESS_KEY']
         )
       end
     end

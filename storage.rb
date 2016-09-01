@@ -4,7 +4,7 @@ module Smash
       def s3
         @s3 ||= Aws::S3::Client.new(
           region: region,
-          credentials: creds
+          credentials: Auth.creds
         )
       end
 

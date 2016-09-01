@@ -12,7 +12,7 @@ module Smash
 
     def initialize
       Smash::CloudPowers::SelfAwareness.get!
-      @status_thread = Thread.new { send_frequent_status_updates(15) }
+      @status_thread = Thread.new { send_frequent_status_updates(interval: 15) }
     end
 
     def backlog_poller_config(opts = {})
@@ -22,13 +22,6 @@ module Smash
         max_number_of_messages: 1,
         visibility_timeout: 10
       }.merge(opts)
-    end
-
-    def ec2
-      @ec2 ||= Aws::EC2::Client.new(
-        region: region,
-        credentials: creds
-      )
     end
   end
 end
