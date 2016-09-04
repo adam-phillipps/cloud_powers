@@ -15,14 +15,13 @@ module Smash
         end
       rescue JSON::ParserError => e
         message = [msg.body, format_error_message(e)].join("\n")
-        logger.info "Message in backlog is ill-formatted\n#{message}"
+        logger.info "Message in backlog is ill-formatted: #{message}"
 
         pipe_to(:status_stream) do
           {
-            instanceID: @instance_id,
             type: 'SitRep',
-            content: 'TaskError',
-            extraInfo: message
+            content: 'task-error',
+            extraInfo: { message: message }
           }
         end
       end

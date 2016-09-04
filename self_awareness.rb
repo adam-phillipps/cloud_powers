@@ -44,7 +44,7 @@ module Smash
         begin
           ec2.terminate_instances(dry_run: env('testing'), ids: [@instance_id])
         rescue Aws::EC2::Error::DryRunOperation => e
-          logger.info "dry run testing in die!\n#{format_error_message(e)}"
+          logger.info "dry run testing in die! #{format_error_message(e)}"
         end
       end
 
@@ -54,19 +54,9 @@ module Smash
         boot_time # sets @boot_time
       end
 
-      # def log_file
-      #   @log_file ||= env('LOG_FILE')
-      # end
-
-      # def logger
-      #   @logger ||= create_logger
-      # end
-
-      # def create_logger
-      #   logger = Logger.new(STDOUT)
-      #   logger.datetime_format = '%Y-%m-%d %H:%M:%S'
-      #   logger
-      # end
+      def get_an_identity!(task_identity)
+        @identity ||= task_identity
+      end
 
       def metadata_request(key = '')
         # metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
@@ -109,7 +99,7 @@ module Smash
             # ec2.describe_instances(dry_run: env('testing'), instance_ids:[@instance_id]).
               # reservations[0].instances[0].launch_time.to_i
         # rescue Aws::EC2::Errors::DryRunOperation => e
-          # logger.info "dry run for testing\n#{format_error_message(e)}"
+          # logger.info "dry run for testing: #{format_error_message(e)}"
           @boot_time ||= Time.now.to_i # comment the code below for development mode
         # end
       end
@@ -119,7 +109,7 @@ module Smash
           ec2.describe_instances(dry_run: env('testing'), instance_ids: [id]).
             reservations[0].instances[0].state.name
         rescue Aws::EC2::Errors::DryRunOperation => e
-          logger.info "Dry run flag set for testing\n#{format_error_message(e)}"
+          logger.info "Dry run flag set for testing: #{format_error_message(e)}"
           'testing'
         end
       end

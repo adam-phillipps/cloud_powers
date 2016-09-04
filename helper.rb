@@ -49,10 +49,11 @@ module Smash
 
       def update_message_body(opts = {})
         {
-          instanceId:       opts[:instanceId] || @instance_id,
-          type:             opts[:type] || 'status_update',
-          content:          opts[:content] || 'running',
-          extraInfo:        opts[:extraInfo] || {}
+          instanceId:       @instance_id || 'none-aquired',
+          identity:         identity || 'none-aquired'
+          type:             'status_update',
+          content:          'running',
+          extraInfo:        {}
         }.merge(opts).to_json
       end
 
