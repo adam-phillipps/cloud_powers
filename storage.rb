@@ -12,7 +12,7 @@ module Smash
         File.open(log_file) do |file|
           s3.put_object(
             bucket: log_bucket,
-            key: self_id,
+            key: @instance_id,
             body: file
           )
         end
