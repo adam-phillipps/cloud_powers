@@ -16,6 +16,7 @@ module Smash
               logger.info "Stream already created"
               # let the stream get ready for traffic because it was probably
               # just created by another process or neuron
+              # TODO: find out how to only sleep when the status isn't active
               sleep 30
               nil # no request -> no response
             else
@@ -79,9 +80,9 @@ module Smash
 
         def stream_config(opts = {})
           config = {
-            stream_name: env('status_stream'),
-            shard_count: 1
-          }.merge(opts)
+            stream_name: opts[:stream_name] || env('status_stream'),
+            shard_count: opts[:shard_count] || 1
+          }
         end
 
         def stream_exists?(name)

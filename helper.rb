@@ -50,14 +50,22 @@ module Smash
       def update_message_body(opts = {})
         # TODO: find better implementation of merging nested hashes
         # this should be fixed with Job #sitrep_message
+        # TODO: find a way to trim this method down and get rid
+        # of a lof of the repitition with these messages
+        # IDEA: throw events and have a separate thread listening. the separate
+        # thread could be a communication or status update thread
+        unless opts.kind_of? Hash
+          update = opts.to_s
+          opts[:extraInfo] = { message: update }
+        end
         udpated_extra_info = opts.delete(:extraInfo) || {}
-        body = {
+
+        {
           instanceId:       @instance_id || 'none-aquired',
           type:             'status_update',
           content:          'running',
           extraInfo:        udpated_extra_info
         }.merge(opts)
-        body.to_json
       end
 
       def log_file
