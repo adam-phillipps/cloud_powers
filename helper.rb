@@ -48,13 +48,15 @@ module Smash
       end
 
       def update_message_body(opts = {})
+        # TODO: find better implementation of merging nested hashes
+        # this should be fixed with Job #sitrep_message
+        udpated_extra_info = opts.delete(:extraInfo) || {}
         body = {
           instanceId:       @instance_id || 'none-aquired',
           type:             'status_update',
           content:          'running',
-          extraInfo:        {}
+          extraInfo:        udpated_extra_info
         }.merge(opts)
-        byebug
         body.to_json
       end
 
