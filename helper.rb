@@ -50,7 +50,7 @@ module Smash
       def update_message_body(opts = {})
         {
           instanceId:       @instance_id || 'none-aquired',
-          identity:         identity || 'none-aquired'
+          identity:         identity || 'none-aquired',
           type:             'status_update',
           content:          'running',
           extraInfo:        {}
