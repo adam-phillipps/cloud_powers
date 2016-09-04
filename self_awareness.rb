@@ -16,13 +16,13 @@ module Smash
 
       def die!
         Thread.kill(@status_thread) unless @status_thread.nil?
-        blame = errors.sort_by(&:reverse).last.first
-        logger.info("The cause for the shutdown is #{blame}")
+        # blame = errors.sort_by(&:reverse).last.first
+        logger.info("The cause for the shutdown is TODO: fix SmashErrors")
 
         pipe_to(:status_stream) do
           {
             instanceID: @instance_id,
-            type: 'status_update',
+            type: 'status-update',
             content: 'dying',
             extraInfo: blame
           }
@@ -36,6 +36,7 @@ module Smash
           ec2.terminate_instances(dry_run: env('testing'), ids: [@instance_id])
         rescue Aws::EC2::Error::DryRunOperation => e
           logger.info "dry run testing in die! #{format_error_message(e)}"
+          @instance_id
         end
       end
 
@@ -50,13 +51,16 @@ module Smash
       end
 
       def metadata_request(key = '')
-        # metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
-        # HTTParty.get(metadata_uri).parsed_response.split("\n")
-        @z ||= ['i-9254d106', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/thing']
-        if key == ''
-          @boogs = ['instance-id', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/interfaces/macs/mac/device-number']
+        unless env('TESTING')
+          metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
+          HTTParty.get(metadata_uri).parsed_response.split("\n")
         else
-          @z.shift
+          @z ||= ['i-9254d106', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/thing']
+          if key == ''
+            @boogs = ['instance-id', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/interfaces/macs/mac/device-number']
+          else
+            @z.shift
+          end
         end
       end
 
@@ -65,6 +69,8 @@ module Smash
       end
 
       def run_time
+        # TODO: refactor to use valid time stamps for better tracking.
+        # could be because separate regions or OSs etc.
         Time.now.to_i - boot_time
       end
 

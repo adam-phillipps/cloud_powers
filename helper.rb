@@ -62,7 +62,7 @@ module Smash
 
         {
           instanceId:       @instance_id || 'none-aquired',
-          type:             'status_update',
+          type:             'status-update',
           content:          'running',
           extraInfo:        udpated_extra_info
         }.merge(opts)
