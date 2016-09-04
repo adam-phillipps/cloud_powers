@@ -8,6 +8,7 @@ module Smash
     def build_job(id, msg)
       begin
         type = JSON.parse(msg.body).delete(:job_type)
+        # that step also vets all messages, that they are JSON
         if approved_task? type
           eval("#{type}.new(id, msg)")
         else
