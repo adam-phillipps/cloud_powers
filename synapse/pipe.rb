@@ -5,7 +5,6 @@ module Smash
   module CloudPowers
     module Synapse
       module Pipe
-
         def create_stream(name)
           begin
             config = stream_config(stream_name: env(name))

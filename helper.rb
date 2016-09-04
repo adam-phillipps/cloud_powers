@@ -48,13 +48,15 @@ module Smash
       end
 
       def update_message_body(opts = {})
-        {
+        body = {
           instanceId:       @instance_id || 'none-aquired',
           identity:         identity || 'none-aquired',
           type:             'status_update',
           content:          'running',
           extraInfo:        {}
-        }.merge(opts).to_json
+        }.merge(opts)
+        byebug
+        body.to_json
       end
 
       def log_file

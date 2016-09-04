@@ -78,6 +78,7 @@ module Smash
       end
 
       def send_frequent_status_updates(opts = {})
+        # TODO: this method can't be right.  opts or config? use one
         config = pipe_message_body(opts)
         stream = config[:stream_name]
         while true

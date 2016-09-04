@@ -4,19 +4,30 @@ module Smash
   module CloudPowers
     module Synapse
       module Queue
-
         Board = Struct.new(:name) do
           def i_var
             "@#{name}"
           end
 
           def address
+            # TODO: figure out why env('bla') doesn't work
             ENV["#{name.upcase}_QUEUE_ADDRESS"]
           end
           # this is a state machine, these are its states and they are strictly
           # enforced, yo.  Other methods should be refactored before this one.
           def next_board
             name == :backlog ? :wip : :finished
+          end
+        end # end Board
+
+        def board_name(url)
+          # TODO: figure out a way to not have this and :name in Board
+          # gets the name from the url
+          if url =~ URI.regexp
+            url = URI.parse(url)
+            url.path.split('/').last.split('_').last
+          else
+            env(url)
           end
         end
 
@@ -27,15 +38,6 @@ module Smash
           # else
             Board.new(name)
           # end
-        end
-
-        def board_name(url)
-          if url =~ URI.regexp
-            url = URI.parse(url)
-            url.path.split('/').last.split('_').last
-          else
-            env(url)
-          end
         end
 
         def delete_queue_message(queue, opts = {})

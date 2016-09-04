@@ -12,7 +12,11 @@ module Smash
 
     def initialize
       Smash::CloudPowers::SelfAwareness.get!
-      @status_thread = Thread.new { send_frequent_status_updates(interval: 15) }
+      # TODO: find a way to oop or otherwise accomodate custom jobs like the demo
+      # for things like the 'idenety' attribute
+      @status_thread = Thread.new do
+        send_frequent_status_updates(interval: 15, identity: 'cerebrum')
+      end
     end
 
     def backlog_poller_config(opts = {})
