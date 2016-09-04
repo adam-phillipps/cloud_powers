@@ -13,10 +13,10 @@ module Smash
             resp.successful? # (http request successful && stream created)?
           rescue Exception => e
             if e.kind_of? Aws::Kinesis::Errors::ResourceInUseException
-              logger.info "Stream already created"
-              # let the stream get ready for traffic because it was probably
-              # just created by another process or neuron
-              # TODO: find out how to only sleep when the status isn't active
+              logger.info "#{name} already created"
+              stream_status = kinesis.describe_stream(name).stream_description.stream_status
+              return if stream_status == 'ACTIVE'
+              logger.info "Not ready for traffic.  Wait for 30 seconds..."
               sleep 30
               nil # no request -> no response
             else
@@ -62,7 +62,7 @@ module Smash
 
         def pipe_message_body(opts = {})
           {
-            stream_name:      opts[:stream_name] || env('status_stream'),
+            stream_name:      env(opts[:stream_name]) || env('status_stream'),
             data:             opts[:data] || update_message_body(opts),
             partition_key:    opts[:partition_key] || @instance_id
           }
@@ -71,11 +71,10 @@ module Smash
         def pipe_to(stream)
           create_stream(stream) unless stream_exists? stream
           message = yield if block_given?
-          body = update_message_body(content: message)
-          resp = kinesis.put_record pipe_message_body(data: body)
+          body = update_message_body(message)
+          resp = kinesis.put_record pipe_message_body(stream_name: stream, data: body.to_json)
           # TODO: implement retry logic for failed request
           @last_sequence_number = resp.sequence_number
-          # TODO: return message id or something
         end
 
         def stream_config(opts = {})
@@ -87,7 +86,7 @@ module Smash
 
         def stream_exists?(name)
           begin
-            kinesis.describe_stream(stream_name: name)
+            kinesis.describe_stream(stream_name: env(name))
           rescue Aws::Kinesis::Errors::ResourceNotFoundException => e
             false
           end

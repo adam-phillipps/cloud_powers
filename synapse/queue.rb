@@ -74,6 +74,7 @@ module Smash
         end
 
         def send_message(board, message)
+          message = message.to_json unless message.kind_of? String
           sqs.send_message(
             queue_url: board.address,
             message_body: message
