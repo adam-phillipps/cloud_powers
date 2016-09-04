@@ -46,8 +46,14 @@ module Smash
         boot_time # sets @boot_time
       end
 
-      def get_an_identity!(task_identity)
-        @identity ||= task_identity
+      def instance_url
+        @instance_url ||=
+          if env('TESTING')
+            'https://test-url.com'
+          else
+            hostname_uri = 'http://169.254.169.254/latest/meta-data/hostname'
+            HTTParty.get(hostname_uri).parsed_response
+          end
       end
 
       def metadata_request(key = '')
