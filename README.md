@@ -7,7 +7,7 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
   breakdown of the common services provided and an example or 2 of popular methods.
 
 ## SelfAwareness: (set/get info about the instance -> Neuron/Cerebrum/etc)
-  * get_awareness!
+  * **get_awareness!**
     * retrieves and sets all metadata from the EC2 instance and a few other things
       like the instance hostname (can find the instance IP from here).
       [EC2 Metadata]http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
@@ -15,14 +15,14 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
 ## Synapse:
 
 ### Pipe: (Streams)
-  * pipe_to(stream_name <string/symbol>) { &block }
+  * **pipe_to(stream_name <string/symbol>) { &block }**
     * give the entire stream name or a symbol or string that is found in the .env
       for the name of the stream
     * provide a block that will create the record that gets sent on the stream
     ```Ruby
     pipe_to(:status_queue) { update_block_that_returns_data }
     ```
-  * flow_to(stream_name <string/symbol>) { &block }
+  * **flow_to(stream_name <string/symbol>) { &block }**
     * follow the pipe_to instructions but you can send multiple records with this
     ```Ruby
     flow_to(:status_queue) do
@@ -45,7 +45,8 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
     board.next_board # useful because this is a simple state-machine implementation
     => 'wip'
     ```
-  * poll(board_name <string/symbol>, opts <optional config Hash>) { &block }
+  * **poll(board_name <string/symbol>, opts <optional config Hash>) { &block }**
+
     ```Ruby
     poll(:backlog) { |msg, stats| Task.new(instance_id, msg) if stats.successful? }
     ```
