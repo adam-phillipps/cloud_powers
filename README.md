@@ -11,6 +11,7 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
     * retrieves and sets all metadata from the EC2 instance and a few other things
       like the instance hostname (can find the instance IP from here).
       [EC2 Metadata]http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
+
 ## Synapse:
 ### Pipe: (Streams)
   * pipe_to(stream_name <string/symbol>) { &block }
