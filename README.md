@@ -13,6 +13,7 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
       [EC2 Metadata]http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
 
 ## Synapse:
+
 ### Pipe: (Streams)
   * pipe_to(stream_name <string/symbol>) { &block }
     * give the entire stream name or a symbol or string that is found in the .env
@@ -31,6 +32,7 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
       block_that_returns_many_records(interesting_instances) # this gets sent
     end
     ```
+
 ### Queue: (Queues)
   * ###### Board <Struct>:
     * interface with board config/data/name/etc.
