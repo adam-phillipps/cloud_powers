@@ -31,8 +31,17 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
     end
     ```
 ### Queue: (Queues)
-  * #### Board <Struct>:
+  * ###### Board <Struct>:
     * interface with board config/data/name/etc.
+    ```Ruby
+    board = Board.new(:backlog)
+    board.name
+    => 'backlog'
+    board.address
+    => 'http://aws-url/backlog-board-url'
+    board.next_board # useful because this is a simple state-machine implementation
+    => 'wip'
+    ```
   * poll(board_name <string/symbol>, opts <optional config Hash>) { &block }
     ```Ruby
     poll(:backlog) { |msg, stats| Task.new(instance_id, msg) if stats.successful? }
