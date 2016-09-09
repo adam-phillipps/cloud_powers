@@ -113,7 +113,12 @@ module Smash
       end
 
       def time_is_up?
-        (run_time % 60) < 5
+        # returns true when the hour mark approaches
+        an_hours_time = 60 * 60
+        five_minutes_time = 60 * 5
+
+        return false if run_time < five_minutes_time
+        run_time % an_hours_time < five_minutes_time
       end
     end
   end
