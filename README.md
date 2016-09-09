@@ -1,10 +1,15 @@
+_CloudPowers API documentation_
 ################################################################################
 # Cloud Powers
 ################################################################################
 
 ## Description
 CloudPowers is a wrapper around AWS and other cloud services.  Below is a
-  breakdown of the common services provided and an example or 2 of popular methods.
+  breakdown of where it fits in the architecture of the Brain project, the 
+  common services provided and a few usage details, in case you contribute.
+
+## This module is a submodule that helps provide an interface to Kinesis, SQS,
+    EC2, S3 _for now_.  There are more specific below:
 
 ## SelfAwareness: (set/get info about the instance -> Neuron/Cerebrum/etc)
   * **get_awareness!**
@@ -13,8 +18,9 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
       [EC2 Metadata]http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
 
 ## Synapse:
+  The Synapse module is the place that all of the communication API lives.
 
-### Pipe: (Streams)
+### Pipe: _AWS Kinesis Streams interface_
   * **pipe_to(stream_name <string/symbol>) { &block }**
     * give the entire stream name or a symbol or string that is found in the .env
       for the name of the stream
@@ -62,3 +68,12 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
 ## Storage: (S3)
 ## AwsResource: (all types of AWS recourses that should be used by many services)
 ## Helper: (useful shared methods, like one that turns a string into snake_case)
+
+## Ideas:
+_A global memory, so that all nodes in the brain can communicate_
+  * _use the Synapse package to always send a variable and it's value in a message
+    to the pipe whenever it is set.  consuming nodes can listen for all these variables
+    in a partition id or something like that.  the listening would start from the first time the variable is needed._
+  * _use very few variables and sns topics.  the variables might be able to be fairly
+    complex, like mapping simple objects of tasks and other listening apps could use
+    them to build environments/contexts for tasks etc._
