@@ -2,17 +2,20 @@ require_relative 'helper'
 require 'byebug'
 
 module Smash
-  include CloudPowers::Helper
 
   module Delegator
-    def build_job(id, msg)
+    include CloudPowers::Helper
+
+    def build(id, msg)
       begin
-        type = JSON.parse(msg.body).delete('task-type')
-        # that step also vets all messages, that they are JSON
+        possible_type = JSON.parse(msg.body).delete('task')
+        type = to_camal(possible_type)
         if approved_task? type
-          eval("#{type}.new(id, msg)")
+          # TODO: get file from Storage
+          require_relative "../tasks/#{possible_type.downcase}"
+          Smash.const_get(type).new(id, msg)
         else
-          DefaultTask.new(id, msg)
+          Task.new(id, msg)
         end
       rescue JSON::ParserError => e
         message = [msg.body, format_error_message(e)].join("\n")
@@ -21,7 +24,7 @@ module Smash
         pipe_to(:status_stream) do
           {
             type: 'SitRep',
-            content: 'task-error',
+            content: 'taskError',
             extraInfo: { message: message }
           }
         end
@@ -29,19 +32,8 @@ module Smash
     end
 
     def approved_task?(type = nil)
-      # TODO:
-      # - find a way to verify the validity of the job type.
-      #   - this could be a dynamo table or a config file that
-      #     gets deployed, etc.
-      #   - The info that you need is the name of the job type
-      #     - possible convention:
-      #         Approved_jobs: {
-      #           FredsScraping,
-      #           OverstockSales,
-      #           etc
-      #         }
-
-      false
+      # TODO: improve this
+      ['Demo'].include? type
     end
   end
 end

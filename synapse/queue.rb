@@ -4,7 +4,7 @@ module Smash
   module CloudPowers
     module Synapse
       module Queue
-        Board = Struct.new(:name) do
+        Board = Struct.new(:name, :workflow) do
           def i_var
             "@#{name}"
           end
@@ -16,7 +16,7 @@ module Smash
           # this is a state machine, these are its states and they are strictly
           # enforced, yo.  Other methods should be refactored before this one.
           def next_board
-            name == :backlog ? :wip : :finished
+            workflow.next
           end
         end # end Board
 
@@ -32,12 +32,7 @@ module Smash
         end
 
         def build_board(name)
-          # i_var = "@#{name}"
-          # if instance_variable_defined?(i_var)
-          #   instance_variable_get(i_var)
-          # else
-            Board.new(name)
-          # end
+          Board.new(name)
         end
 
         def delete_queue_message(queue, opts = {})
@@ -54,9 +49,19 @@ module Smash
           ).attributes['ApproximateNumberOfMessages'].to_f
         end
 
+        # Params: board<string>
+        # returns a message and deletes it from its origin
+        def pluck_message(board)
+          poll(board) do |msg, poller|
+            poller.delete_message(msg)
+            return msg
+          end
+        end
+
         def poll(board, opts = {})
-          poller(board).poll(opts) do |msg|
-            yield msg if block_given?
+          this_poller = poller(board)
+          this_poller.poll(opts) do |msg|
+            yield msg, this_poller if block_given?
           end
         end
 

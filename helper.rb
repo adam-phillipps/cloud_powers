@@ -11,7 +11,7 @@ module Smash
 
       def attr_map!(keys)
         keys.map do |attr|
-          key = rubyize(attr)
+          key = to_i_var(attr)
           value = yield key if block_given?
           instance_variable_set(key, value)
         end
@@ -33,6 +33,24 @@ module Smash
           # if the formatting won't work, return the original exception
           error
         end
+      end
+
+      def to_i_var(var)
+        "@#{to_snake(var)}"
+      end
+
+      def to_snake(var)
+        var.gsub(/\W/, '_').downcase
+      end
+
+      def to_camal(var)
+        var.gsub(/^(.{1})|\_.{1}/) { |s| s.gsub(/[^a-z0-9]+/i, '').capitalize }
+      end
+
+      def to_pascal(var)
+        step_one = to_snake(var)
+        step_two = to_camal(step_one)
+        step_two[0, 1].downcase + step_two[1..-1]
       end
 
       # Sample usage:

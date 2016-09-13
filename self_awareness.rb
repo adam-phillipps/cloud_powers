@@ -14,6 +14,17 @@ module Smash
       extend Smash::CloudPowers::Synapse::Pipe
       extend Smash::CloudPowers::Synapse::Queue
 
+      def boot_time
+        begin
+          @boot_time ||=
+            ec2.describe_instances(dry_run: env('testing'), instance_ids:[@instance_id]).
+              reservations[0].instances[0].launch_time.to_i
+        rescue Aws::EC2::Errors::DryRunOperation => e
+          logger.info "dry run for testing: #{format_error_message(e)}"
+          @boot_time ||= Time.now.to_i # comment the code below for development mode
+        end
+      end
+
       def die!
         Thread.kill(@status_thread) unless @status_thread.nil?
         # blame = errors.sort_by(&:reverse).last.first
@@ -23,8 +34,8 @@ module Smash
           {
             instanceID: @instance_id,
             type: 'status-update',
-            content: 'dying',
-            extraInfo: blame
+            content: 'dying'
+            # extraInfo: blame
           }
         end
 
@@ -44,6 +55,19 @@ module Smash
         keys = metadata_request
         attr_map!(keys) { |key| metadata_request(key) }
         boot_time # sets @boot_time
+        task_name # gets and sets @task_name
+      end
+
+      def task_name(ids = @instance_id)
+        # check tags for 'task'
+        if @task_name.nil?
+          resp = ec2.describe_instances(instance_ids: [ids].flatten)
+          @task_name = resp.reservations[0].instances[0].tags.select do |t|
+            t.value if t.key == 'taskType'
+          end
+        else
+          @task_name
+        end
       end
 
       def instance_url
@@ -51,7 +75,7 @@ module Smash
           if env('TESTING')
             'https://test-url.com'
           else
-            hostname_uri = 'http://169.254.169.254/latest/meta-data/hostname'
+            hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
             HTTParty.get(hostname_uri).parsed_response
           end
       end
@@ -70,13 +94,9 @@ module Smash
         end
       end
 
-      def rubyize(var_name)
-        "@#{var_name.gsub(/\W/, '_').downcase}"
-      end
-
       def run_time
         # TODO: refactor to use valid time stamps for better tracking.
-        # could be because separate regions or OSs etc.
+        # reason -> separate regions or OSs etc.
         Time.now.to_i - boot_time
       end
 
@@ -88,17 +108,6 @@ module Smash
           logger.info "Send update to status board #{message.call(opts)}"
           pipe_to(stream || :status_stream) { message.call(opts) }
           sleep sleep_time
-        end
-      end
-
-      def boot_time
-        begin
-          @boot_time ||=
-            ec2.describe_instances(dry_run: env('testing'), instance_ids:[@instance_id]).
-              reservations[0].instances[0].launch_time.to_i
-        rescue Aws::EC2::Errors::DryRunOperation => e
-          logger.info "dry run for testing: #{format_error_message(e)}"
-          @boot_time ||= Time.now.to_i # comment the code below for development mode
         end
       end
 
