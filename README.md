@@ -1,10 +1,13 @@
+_CloudPowers API documentation_
 ################################################################################
 # Cloud Powers
 ################################################################################
 
 ## Description
 CloudPowers is a wrapper around AWS and other cloud services.  Below is a
-  breakdown of the common services provided and an example or 2 of popular methods.
+  breakdown of where it fits in the architecture of the Brain project, the 
+  common services provided and a few usage details, in case you contribute.
+
 
 ## SelfAwareness: (set/get info about the instance -> Neuron/Cerebrum/etc)
   * **get_awareness!**
@@ -12,9 +15,11 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
       like the instance hostname (can find the instance IP from here).
       [EC2 Metadata]http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
 
-## Synapse:
 
-### Pipe: (Streams)
+## Synapse:
+  The Synapse module is the place that all of the communication API lives.
+
+### Pipe: _AWS Kinesis Streams interface_
   * **pipe_to(stream_name <string/symbol>) { &block }**
     * give the entire stream name or a symbol or string that is found in the .env
       for the name of the stream
@@ -59,6 +64,14 @@ CloudPowers is a wrapper around AWS and other cloud services.  Below is a
       update = some_method(edited_message)
     end
     ```
+
 ## Storage: (S3)
+
+
 ## AwsResource: (all types of AWS recourses that should be used by many services)
+
+
 ## Helper: (useful shared methods, like one that turns a string into snake_case)
+
+## Comming:
+_A real global memory
