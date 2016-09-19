@@ -6,7 +6,7 @@ module Smash
       extend Smash::CloudPowers::Auth
 
       def region
-        env('AWS_REGION')
+        env('Aws Region')
       end
 
       def ec2
@@ -14,6 +14,12 @@ module Smash
           region: region,
           credentials: Auth.creds
         )
+      end
+
+      def image(name)
+        ec2.describe_images(
+          filters: [{ name: 'tag:aminame', values: [name.to_s] }]
+        ).images.first
       end
     end
   end

@@ -1,14 +1,13 @@
 require_relative '../helper'
-require_relative 'pipe'
 require_relative 'queue'
+require_relative 'pipe'
 
 module Smash
   module CloudPowers
-    extend Helper
-
     module Synapse
-      include Pipe
-      include Queue
+      include Smash::CloudPowers::Helper
+      include Smash::CloudPowers::Synapse::Pipe
+      include Smash::CloudPowers::Synapse::Queue
     end
   end
 end

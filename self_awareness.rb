@@ -70,14 +70,13 @@ module Smash
         end
       end
 
-      def instance_url
-        @instance_url ||=
-          if env('TESTING')
-            'https://test-url.com'
-          else
-            hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
-            HTTParty.get(hostname_uri).parsed_response
-          end
+      def get_instance_url
+        if env('TESTING')
+          'https://test-url.com'
+        else
+          hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
+          HTTParty.get(hostname_uri).parsed_response
+        end
       end
 
       def metadata_request(key = '')
