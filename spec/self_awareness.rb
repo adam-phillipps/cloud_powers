@@ -1,12 +1,12 @@
 require 'spec_helper'
-require_relative '../neuron_metadata'
+require_relative '../self_awareness'
 
-describe NeuronMetada do
-  include Smash::CloudPowers::NeuronMetada
+describe SelfAwareness do
+  include Smash::CloudPowers::SelfAwareness
 
-  it 'should convert non-ruby vars into ruby naming convention' do
-    start = 'fake-var'
-    new_var = NeuronMetada.rubyize(start)
-    expect(new_var).to eq('fake_var')
+  it 'should get a self-boot-time' do
+    now = Time.now.to_i
+
+    expect(now).to be_less_than(boot_time)
   end
 end

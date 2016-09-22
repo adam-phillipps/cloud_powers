@@ -1,77 +1,41 @@
-_CloudPowers API documentation_
-################################################################################
-# Cloud Powers
-################################################################################
+# CloudPowers
 
-## Description
-CloudPowers is a wrapper around AWS and other cloud services.  Below is a
-  breakdown of where it fits in the architecture of the Brain project, the 
-  common services provided and a few usage details, in case you contribute.
+Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cloud_powers`. To experiment with that code, run `bin/console` for an interactive prompt.
 
+TODO: Delete this and the text above, and describe your gem
 
-## SelfAwareness: (set/get info about the instance -> Neuron/Cerebrum/etc)
-  * **get_awareness!**
-    * retrieves and sets all metadata from the EC2 instance and a few other things
-      like the instance hostname (can find the instance IP from here).
-      [EC2 Metadata]http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
+## Installation
 
+Add this line to your application's Gemfile:
 
-## Synapse:
-  The Synapse module is the place that all of the communication API lives.
+```ruby
+gem 'cloud_powers'
+```
 
-### Pipe: _AWS Kinesis Streams interface_
-  * **pipe_to(stream_name <string/symbol>) { &block }**
-    * give the entire stream name or a symbol or string that is found in the .env
-      for the name of the stream
-    * provide a block that will create the record that gets sent on the stream
-    ```Ruby
-    pipe_to(:status_queue) { update_block_that_returns_data }
-    ```
-  * **flow_to(stream_name <string/symbol>) { &block }**
-    * follow the pipe_to instructions but you can send multiple records with this
-    ```Ruby
-    flow_to(:status_queue) do
-      interesting_instances = neurons.map do |neuron|
-        neuron.get_useful_info.include? 'something'
-      end
-      block_that_returns_many_records(interesting_instances) # this gets sent
-    end
-    ```
+And then execute:
 
-### Queue: (Queues)
-  * **Board** <Struct>:
-    * interface with board config/data/name/etc.
-    ```Ruby
-    board = Board.new(:backlog)
-    board.name
-    => 'backlog'
-    board.address
-    => 'http://aws-url/backlog-board-url'
-    board.next_board # useful because this is a simple state-machine implementation
-    => 'wip'
-    ```
-  * **poll(board_name <string/symbol>, opts <optional config Hash>) { &block }**
+    $ bundle
 
-    ```Ruby
-    poll(:backlog) { |msg, stats| Task.new(instance_id, msg) if stats.successful? }
-    ```
-    1. give the entire stream name or a symbol or string that is found in the .env
-      for the name of the stream
-    2. provide a block that will create the record that gets sent to the board
-    ```Ruby
-    poll(:backlog, wait_time: 30, delete: false) do 
-      edited_message = sitrep.merge(instanceId:'asdf-1234')
-      update = some_method(edited_message)
-    end
-    ```
+Or install it yourself as:
 
-## Storage: (S3)
+    $ gem install cloud_powers
+
+## Usage
+
+TODO: Write usage instructions here
+
+## Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/cloud_powers.
 
 
-## AwsResource: (all types of AWS recourses that should be used by many services)
+## License
 
+The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
-## Helper: (useful shared methods, like one that turns a string into snake_case)
-
-## Comming:
-_A real global memory
