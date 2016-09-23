@@ -1,9 +1,8 @@
-require 'aws-sdk'
-Aws.use_bundled_cert!
-
 module Smash
   module CloudPowers
     module Synapse
+      include Smash::CloudPowers::Helper
+
       module Pipe
         def create_stream(name)
           begin
@@ -20,10 +19,9 @@ module Smash
               sleep 30
               nil # no request -> no response
             else
+              # TODO: make the errors thing work
               error_message = format_error_message(e)
               logger.error error_message
-              errors.push_error!(:ruby, error_message) # throws: :die, :failed_job
-              errors[:ruby] << error_message
               false # the request was not successful
             end
           end
@@ -47,13 +45,6 @@ module Smash
         def from_pipe(stream)
           # implemented get_records and/or other consuming app stuff
           throw NotImplementedError
-        end
-
-        def kinesis
-          @kinesis ||= Aws::Kinesis::Client.new(
-            region: region,
-            credentials: Auth.creds,
-          )
         end
 
         def message_body_collection(records)

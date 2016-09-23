@@ -21,6 +21,13 @@ module Smash
           filters: [{ name: 'tag:aminame', values: [name.to_s] }]
         ).images.first
       end
+
+      def kinesis
+        @kinesis ||= Aws::Kinesis::Client.new(
+          region: region,
+          credentials: Auth.creds,
+        )
+      end
     end
   end
 end
