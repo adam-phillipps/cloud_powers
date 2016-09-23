@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'cloud_powers/version'
 
 Gem::Specification.new do |spec|
-  spec.required_ruby_version  =      '~> 2.3.0'
+  # spec.required_ruby_version  =      '~> 2.3.0'
   spec.name                   =       'cloud_powers'
   spec.version                =       CloudPowers::VERSION
   spec.author                 =       'Adam Phillipps'
