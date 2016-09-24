@@ -1,9 +1,11 @@
 require_relative 'auth'
+require_relative 'helper'
 
 module Smash
   module CloudPowers
     module AwsResources
-      extend Smash::CloudPowers::Auth
+      include Smash::CloudPowers::Auth
+      include Smash::CloudPowers::Helper
 
       def region
         env('Aws Region')
@@ -26,6 +28,13 @@ module Smash
         @kinesis ||= Aws::Kinesis::Client.new(
           region: region,
           credentials: Auth.creds,
+        )
+      end
+
+      def s3
+        @s3 ||= Aws::S3::Client.new(
+          region: region,
+          credentials: Auth.creds
         )
       end
     end

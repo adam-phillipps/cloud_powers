@@ -1,6 +1,5 @@
-# require 'helper'
-# require 'queue'
-# require 'pipe'
+require_relative 'queue'
+require_relative 'pipe'
 
 module Smash
   module CloudPowers

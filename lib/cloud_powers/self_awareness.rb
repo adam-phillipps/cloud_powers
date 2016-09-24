@@ -1,18 +1,17 @@
 require 'aws-sdk'
 Aws.use_bundled_cert!
 require 'httparty'
+require_relative 'aws_resources'
 require_relative 'helper'
 require_relative './synapse/synapse'
 
 module Smash
   module CloudPowers
-    extend Smash::CloudPowers::Synapse::Pipe
-    extend Smash::CloudPowers::Synapse::Queue
-
     module SelfAwareness
       extend Smash::CloudPowers::Helper
       extend Smash::CloudPowers::Synapse::Pipe
       extend Smash::CloudPowers::Synapse::Queue
+      include Smash::CloudPowers::AwsResources
 
       def boot_time
         begin
@@ -20,7 +19,7 @@ module Smash
             ec2.describe_instances(dry_run: env('testing'), instance_ids:[@instance_id]).
               reservations[0].instances[0].launch_time.to_i
         rescue Aws::EC2::Errors::DryRunOperation => e
-          logger.info "dry run for testing: #{format_error_message(e)}"
+          logger.info "dry run for testing: #{e}"
           @boot_time ||= Time.now.to_i # comment the code below for development mode
         end
       end
@@ -51,27 +50,32 @@ module Smash
         end
       end
 
+      # Get resource metadata, public host, boot time and task name
+      # and set them as instance variables
       def get_awareness!
         keys = metadata_request
         attr_map!(keys) { |key| metadata_request(key) }
-        boot_time # sets @boot_time
+        boot_time # gets and sets @boot_time
         task_name # gets and sets @task_name
+        instance_url # gets and sets @instance_url
       end
 
-      def task_name(ids = @instance_id)
-        # check tags for 'task'
-        if @task_name.nil?
-          resp = ec2.describe_instances(instance_ids: [ids].flatten)
-          @task_name = resp.reservations[0].instances[0].tags.select do |t|
-            t.value if t.key == 'taskType'
-          end
-        else
-          @task_name
-        end
+      # Check self-tags for 'task' and act as an attr_accessor.
+      # A different node's tag's can be checked for a task by passing
+      # the id param
+      # see also: SelfAwareness#task_names
+      def task_name(id = @instance_id)
+        # get @task_name
+        return @task_name unless @task_name.nil?
+        # set @task_name
+        resp = ec2.describe_instances(instance_ids: [id].flatten)
+        @task_name = resp.reservations[0].instances[0].tags.select do |t|
+          t.value if t.key == 'taskType'
+        end.first
       end
 
-      def get_instance_url
-        if env('TESTING')
+      def instance_url
+        @instance_url ||= if env('TESTING')
           'https://test-url.com'
         else
           hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'

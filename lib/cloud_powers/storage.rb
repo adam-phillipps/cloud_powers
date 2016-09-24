@@ -1,11 +1,13 @@
 require 'pathname'
+require_relative 'aws_resources'
 
 module Smash
   module CloudPowers
     module Storage
+      include Smash::CloudPowers::AwsResources
+
       def source_task(file)
         # TODO: better path management
-        # byebug TODO: replace this full path business
         bucket = env('task storage')
         unless task_path(file).exist?
           objects = s3.list_objects(bucket: bucket).contents.select do |f|
@@ -21,13 +23,6 @@ module Smash
         s3.list_objects(bucket: bucket).contents.select do |o|
           o.key =~ pattern
         end
-      end
-
-      def s3
-        @s3 ||= Aws::S3::Client.new(
-          region: region,
-          credentials: Auth.creds
-        )
       end
 
       def send_logs_to_s3

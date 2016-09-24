@@ -62,8 +62,13 @@ module Smash
         end
       end
 
-      def task_path(file)
-        Pathname(__FILE__).parent.dirname + 'tasks' + to_ruby_file_name(file)
+      def task_path(file = '')
+        # t_p = Pathname(__FILE__).parent.dirname + 'tasks'
+        if file.empty?
+          Pathname(__FILE__).parent.dirname + 'tasks'
+        else
+          Pathname(__FILE__).parent.dirname + "tasks/#{to_snake(file)}"
+        end
       end
 
       def task_require_path(file_name)
@@ -92,8 +97,8 @@ module Smash
       end
 
       def to_snake(var)
-        var = var.to_s unless var.kind_of? String
-        var.gsub(/\W/, '_').downcase
+        file_ext = var.to_s[/\.{1}[a-z]+$/] || ''
+        var.to_s.gsub(/\.\w+$/, '').gsub(/\W/, '_').downcase + file_ext
       end
 
       def update_message_body(opts = {})

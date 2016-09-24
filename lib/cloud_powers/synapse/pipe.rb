@@ -1,3 +1,5 @@
+require_relative '../helper'
+
 module Smash
   module CloudPowers
     module Synapse

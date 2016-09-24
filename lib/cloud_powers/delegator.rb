@@ -1,7 +1,8 @@
 # require 'auth'
 # require 'aws_resources'
-# require 'helper'
-# require 'storage'
+require 'json'
+require_relative 'helper'
+require_relative 'storage'
 
 module Smash
   module CloudPowers
@@ -20,7 +21,7 @@ module Smash
             require_relative task_require_path(task)
             Smash.const_get(to_pascal(task)).new(id, msg)
           else
-            Task.new(id, msg) # returns a default Task
+            Smash::Task.new(id, msg) # returns a default Task
           end
         rescue JSON::ParserError => e
           message = [msg.body, format_error_message(e)].join("\n")
@@ -31,7 +32,7 @@ module Smash
 
       def approved_task?(name = nil)
         # TODO: improve this
-        ['demo', 'testinz'].include? name
+        ['demo', 'testinz'].include? to_snake(name)
       end
     end
   end
