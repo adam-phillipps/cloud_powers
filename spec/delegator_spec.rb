@@ -24,11 +24,11 @@ describe 'Delegator' do
     expect(test_task.kind_of? Testinz).to be true
   end
 
-  it '#approved_task? should return true if the task is in the approved list' do
+  it 'should be able to determine if the task is in the approved list' do
     expect(approved_task?('testinz')).to be true
   end
 
-  it '#approved_task? should return false if the task is NOT in the approved list' do
+  it 'should be able to determine if the task is NOT in the approved list' do
     expect(approved_task?('fake-aroo')).to be false
   end
 

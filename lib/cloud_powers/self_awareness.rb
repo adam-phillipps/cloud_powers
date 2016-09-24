@@ -13,6 +13,9 @@ module Smash
       extend Smash::CloudPowers::Synapse::Queue
       include Smash::CloudPowers::AwsResources
 
+      # gets the instance time or the time it was called and as seconds from
+      # epoch
+      # TODO: use time codes
       def boot_time
         begin
           @boot_time ||=
@@ -24,6 +27,7 @@ module Smash
         end
       end
 
+      # Send a status message on the status Pipe then terminates the instance.
       def die!
         Thread.kill(@status_thread) unless @status_thread.nil?
         # blame = errors.sort_by(&:reverse).last.first
@@ -74,6 +78,7 @@ module Smash
         end.first
       end
 
+      # Gets and sets the public hostname of the instance
       def instance_url
         @instance_url ||= if env('TESTING')
           'https://test-url.com'
@@ -83,6 +88,10 @@ module Smash
         end
       end
 
+      # Makes the http request to self/meta-data to get all the metadata keys or,
+      # if a key is given, the method makes the http request to get that
+      # particular key from the metadata
+      # @param: [key <String>]
       def metadata_request(key = '')
         unless env('TESTING')
           metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"

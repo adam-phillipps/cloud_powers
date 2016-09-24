@@ -5,4 +5,16 @@ set -vx
 
 bundle install
 
-# Do any other automated setup that you need to do here
+find_or_create_env_file() {
+    pushd "../spec"
+        cp .test.env.example .test.env
+        printf "Testing:\n- Fill out the .test.env file inside the spec/ directory"
+    popd
+}
+
+printf "Better docs are on the way..."
+printf "In order to use this project, until I get it to v1, you'll need to fill out a .env file and reference it in your project\n \
+    After v1, you should just need to have the account at AWS and your creds either in your path or in the .env file because\n \
+    the code will interrogate your account to find SQS queue urls, Kinesis stream names etc."
+printf "In order to test this project, until I get it to v1, you'll need to fill out a .env file and reference it in the\n \
+    spec/ directory.  There should be one with values that might be used by whatever spec you're running."

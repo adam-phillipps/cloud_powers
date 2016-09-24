@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'cloud_powers/version'
 
 Gem::Specification.new do |spec|
-  # spec.required_ruby_version  =      '~> 2.3.0'
+  spec.required_ruby_version  =       '~> 2.3.0'
   spec.name                   =       'cloud_powers'
   spec.version                =       CloudPowers::VERSION
   spec.author                 =       'Adam Phillipps'
@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
     This wrapper was developed specifically for the Brain project
     but can be used in any other ruby project.
   EOF
-  spec.homepage               =       'https://smashanalytics.atlassian.net/wiki/display/SB/Cloud+Powers'
+  spec.homepage               =       'https://github.com/adam-phillipps/cloud_powers'
   spec.license                =       'MIT'
 
   spec.files                  =      `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }

@@ -42,36 +42,59 @@ module Smash
         end
       end
 
+      # Gets the path from the environment and sets @log_file using the path
+      # @returns @log_file path <String>
       def log_file
         @log_file ||= env('LOG_FILE')
       end
 
+      # @returns: An instance of Logger, cached as @logger
       def logger
         @logger ||= create_logger
       end
 
+      # Lets you retry a piece of logic with 1 second sleep in between attempts
+      # until another bit of logic does what it's supposed to, kind of like
+      # continuing to poll something and doing something when a package is ready
+      # to be taken and processed.
+      # @params:
+      #   * [allowed_attempts] or Infinity(default) <Number>: The number of times
+      #       the loop should be allowed to...well, loop, before a failed retry occurs.
+      #   * &test <Block>: A predicate method or block of code that is callable
+      #       is used to test if the block being retried is successful yet.
+      #   * []
       # Sample usage:
       # check_stuff = lambda { |params| return true }
-      # retry(3, check_stuff(params)) { do_stuff_that_needs_to_be_checked }
-      def retry(allowed_attempts = Float::Infinity, &test)
+      # smart_retry(3, check_stuff(params)) { do_stuff_that_needs_to_be_checked }
+      def smart_retry(test, allowed_attempts = Float::INFINITY)
         result = yield if block_given?
         tries = 1
         until test.call(result) || tries >= allowed_attempts
           result = yield if block_given?
+          tries += 1
           sleep 1
         end
       end
 
+      # Gives the path from the project root to lib/tasks[/#{file}.rb]
+      # @params:
+      #   * [file] <String>: name of a file
+      # @returns:
+      #   * path[/file] <String>
+      #   * If a `file` is given, it will have a '.rb' file extension
+      #   * If no `file` is given, it will return the `#task_require_path`
       def task_path(file = '')
-        # t_p = Pathname(__FILE__).parent.dirname + 'tasks'
-        if file.empty?
-          Pathname(__FILE__).parent.dirname + 'tasks'
-        else
-          Pathname(__FILE__).parent.dirname + "tasks/#{to_snake(file)}"
-        end
+        return task_require_path if file.empty?
+        Pathname(__FILE__).parent.dirname + 'tasks' + to_ruby_file_name(file)
       end
 
-      def task_require_path(file_name)
+      # Gives the path from the project root to lib/tasks[/file]
+      # @params:
+      #   * [file] <String>: name of a file
+      # @returns:
+      #   * path[/file] <String>
+      #   * Neither path nor file will have a file extension
+      def task_require_path(file_name = '')
         file = File.basename(file_name, File.extname(file_name))
         Pathname(__FILE__).parent.dirname + 'tasks' + file
       end
@@ -93,12 +116,19 @@ module Smash
       end
 
       def to_ruby_file_name(name)
-        "#{to_snake(name)}.rb"
+        name[/\.rb$/].nil? ? "#{to_snake(name)}.rb" : "#{to_snake(name)}"
       end
 
       def to_snake(var)
-        file_ext = var.to_s[/\.{1}[a-z]+$/] || ''
-        var.to_s.gsub(/\.\w+$/, '').gsub(/\W/, '_').downcase + file_ext
+        var = var.to_s unless var.kind_of? String
+
+        # var.gsub(/\W/, '_').downcase
+        var.gsub(/:{2}|\//, '_').
+          gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+          gsub(/([a-z\d])([A-Z])/,'\1_\2').
+          gsub(/\s+/, '_').
+          tr("-", "_").
+          downcase
       end
 
       def update_message_body(opts = {})
