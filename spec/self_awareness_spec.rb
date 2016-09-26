@@ -7,7 +7,7 @@ describe 'SelfAwareness module' do
   include Smash::CloudPowers::Zenv
 
   before(:all) do
-    Dotenv.load("#{project_root}/spec/.test.env")
+    Dotenv.load("#{project_root}/.test.env")
   end
 
   context '#get_awareness!' do

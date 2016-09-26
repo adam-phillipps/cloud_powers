@@ -12,8 +12,8 @@ module Smash
       extend Smash::CloudPowers::Helper
       extend Smash::CloudPowers::Synapse::Pipe
       extend Smash::CloudPowers::Synapse::Queue
+      extend Smash::CloudPowers::Zenv
       include Smash::CloudPowers::AwsResources
-      include Smash::CloudPowers::Zenv
 
       # Gets the instance time or the time it was called and as seconds from
       # epoch
@@ -74,8 +74,10 @@ module Smash
         # get @task_name
         return @task_name unless @task_name.nil?
         # set @task_name
-        resp = ec2.describe_instances(instance_ids: [id].flatten)
-        @task_name = resp.reservations[0].instances[0].tags.select do |t|
+        # TODO: get all tasks instead of just the first
+        resp = ec2.describe_instances(instance_ids: [id].flatten).reservations.first
+        return @task_name = nil if resp.nil?
+        @task_name = resp.instances[0].tags.select do |t|
           t.value if t.key == 'taskType'
         end.first
       end
