@@ -1,10 +1,14 @@
-require 'dotenv'
-Dotenv.load('/Users/adam/code/cloud_powers/spec/.test.env')
 require 'spec_helper'
-require_relative '../lib/cloud_powers/self_awareness'
+require 'dotenv'
+
 
 describe 'SelfAwareness module' do
   include Smash::CloudPowers::SelfAwareness
+  include Smash::CloudPowers::Zenv
+
+  before(:all) do
+    Dotenv.load("#{project_root}/spec/.test.env")
+  end
 
   context '#get_awareness!' do
     before(:each) do

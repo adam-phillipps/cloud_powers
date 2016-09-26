@@ -1,22 +1,18 @@
 require 'spec_helper'
 require 'dotenv'
-require "fileutils"
-require 'ostruct'
-require_relative '../lib/cloud_powers'
+
 
 describe 'Delegator' do
   include Smash::CloudPowers::Delegator
+  include Smash::CloudPowers::Zenv
 
   before(:all) do
+    Dotenv.load("#{project_root}/spec/.test.env")
     FileUtils::mkdir_p task_path
     FileUtils::touch(task_path('testinz.rb'))
     class Testinz; def initialize(*args); end; end
     class Task; end
     @message = OpenStruct.new(body: { task: 'testinz' }.to_json)
-  end
-
-  before(:each) do
-    Dotenv.load('/Users/adam/code/cloud_powers/spec/.test.env')
   end
 
   it 'should build a default Task if no Task is found' do

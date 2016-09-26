@@ -1,17 +1,13 @@
 require 'spec_helper'
 require 'dotenv'
-Dotenv.load('/Users/adam/code/cloud_powers/spec/.test.env')
-require_relative '../lib/cloud_powers/helper'
 
 describe 'Helper' do
   include Smash::CloudPowers::Helper
+  include Smash::CloudPowers::Zenv
 
   before(:all) do
+    Dotenv.load("#{project_root}/spec/.test.env")
     @original = 'This should be_fixed'
-  end
-
-  it 'should have access to the environment variables' do
-    expect(env('testing')).to be_truthy # if we're running the test suite, this should be set
   end
 
   it 'should be have a logger' do

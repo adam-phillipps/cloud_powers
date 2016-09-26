@@ -4,6 +4,7 @@ require 'httparty'
 require_relative 'aws_resources'
 require_relative 'helper'
 require_relative './synapse/synapse'
+require_relative 'zenv'
 
 module Smash
   module CloudPowers
@@ -12,14 +13,15 @@ module Smash
       extend Smash::CloudPowers::Synapse::Pipe
       extend Smash::CloudPowers::Synapse::Queue
       include Smash::CloudPowers::AwsResources
+      include Smash::CloudPowers::Zenv
 
-      # gets the instance time or the time it was called and as seconds from
+      # Gets the instance time or the time it was called and as seconds from
       # epoch
       # TODO: use time codes
       def boot_time
         begin
           @boot_time ||=
-            ec2.describe_instances(dry_run: env('testing'), instance_ids:[@instance_id]).
+            ec2.describe_instances(dry_run: zfind('testing'), instance_ids:[@instance_id]).
               reservations[0].instances[0].launch_time.to_i
         rescue Aws::EC2::Errors::DryRunOperation => e
           logger.info "dry run for testing: #{e}"
@@ -47,7 +49,7 @@ module Smash
         end
         send_logs_to_s3
         begin
-          ec2.terminate_instances(dry_run: env('testing'), ids: [@instance_id])
+          ec2.terminate_instances(dry_run: zfind('testing'), ids: [@instance_id])
         rescue Aws::EC2::Error::DryRunOperation => e
           logger.info "dry run testing in die! #{format_error_message(e)}"
           @instance_id
@@ -80,7 +82,7 @@ module Smash
 
       # Gets and sets the public hostname of the instance
       def instance_url
-        @instance_url ||= if env('TESTING')
+        @instance_url ||= if zfind('TESTING')
           'https://test-url.com'
         else
           hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
@@ -93,10 +95,11 @@ module Smash
       # particular key from the metadata
       # @param: [key <String>]
       def metadata_request(key = '')
-        unless env('TESTING')
+        unless zfind('TESTING')
           metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
           HTTParty.get(metadata_uri).parsed_response.split("\n")
         else
+
           @z ||= ['i-9254d106', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/thing']
           if key == ''
             @boogs = ['instance-id', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/interfaces/macs/mac/device-number']
@@ -125,10 +128,10 @@ module Smash
 
       def status(id = @instance_id)
         begin
-          ec2.describe_instances(dry_run: env('testing'), instance_ids: [id]).
+          ec2.describe_instances(dry_run: zfind('TESTING'), instance_ids: [id]).
             reservations[0].instances[0].state.name
         rescue Aws::EC2::Errors::DryRunOperation => e
-          logger.info "Dry run flag set for testing: #{format_error_message(e)}"
+          logger.info "Dry run flag set for testing: #{e}"
           'testing'
         end
       end

@@ -12,8 +12,12 @@ Gem::Specification.new do |spec|
   spec.summary                =       %q{Cloud providers wrapper.  Currently only AWS is supported.}
   spec.description            =       <<-EOF
     CloudPowers is a wrapper around AWS and other cloud services.
-    This wrapper was developed specifically for the Brain project
-    but can be used in any other ruby project.
+    It was developed specifically for the Brain project
+    but hopefully can be used in any other ruby project that needs to use cloud
+    service providers' resources.  Version 0.1.5 has a little EC2, S3, SQS and
+    Kinesis.  This project is actively being developed, so more additions, specs
+    and docs will be updated frequently.  I always welcome input.
+    Enjoy!
   EOF
   spec.homepage               =       'https://github.com/adam-phillipps/cloud_powers'
   spec.license                =       'MIT'

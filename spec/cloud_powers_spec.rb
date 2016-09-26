@@ -1,6 +1,13 @@
 require 'spec_helper'
+require 'dotenv'
 
 describe CloudPowers do
+  include Smash::CloudPowers::Zenv
+
+  before(:all) do
+    Dotenv.load("#{project_root}/spec/.test.env")
+  end
+
   it 'has a version number' do
     expect(CloudPowers::VERSION).not_to be nil
   end

@@ -1,14 +1,16 @@
 require_relative 'auth'
 require_relative 'helper'
+require_relative 'zenv'
 
 module Smash
   module CloudPowers
     module AwsResources
       include Smash::CloudPowers::Auth
       include Smash::CloudPowers::Helper
+      include Smash::CloudPowers::Zenv
 
       def region
-        env('Aws Region')
+        zfind('Aws Region')
       end
 
       def ec2

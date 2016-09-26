@@ -14,12 +14,12 @@ module Smash
         keys.map do |attr|
           key = to_i_var(attr)
           value = yield key if block_given?
-          instance_variable_set(key, value)
+          instance_variable_set(key, value) unless instance_variable_get(to_i_var(key))
         end
       end
 
-      def env(key)
-        ENV[to_snake(key).upcase]
+      def called_from
+        File.expand_path(File.dirname($0))
       end
 
       def create_logger
@@ -45,7 +45,7 @@ module Smash
       # Gets the path from the environment and sets @log_file using the path
       # @returns @log_file path <String>
       def log_file
-        @log_file ||= env('LOG_FILE')
+        @log_file ||= zfind('LOG_FILE')
       end
 
       # @returns: An instance of Logger, cached as @logger
@@ -107,7 +107,8 @@ module Smash
       end
 
       def to_i_var(var)
-        "@#{to_snake(var)}"
+        var = var.to_s unless var.kind_of? String
+        /^\W*@\w+/ =~ var ? to_snake(var) : "@#{to_snake(var)}"
       end
 
       def to_pascal(var)
@@ -122,7 +123,6 @@ module Smash
       def to_snake(var)
         var = var.to_s unless var.kind_of? String
 
-        # var.gsub(/\W/, '_').downcase
         var.gsub(/:{2}|\//, '_').
           gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
           gsub(/([a-z\d])([A-Z])/,'\1_\2').
