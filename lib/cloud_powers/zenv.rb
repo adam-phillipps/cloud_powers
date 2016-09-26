@@ -19,7 +19,7 @@ module Smash
       #   TODO: implement a search for all 3 that can find close matches
       def zfind(key)
         res = (i_vars[to_snake(key).upcase] or
-          env_vars[to_snake(key).upcase] unless project_root.nil?) or
+          env_vars[to_snake(key).upcase] unless @project_root.nil?) or
           system_vars[to_snake(key).upcase]
         (res.nil? or res.empty?) ? nil : res
       end
