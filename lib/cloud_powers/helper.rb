@@ -151,6 +151,15 @@ module Smash
           extraInfo:        updated_extra_info
         }.merge(opts)
       end
+
+      def valid_json?(json)
+        begin
+          JSON.parse(json)
+          true
+        rescue Exception => e
+          false
+        end
+      end
     end
   end
 end

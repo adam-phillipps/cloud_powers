@@ -4,7 +4,7 @@ require 'dotenv'
 
 describe 'SelfAwareness module' do
   include Smash::CloudPowers::SelfAwareness
-  include Smash::CloudPowers::Zenv
+  extend Smash::CloudPowers::Zenv
 
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")

@@ -51,11 +51,10 @@ module Smash
       # TODO: improve this...it needs to find the gem's method's caller's project
       # root or at least the gem's method's caller's file's location.
       def project_root
-        byebug
         if @project_root.nil?
           file_home = Pathname.new(
-            caller_locations.first.path.strip.split(/\//).first).realdirpath.parent
-          path = (zfind('PROJECT_ROOT') or file_home)
+            caller_locations.first.path.strip.split(/\//).last).realdirpath.parent
+          # path = (zfind('PROJECT_ROOT') or file_home)
           @project_root = Pathname.new(file_home)
         end
         @project_root
@@ -103,6 +102,7 @@ module Smash
       # @return: <String>
       #   TODO: implement a search for all 3 that can find close matches
       def zfind(key)
+        project_root if @project_root.nil?
         res = (i_vars[to_snake(key).upcase] or
           env_vars[to_snake(key).upcase] unless @project_root.nil?) or
           system_vars[to_snake(key).upcase]

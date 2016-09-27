@@ -23,7 +23,8 @@ module Smash
           @boot_time ||=
             ec2.describe_instances(dry_run: zfind('testing'), instance_ids:[@instance_id]).
               reservations[0].instances[0].launch_time.to_i
-        rescue Aws::EC2::Errors::DryRunOperation => e
+        # rescue Aws::EC2::Errors::DryRunOperation => e
+        rescue Exception => e
           logger.info "dry run for testing: #{e}"
           @boot_time ||= Time.now.to_i # comment the code below for development mode
         end
