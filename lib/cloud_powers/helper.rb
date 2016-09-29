@@ -2,13 +2,11 @@ require 'logger'
 require 'pathname'
 require 'syslog/logger'
 require_relative 'smash_error'
-require_relative 'auth'
 require 'byebug'
 
 module Smash
   module CloudPowers
     module Helper
-      include Smash::CloudPowers::Auth
 
       def attr_map!(keys)
         keys.map do |attr|

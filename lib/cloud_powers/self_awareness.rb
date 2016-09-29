@@ -139,8 +139,11 @@ module Smash
         end
       end
 
+      # This method will return true if:
+      # * The run time is more than 5 minutes
+      # and
+      # * The run time is 5 minutes from the hour mark from when the instance started
       def time_is_up?
-        # returns true when the hour mark approaches
         an_hours_time = 60 * 60
         five_minutes_time = 60 * 5
 

@@ -1,10 +1,7 @@
 require 'spec_helper'
-require 'dotenv'
 require 'json'
 
 describe 'Synapse::Queue' do
-  # include Smash::CloudPowers::AwsResources
-  # include Smash::CloudPowers::Auth
   include Smash::CloudPowers::Synapse::Queue
   include Smash::CloudPowers::Zenv
 
@@ -49,33 +46,6 @@ describe 'Synapse::Queue' do
         msg.body
       end
       expect(message).to eql @valid_message.to_json
-    end
-  end
-
-  context 'Queue::Board' do
-    let(:board) { build_queue(@test_name) }
-
-    context 'plucking' do
-      before(:each) do
-        board.send_message(@valid_message)
-      end
-
-      it 'should be able to retrieve a message from a given queue' do
-        message = board.pluck_message
-        expect(message).to eql @valid_message
-      end
-    end
-
-    it 'should be able to send a message to a given queue' do
-      start = board.message_count
-      board.send_message(@valid_message)
-      sleep 5
-      final = board.message_count
-      expect(start).to be < final
-    end
-
-    it 'should be able to get the count in its queue' do
-      expect(board.message_count).to be >= 0
     end
   end
 

@@ -69,7 +69,4 @@ describe 'Helper' do
   it 'should be able to change a variable into snake case' do
     expect(to_snake(@original)).to be_eql('this_should_be_fixed')
   end
-
-  it 'should provide a valid default update message body' do
-  end
 end

@@ -34,8 +34,14 @@ module Smash
       end
 
       def s3
-        byebug
         @s3 ||= Aws::S3::Client.new(
+          region: region,
+          credentials: Auth.creds
+        )
+      end
+
+      def sns
+        Aws::SNS::Client.new(
           region: region,
           credentials: Auth.creds
         )
