@@ -10,7 +10,7 @@ module Smash
       include Smash::CloudPowers::Zenv
 
       def region
-        zfind('Aws Region')
+        zfind(:aws_region) || 'us-west-2'
       end
 
       def ec2
@@ -41,14 +41,16 @@ module Smash
       end
 
       def sns
-        Aws::SNS::Client.new(
+        @sns ||= Aws::SNS::Client.new(
           region: region,
           credentials: Auth.creds
         )
       end
 
       def sqs
-        @sqs ||= Aws::SQS::Client.new(credentials: Auth.creds)
+        @sqs ||= Aws::SQS::Client.new(
+          credentials: Auth.creds
+        )
       end
     end
   end

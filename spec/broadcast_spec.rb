@@ -2,26 +2,53 @@ require 'spec_helper'
 
 describe 'Broadcast' do
   include Smash::CloudPowers::Synapse::Broadcast
+  include Smash::CloudPowers::Zenv
 
-  it 'should be able to create a channel to broadcast through' do
-    fail
+  before(:all) do
+    Dotenv.load("#{project_root}/.test.env")
+    @channel_name = 'testChannel'
+    @channel = create_channel!(@channel_name)
+    @channels = [@channel]
   end
 
-  it 'should be able to broadcast a message on a communication channel' do
-    fail
+  context 'Sending messages' do
+    it 'should be able to broadcast a blank message on a communication channel' do
+      resp = send_broadcast(topic_arn: @channels.first.arn)
+      expect(resp.message_id).not_to be_empty
+    end
+
+    it 'should be able to broadcast a filled message on a communication channel' do
+      resp = send_broadcast(topic_arn: @channels.first.arn, message: { "foo":"bar" }.to_json)
+      expect(resp.message_id).not_to be_empty # lame test
+    end
+  end
+
+  context 'Receiving messages' do
+    let(:send_resp) { send_broadcast(topic_arn: @channels.first.arn) }
+
+    it 'should be able to receive a message, after it starts listening' do
+      resp = listen_on(@channel)
+      expect(resp.body).to eql(send_resp.body)
+    end
   end
 
   it 'should be able to listen for a message when there is nothing to listen to' do
+    # resp = listen_on(@channel)
     fail
   end
 
-  it 'should be able to receive a message, after it starts listening' do
-    fail
+  it 'should be able to create a channel to broadcast through' do
+    name = "testChannel#{rand(10000)}"
+    resp = create_channel!(name)
+    @channels << resp
+    expect(resp.arn).to be_truthy
+    expect(resp.name).to be_eql(name)
   end
+
 
   after(:all) do
-    channels.each do |channel|
-      channel.destroy!
+    @channels.each do |channel|
+      delete_channel!(channel)
     end
   end
 end

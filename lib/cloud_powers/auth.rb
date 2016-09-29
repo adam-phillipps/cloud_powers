@@ -7,10 +7,20 @@ module Smash
     module Auth
       extend Smash::CloudPowers::Zenv
 
+      # This method is able to be called before an object is instantiated in order
+      # to provide a region in AWS-land.
+      def self.region
+        zfind(:aws_region) || 'us-west-2'
+      end
+
+      # This method is able to be called before an object is instantiated in order
+      # to provide an Aws::Credentials object that will allow access to all the
+      # resources in the account that zfind searches for, using the "ACCOUNT_NUMBER"
+      # key.
       def self.creds
         @creds ||= Aws::Credentials.new(
-          zfind('AWS_ACCESS_KEY_ID'),
-          zfind('AWS_SECRET_ACCESS_KEY')
+          zfind(:aws_access_key_id),
+          zfind(:aws_secret_access_key)
         )
       end
     end

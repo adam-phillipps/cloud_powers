@@ -9,7 +9,7 @@ describe 'Queue::Board' do
     @test_queues = []
     @valid_message = { 'foo' => 'bar' }
     @invalid_message = 'foo:bar'
-    @board = Queue::Board.new(@test_name)
+    @board = Smash::CloudPowers::Queue::Board.create!(@test_name)
     @board.create_queue!
   end
 
