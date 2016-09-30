@@ -23,20 +23,6 @@ describe 'Broadcast' do
     end
   end
 
-  context 'Receiving messages' do
-    let(:send_resp) { send_broadcast(topic_arn: @channels.first.arn) }
-
-    it 'should be able to receive a message, after it starts listening' do
-      resp = listen_on(@channel)
-      expect(resp.body).to eql(send_resp.body)
-    end
-  end
-
-  it 'should be able to listen for a message when there is nothing to listen to' do
-    # resp = listen_on(@channel)
-    fail
-  end
-
   it 'should be able to create a channel to broadcast through' do
     name = "testChannel#{rand(10000)}"
     resp = create_channel!(name)
