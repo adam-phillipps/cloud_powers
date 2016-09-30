@@ -10,19 +10,26 @@ module Smash
         Channel = Struct.new(:set_name, :set_arn, :set_endpoint) do
           include Smash::CloudPowers::Zenv
 
+          # Prefers the given arn but it can make a best guess if none is given
           def arn
             set_arn || "arn:aws:sns:#{zfind(:region)}:#{zfind(:accound_number)}:#{set_name}"
           end
 
+          # Prefers the given name but it can parse the arn to find one
           def name
             set_name || set_arn.split(':').last
           end
         end # end Channel
         #################
 
-        # Creates a Channel that references this AWS SNS topic that can be used to announce and
-        # group messages
-        # @params: name <String>: the name of the channel
+        # Creates a connection point for 1..N nodes to create a connection with the Broadcast
+        # def create_distributor(channel)
+        #   sns.create_application_platform()
+        # end
+
+        # Creates a point to connect to for information about a given topic
+        # @params: name <String>: the name of the Channel/Topic to be created
+        # @returns: Broadcast::Channel representing the created channel
         def create_channel!(name)
           resp = sns.create_topic(name: name)
           Channel.new(nil, resp.topic_arn)
@@ -53,13 +60,15 @@ module Smash
             resp = sns.list_topics((next_token.empty? ? {} : { next_token: next_token }))
             results.concat(resp.topics.map(&:topic_arn))
             next_token = (resp.next_token.empty? ? '' : resp.next_token)
-            break if next_token == ''
+            break if next_token.empty?
           end
           results
         end
 
-        # Sends a message to the channel
-        # @params: [opts <Hash>]: can configure the parameters for the SNS#publish call
+        # Send a message to a Channel using SNS#publish
+        # @params: [opts <Hash>]:
+        #   this includes all the keys AWS uses but for now it only has defaults
+        #   for topic_arn and the message
         def send_broadcast(opts = {})
           msg = opts.delete(:message) || ""
 

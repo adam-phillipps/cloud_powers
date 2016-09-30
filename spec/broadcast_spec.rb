@@ -31,7 +31,6 @@ describe 'Broadcast' do
     expect(resp.name).to be_eql(name)
   end
 
-
   after(:all) do
     @channels.each do |channel|
       delete_channel!(channel)
