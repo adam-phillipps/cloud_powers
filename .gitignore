@@ -9,3 +9,5 @@
 /tmp/
 *.env
 .byebug_history
+lib/cloud_powers/synapse/.DS_Store
+.DS_Store

@@ -7,6 +7,7 @@ describe 'Broadcast' do
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")
     @channel_name = 'testChannel'
+    byebug
     @channel = create_channel!(@channel_name)
     @channels = [@channel]
   end
@@ -26,7 +27,8 @@ describe 'Broadcast' do
   context 'Receiving messages' do
     let(:send_resp) { send_broadcast(topic_arn: @channels.first.arn) }
 
-    it 'should be able to receive a message, after it starts listening' do
+    it 'should be able to listen to a message, after it starts listening' do
+      byebug
       resp = listen_on(@channel)
       expect(resp.body).to eql(send_resp.body)
     end
@@ -44,7 +46,6 @@ describe 'Broadcast' do
     expect(resp.arn).to be_truthy
     expect(resp.name).to be_eql(name)
   end
-
 
   after(:all) do
     @channels.each do |channel|

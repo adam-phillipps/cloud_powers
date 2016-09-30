@@ -10,15 +10,23 @@ module Smash
         Channel = Struct.new(:set_name, :set_arn) do
           include Smash::CloudPowers::Zenv
 
+          # Prefers the given arn but it can make a best guess if none is given
           def arn
             set_arn || "arn:aws:sns:#{zfind(:region)}:#{zfind(:accound_number)}:#{set_name}"
           end
 
+          # Prefers the given name but it can parse the arn to find one
           def name
             set_name || set_arn.split(':').last
           end
         end # end Channel
         #################
+
+        def create_distributor(name)
+          sns.create_platform_application(
+            name:
+          )
+        end
 
         def create_channel!(name)
           resp = sns.create_topic(name: name)
@@ -32,7 +40,7 @@ module Smash
         def listen_on(channel)
           sns.subscribe(
             topic_arn: channel.arn,
-            protocol: 'https'
+            protocol: 'application'
           )
         end
 
@@ -43,11 +51,16 @@ module Smash
             resp = sns.list_topics((next_token.empty? ? {} : { next_token: next_token }))
             results.concat(resp.topics)
             next_token = (resp.next_token.empty? ? '' : resp.next_token)
-            break if next_token == ''
+            break if next_token.empty?
           end
           results
         end
 
+        # Send a message to a Channel using SNS#publish
+        # @params: [opts <Hash>]:
+        #   this includes all the keys AWS uses but for now it only has defaults
+        #   for topic_arn and the message
+        # @returns:
         def send_broadcast(opts = {})
           msg = opts.delete(:message) || ""
 
