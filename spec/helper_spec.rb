@@ -10,6 +10,11 @@ describe 'Helper' do
     @original = 'This should be_fixed'
   end
 
+  it 'should be able to provide an Array of all CloudPowers resources' do
+    expect(available_resources.count).to be > 1
+    expect(available_resources).to include(:Helper)
+  end
+
   it 'should be have a logger' do
     expect(logger).to be_kind_of Logger
   end

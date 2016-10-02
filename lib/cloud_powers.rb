@@ -1,5 +1,6 @@
 require 'cloud_powers/auth'
 require 'cloud_powers/aws_resources'
+require 'cloud_powers/context'
 require 'cloud_powers/delegator'
 require 'cloud_powers/helper'
 require 'cloud_powers/self_awareness'

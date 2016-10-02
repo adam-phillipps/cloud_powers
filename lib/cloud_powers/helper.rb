@@ -1,8 +1,8 @@
 require 'logger'
 require 'pathname'
+require 'uri'
 require 'syslog/logger'
 require_relative 'smash_error'
-require 'byebug'
 
 module Smash
   module CloudPowers
@@ -14,6 +14,13 @@ module Smash
           value = yield key if block_given?
           instance_variable_set(key, value) unless instance_variable_get(to_i_var(key))
         end
+      end
+
+      # This is a way to find out if you are trying to work with a resource
+      # available to CloudPowers
+      # === @returns <Array>
+      def available_resources
+        [:Task].concat(Smash::CloudPowers.constants)
       end
 
       def called_from
@@ -72,6 +79,10 @@ module Smash
           tries += 1
           sleep 1
         end
+      end
+
+      def symbolize_keys(hash)
+        hash.inject({}) { |carry, (k, v)| carry.tap { |h| h[k.to_sym] = v } }
       end
 
       # Gives the path from the project root to lib/tasks[/#{file}.rb]
@@ -157,6 +168,10 @@ module Smash
         rescue Exception => e
           false
         end
+      end
+
+      def valid_url?(url)
+        url =~ /\A#{URI::regexp}\z/
       end
     end
   end

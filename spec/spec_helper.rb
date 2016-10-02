@@ -4,4 +4,4 @@ require 'byebug'
 require 'fileutils'
 require 'ostruct'
 require 'pathname'
-PROJECT_ROOT=Pathname.new(`pwd`.strip)
+Smash::CloudPowers::PROJECT_ROOT=Pathname.new(`pwd`.strip)
