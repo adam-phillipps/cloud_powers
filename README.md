@@ -126,7 +126,7 @@ FINISHED_QUEUE_ADDRESS=""
     ```
   #### Pipe
     * Good for real time information passing, like status updates, results reporting, operations, etc.
-    * The Pipe module is for communicating via streams or webhooks.  Piping is meant to be a way to communicate status, problems and  other general info.  There can be very high traffic through the pipe or none at all.  Very soon, Cerebrums will be data consumers, to the Java KCL and MultiLangDaemon level, so keeping messages straight is done via partition ID.  The partition ID of any message is to identify which node the message is about, and so the instance ID is used in nodes like the Neuron and Cerebrum and other identifiers that are deemed best are used in other projects.
+    * The Pipe module is for communicating via streams.  Piping is meant to be a way to communicate status, problems and  other general info.  There can be very high traffic through the pipe or none at all.  Very soon, Cerebrums will be data consumers, to the Java KCL and MultiLangDaemon level, so keeping messages straight is done via partition ID.  The partition ID of any message is to identify which node the message is about, and so the instance ID is used in nodes like the Neuron and Cerebrum and other identifiers that are deemed best are used in other projects.
 
     Example usage:
     ruby```

@@ -8,6 +8,25 @@ module Smash
   module CloudPowers
     module Helper
 
+      # Sets an Array of instance variables, individually to a value that a
+      # user given block returns.
+      # === @params Array
+      #   * each object will be used as the name for the instance variable that
+      #     your block returns
+      # === @&block (optional)
+      #   * this is called for each object in the Array and is used as the value
+      #   for the instance variable that is being named and created for each key
+      # === @return Array
+      #   * each object will either be the result of `#instance_variable_set(key, value)`
+      #     or instance_variable_get(key)
+      # === Sampel use:
+      #   keys = ['foo', 'bar', 'yo']
+      #
+      #   attr_map!(keys) { |key| sleep 1; "#{key}:#{Time.now.to_i}" }
+      #   # => ['foo:1475434058', 'bar:1475434059', 'yo:1475434060']
+      #
+      #   puts @bar
+      #   # => 'bar:1475434059'
       def attr_map!(keys)
         keys.map do |attr|
           key = to_i_var(attr)
@@ -19,25 +38,73 @@ module Smash
       # This is a way to find out if you are trying to work with a resource
       # available to CloudPowers
       # === @returns <Array>
+      #   * Use `.constants` to find all the modules and classes available.
+      # Notes:
+      #   TODO: make this smartly pick up all the objects, within reason and
+      #   considering need, that we have access to
       def available_resources
         [:Task].concat(Smash::CloudPowers.constants)
       end
 
+      # Does its best job at guessing where this method was called from, in terms
+      # of where it is located on the file system.  It helps track down where a
+      # project root is etc.
       def called_from
         File.expand_path(File.dirname($0))
       end
 
+      # creates a default logger
+      # Notes:
+      #   * TODO: at least make this have overridable defaults
       def create_logger
         logger = Logger.new(STDOUT)
         logger.datetime_format = '%Y-%m-%d %H:%M:%S'
         logger
       end
 
+      # Allows you to modify all keys, including nested, with a block that you pass.
+      # If no block is passed, a copy is returned.
+      # === @params
+      #   * params Hash|Array
+      # === @&block (optional)
+      #   * should modify the key and return that value so it can be used in the copy
+      # === @returns
+      #   * a copy of the given Array or Hash, with all Hash keys modified
+      # === Sample use:
+      #   hash = { 'foo' => 'v1', 'bar' => { fleep: { 'florp' => 'yo' } } }
+      #   modify_keys_with(hash) { |k| k.to_sym }
+      #   # => { :foo => 'v1', :bar => { fleep: { florp: 'yo' } } }
+      # === Notes:
+      #   * see `#modify_keys_with()` for handling first-level keys
+      #   * see `#pass_the_buck()` for the way nested structures are handled
+      #   * case for different types taken from _MultiXML_ (multi_xml.rb)
+      def deep_modify_keys_with(params)
+        case params
+        when Hash
+          params.inject({}) do |carry, (k, v)|
+            carry.tap do |h|
+              if block_given?
+                key = yield k
+                value = v.kind_of?(Hash) ? (deep_modify_keys_with(v) { |new_key| Proc.new.call(new_key) }) : v
+                h[key] = value
+              else
+                h[k] = v
+              end
+            end
+          end
+        when Array
+          params.map{ |value| symbolize_keys(value) }
+        else
+          params
+        end
+      end
+
       def errors
-        # TODO: needs work
+        # TODO: wow...needs work
         $errors ||= SmashError.instance
       end
 
+      # Join the message and backtrace into a String with line breaks
       def format_error_message(error)
         begin
           [error.message, error.backtrace.join("\n")].join("\n")
@@ -56,6 +123,30 @@ module Smash
       # @returns: An instance of Logger, cached as @logger
       def logger
         @logger ||= create_logger
+      end
+
+      # Allows you to modify all first-level keys with a block that you pass.
+      # If no block is passed, a copy is returned.
+      # === @params
+      #   * params Hash|Array
+      # === @&block (optional)
+      #   * should modify the key and return that value so it can be used in the copy
+      # === @returns
+      #   * a copy of the given Array or Hash, with all Hash keys modified
+      # === Sample use:
+      #   hash = { 'foo' => 'v1', 'bar' => { fleep: { 'florp' => 'yo' } } }
+      #   modify_keys_with(hash) { |k| k.to_sym }
+      #   # => { :foo => 'v1', :bar => { fleep: { 'florp' => 'yo' } } }
+      # === Notes:
+      #   * see `#deep_modify_keys_with()` for handling nested keys
+      #   * case for different types taken from _MultiXML_ (multi_xml.rb)
+      def modify_keys_with(params)
+        params.inject({}) do |carry, (k, v)|
+          carry.tap do |h|
+            key = block_given? ? (yield k) : k
+            h[key] = v
+          end
+        end
       end
 
       # Lets you retry a piece of logic with 1 second sleep in between attempts
@@ -79,10 +170,6 @@ module Smash
           tries += 1
           sleep 1
         end
-      end
-
-      def symbolize_keys(hash)
-        hash.inject({}) { |carry, (k, v)| carry.tap { |h| h[k.to_sym] = v } }
       end
 
       # Gives the path from the project root to lib/tasks[/#{file}.rb]
@@ -140,13 +227,17 @@ module Smash
           downcase
       end
 
+      # This method provides a default overrideable message body for things like
+      # basic status updates.
+      # === @params Hash
+      #   - instanceId:
+      # === Notes:
+      #   - camel casing is used on the keys because most other languages prefer
+      #   that and it's not a huge problem in ruby.  Besides, there's some other
+      #   handy methods in this module to get you through those issues, like
+      #   `#to_snake()` and or `#symbolize_keys_with()`
       def update_message_body(opts = {})
-        # TODO: find better implementation of merging nested hashes
-        # this should be fixed with Job #sitrep_message
-        # TODO: find a way to trim this method down and get rid
-        # of a lof of the repitition with these messages
-        # IDEA: throw events and have a separate thread listening. the separate
-        # thread could be a communication or status update thread
+        # TODO: Better implementation of merging message bodies and config needed
         unless opts.kind_of? Hash
           update = opts.to_s
           opts[:extraInfo] = { message: update }
