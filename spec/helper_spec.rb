@@ -33,7 +33,7 @@ describe 'Helper' do
     end
   end
 
-  it '#modify_keys_with should be able to modify all keys' do
+  it '#modify_keys_with should be able to modify all first-level keys' do
     pre = { 'foo' => 'v1', 'bar' => { 'fleep' => { 'florp' => 'yo' } } }
     actual = modify_keys_with(pre) { |key| key.to_sym }
     expect(actual).to eql({ foo: 'v1', bar: { 'fleep' => { 'florp' => 'yo' } } })

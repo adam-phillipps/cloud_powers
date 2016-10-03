@@ -63,9 +63,10 @@ module Smash
         @structure.to_a
       end
 
-      #
+      # A Hash that represents the resources and some configuration for them
+      # === @returns Hash
       def structure
-        symbolize_keys(@structure)
+        modify_keys_with(@structure) { |key| key.to_sym }
       end
 
       # Valid scheme for @structure is assured by running the arguments through

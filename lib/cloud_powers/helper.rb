@@ -72,12 +72,13 @@ module Smash
       #   * a copy of the given Array or Hash, with all Hash keys modified
       # === Sample use:
       #   hash = { 'foo' => 'v1', 'bar' => { fleep: { 'florp' => 'yo' } } }
-      #   modify_keys_with(hash) { |k| k.to_sym }
-      #   # => { :foo => 'v1', :bar => { fleep: { florp: 'yo' } } }
+      #   modify_keys_with(hash) { |key| key.to_sym }
+      #   # => { foo: 'v1', bar: { fleep: { florp: 'yo' } } }
       # === Notes:
       #   * see `#modify_keys_with()` for handling first-level keys
       #   * see `#pass_the_buck()` for the way nested structures are handled
       #   * case for different types taken from _MultiXML_ (multi_xml.rb)
+      #   * TODO: look at optimization
       def deep_modify_keys_with(params)
         case params
         when Hash
@@ -85,7 +86,15 @@ module Smash
             carry.tap do |h|
               if block_given?
                 key = yield k
-                value = v.kind_of?(Hash) ? (deep_modify_keys_with(v) { |new_key| Proc.new.call(new_key) }) : v
+
+                value = if v.kind_of?(Hash)
+                    deep_modify_keys_with(v) do |new_key|
+                      Proc.new.call(new_key)
+                    end
+                  else
+                    v
+                  end
+
                 h[key] = value
               else
                 h[k] = v

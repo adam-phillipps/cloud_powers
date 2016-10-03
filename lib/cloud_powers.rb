@@ -3,6 +3,7 @@ require 'cloud_powers/aws_resources'
 require 'cloud_powers/context'
 require 'cloud_powers/delegator'
 require 'cloud_powers/helper'
+require 'cloud_powers/node'
 require 'cloud_powers/self_awareness'
 require 'cloud_powers/storage'
 require 'cloud_powers/version'
@@ -17,5 +18,6 @@ module Smash
     include Smash::CloudPowers::SelfAwareness
     include Smash::CloudPowers::Storage
     include Smash::CloudPowers::Synapse
+    include Smash::CloudPowers::Node
   end
 end
