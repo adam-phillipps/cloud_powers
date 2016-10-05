@@ -21,10 +21,9 @@ module Smash
       def boot_time
         begin
           @boot_time ||=
-            ec2.describe_instances(dry_run: zfind('testing'), instance_ids:[@instance_id]).
+            ec2.describe_instances(dry_run: zfind(:testing), instance_ids:[@instance_id]).
               reservations[0].instances[0].launch_time.to_i
-        # rescue Aws::EC2::Errors::DryRunOperation => e
-        rescue Exception => e
+        rescue Aws::EC2::Errors::DryRunOperation => e
           logger.info "dry run for testing: #{e}"
           @boot_time ||= Time.now.to_i # comment the code below for development mode
         end
@@ -102,13 +101,14 @@ module Smash
           metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
           HTTParty.get(metadata_uri).parsed_response.split("\n")
         else
+          return INSTANCE_METADATA_KEYS if key.empty?
 
-          @z ||= ['i-9254d106', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/thing']
-          if key == ''
-            @boogs = ['instance-id', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/interfaces/macs/mac/device-number']
-          else
-            @z.shift
-          end
+          # @z ||= ['i-9254d106', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/thing']
+          # if key == ''
+          #   @boogs = ['instance-id', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/interfaces/macs/mac/device-number']
+          # else
+          #   @z.shift
+          # end
         end
       end
 

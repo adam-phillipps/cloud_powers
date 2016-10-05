@@ -17,7 +17,7 @@ module Smash
           dry_run:                  zfind(:testing) || false,
           image_id:                 image('crawlbotprod').image_id, # image(:neuron).image_id
           instance_type:            't2.nano',
-          min_count:                opts[:max_count],
+          min_count:                opts[:max_count] || 0,
           max_count:                0,
           key_name:                 'crawlBot',
           security_groups:          ['webCrawler'],
@@ -28,26 +28,26 @@ module Smash
         }.merge(opts)
       end
 
-      # Uses Aws::EC2#run_instances to create nodes (Neurons or Cerebrums), at
+      # Uses `Aws::EC2#run_instances` to create nodes (Neurons or Cerebrums), at
       # a rate of 0..(n <= 100) at a time, until the required number of instances
       # has been started.  The #instance_config() method is used to create instance
       # configuration for the #run_instances method by using the opts hash that was
       # provided as a parameter.
       #
-      # @params [opts <Hash>]
+      # === @params opts Hash (optional)
       #   an optional instance configuration hash can be passed, which will override
       #   the values in the default configuration returned by #instance_config()
       def spin_up_neurons(opts = {})
         ids = nil
         begin
-          response = ec2.run_instances(node_config(opts))
+          response = ec2(opts.delete(:ec2)).run_instances(node_config(opts))
           ids = response.instances.map(&:instance_id)
 
           ec2.wait_until(:instance_running, instance_ids: ids) do
             logger.info "waiting for #{ids.count} Neurons to start..."
           end
 
-          tag(ids, { key: 'task', value: to_camal(self.class.to_s) })
+          # tag(ids, { key: 'task', value: to_camel(self.class.to_s) })
         rescue Aws::EC2::Errors::DryRunOperation => e
           ids = (1..(opts[:max_count] || 0)).to_a.map { |n| n.to_s }
           logger.info "waiting for #{ids.count} Neurons to start..."
