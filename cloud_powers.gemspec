@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency       'httparty', '~> 0.14'
   spec.add_runtime_dependency       'rubyzip', '~> 1.2'
   spec.add_runtime_dependency       'zip-zip', '~> 0.3'
+  spec.add_runtime_dependency       'websocket-eventmachine-server'
 
   spec.add_development_dependency   'bundler', '~> 1.12'
   spec.add_development_dependency   'byebug', '~> 9'
