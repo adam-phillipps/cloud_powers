@@ -66,8 +66,13 @@ module Smash
           # Creates an actual Queue in SQS using the standard format for a queue name (camel case)
           # @returns: Queue::Board
           def create_queue!
-            sqs.create_queue(queue_name: to_camel(@name))
-            self
+            begin
+              sqs.create_queue(queue_name: to_camel(@name))
+              self
+            rescue Aws::SQS::Errors::QueueDeletedRecently => e
+              sleep 5
+              retry
+            end
           end
 
           # Deletes an actual Queue from SQS

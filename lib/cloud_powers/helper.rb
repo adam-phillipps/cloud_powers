@@ -194,16 +194,20 @@ module Smash
       end
 
       # Gives the path from the project root to lib/tasks[/file]
-      # @params:
-      #   * [file] <String>: name of a file
-      # @returns:
-      #   * path[/file] <String>
+      # === @params String (optional)
+      #   * file_name name of a file
+      # ===  @returns:
+      #   * path[/file] String
       #   * Neither path nor file will have a file extension
       def task_require_path(file_name = '')
         file = File.basename(file_name, File.extname(file_name))
         Pathname(__FILE__).parent.dirname + 'tasks' + file
       end
 
+      # Change strings into camelCase
+      # === @params var String
+      # === @returns String
+      #     * givenString
       def to_camel(var)
         var = var.to_s unless var.kind_of? String
         step_one = to_snake(var)
@@ -211,20 +215,56 @@ module Smash
         step_two[0, 1].downcase + step_two[1..-1]
       end
 
+      # Change strings hyphen-delimited-string
+      # === @params var String
+      # === @returns String
+      #     * given-string
+      def to_hyph(var)
+        var = var.to_s unless var.kind_of? String
+
+        var.gsub(/:{2}|\//, '-').
+          gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+          gsub(/([a-z\d])([A-Z])/,'\1_\2').
+          gsub(/\s+/, '-').
+          tr("_", "-").
+          gsub(/^\W/, '').
+          downcase
+      end
+
+      # Change strings into snake_case and add '@' at the front
+      # === @params var String
+      # === @returns String
+      #     * @given_string
       def to_i_var(var)
         var = var.to_s unless var.kind_of? String
         /^\W*@\w+/ =~ var ? to_snake(var) : "@#{to_snake(var)}"
       end
 
+      # Change strings into PascalCase
+      # === @params var String
+      # === @returns String
+      #     * givenString
       def to_pascal(var)
         var = var.to_s unless var.kind_of? String
         var.gsub(/^(.{1})|\W.{1}|\_.{1}/) { |s| s.gsub(/[^a-z0-9]+/i, '').capitalize }
       end
 
+      # Change strings into a ruby_file_name with extension
+      # === @params var String
+      # === @returns String
+      #     * given_string.rb
+      #     * includes ruby file extension
+      #     * see #to_snake()
       def to_ruby_file_name(name)
         name[/\.rb$/].nil? ? "#{to_snake(name)}.rb" : "#{to_snake(name)}"
       end
 
+      # Change strings into snake_case
+      # === @params var String
+      # === @returns String
+      #     * given_string
+      #     * will not have file extensions
+      #     * see #to_ruby_file_name()
       def to_snake(var)
         var = var.to_s unless var.kind_of? String
 

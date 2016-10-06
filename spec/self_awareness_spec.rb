@@ -1,17 +1,20 @@
 require 'spec_helper'
-require 'dotenv'
+require_relative './stubs/aws_stubs'
 
 
 describe 'SelfAwareness module' do
+  include Smash::CloudPowers::AwsStubs
   include Smash::CloudPowers::SelfAwareness
   extend Smash::CloudPowers::Zenv
 
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")
+    @config = Smash::CloudPowers::AwsStubs::NEURON_STUB.merge(max_count: 5)
   end
 
   context '#get_awareness!' do
     before(:each) do
+      ec2(@config)
       get_awareness!
     end
 

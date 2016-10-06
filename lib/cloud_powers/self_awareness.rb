@@ -21,7 +21,7 @@ module Smash
       def boot_time
         begin
           @boot_time ||=
-            ec2.describe_instances(dry_run: zfind(:testing), instance_ids:[@instance_id]).
+            ec2.describe_instances(dry_run: zfind(:testing), instance_ids:[instance_id]).
               reservations[0].instances[0].launch_time.to_i
         rescue Aws::EC2::Errors::DryRunOperation => e
           logger.info "dry run for testing: #{e}"
@@ -66,6 +66,12 @@ module Smash
         instance_url # gets and sets @instance_url
       end
 
+      # Make sure there is always a valid instance id because many other Aws calls
+      # require it
+      def instance_id
+        @instance_id ||= metadata_request('instance_id')
+      end
+
       # Check self-tags for 'task' and act as an attr_accessor.
       # A different node's tag's can be checked for a task by passing
       # the id param
@@ -97,18 +103,21 @@ module Smash
       # particular key from the metadata
       # @param: [key <String>]
       def metadata_request(key = '')
-        unless zfind('TESTING')
-          metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
-          HTTParty.get(metadata_uri).parsed_response.split("\n")
-        else
-          return INSTANCE_METADATA_KEYS if key.empty?
+        key = to_hyph(key)
+        begin
+          unless zfind('TESTING')
+            metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
+            HTTParty.get(metadata_uri).parsed_response.split("\n").inject({}) do |h,(k,v)|
+              h[to_snake(h).to_sym] = v
+            end
+          else
+            require_relative '../../spec/stubs/aws_stubs'
+            stubbed_metadata = Smash::CloudPowers::AwsStubs::INSTANCE_METADATA_STUB
 
-          # @z ||= ['i-9254d106', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/thing']
-          # if key == ''
-          #   @boogs = ['instance-id', 'ami-id', 'ami-launch-index', 'ami-manifest-path', 'network/interfaces/macs/mac/device-number']
-          # else
-          #   @z.shift
-          # end
+            key.empty? ? stubbed_metadata.keys : stubbed_metadata[key.to_s]
+          end
+        rescue Exception => e
+          logger.fatal format_error_message e
         end
       end
 

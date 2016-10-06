@@ -71,6 +71,14 @@ describe 'Helper' do
     expect(to_camel(@original)).to be_eql('thisShouldBeFixed')
   end
 
+  it '#to_hyph should be able to change a variable into a hyphen-delimited name' do
+    expect(to_hyph(@original)).to be_eql('this-should-be-fixed')
+  end
+
+  it '#to_hyph should be able to remove starting non-word characthers' do
+    expect(to_hyph("@#{@original}")).to be_eql('this-should-be-fixed')
+  end
+
   it '#to_i_var should be able to change a variable into an instance variable name' do
     expect(to_i_var(@original)).to be_eql('@this_should_be_fixed')
   end

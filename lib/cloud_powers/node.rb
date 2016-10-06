@@ -40,7 +40,7 @@ module Smash
       def spin_up_neurons(opts = {})
         ids = nil
         begin
-          response = ec2(opts.delete(:ec2)).run_instances(node_config(opts))
+          response = ec2.run_instances(node_config(opts))
           ids = response.instances.map(&:instance_id)
 
           ec2.wait_until(:instance_running, instance_ids: ids) do

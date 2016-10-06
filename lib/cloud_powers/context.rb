@@ -28,7 +28,6 @@ module Smash
       # === @returns
       #   `Smash::Context`
       def initialize(args)
-        byebug unless valid_args?(args)
         unless valid_args?(args)
           raise ArgumentError.new 'Can be either a Hash, JSON, or an Enumerable ' +
             "arguments: #{args}"
