@@ -10,7 +10,7 @@ module Smash
             EM.run do
               WebSocket::EventMachine::Server.start(:host => host, :port => port) do |ws|
                 sid = nil
-  
+
                 ws.onopen do
                   puts "Client connected"
                   sid = @channel.subscribe { |msg| ws.send msg }
@@ -27,18 +27,15 @@ module Smash
 
                 ws.onclose do
                   puts "Client disconnected"
-                  if @channel != nil
-                    @channel.unsubscribe(sid)
-	          end
+                  @channel.unsubscribe(sid) unless @channel.nil?
                 end
               end
             end
           end
         end
+
         def send( msg )
-          if @channel != nil
-            @channel.push "#{msg}"
-          end
+          @channel.push "#{msg}" unless @channel.nil? nil
         end
       end
     end

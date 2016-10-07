@@ -15,12 +15,12 @@ GEM
   remote: https://rubygems.org/
   specs:
     activesupport-core-ext (4.0.0.3)
-    aws-sdk (2.6.5)
-      aws-sdk-resources (= 2.6.5)
-    aws-sdk-core (2.6.5)
+    aws-sdk (2.6.6)
+      aws-sdk-resources (= 2.6.6)
+    aws-sdk-core (2.6.6)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.6.5)
-      aws-sdk-core (= 2.6.5)
+    aws-sdk-resources (2.6.6)
+      aws-sdk-core (= 2.6.6)
     byebug (9.0.6)
     diff-lcs (1.2.5)
     dotenv (2.1.1)
@@ -68,4 +68,4 @@ DEPENDENCIES
   rspec (~> 3.0)
 
 BUNDLED WITH
-   1.13.1
+   1.13.2
