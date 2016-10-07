@@ -2,6 +2,8 @@ require_relative './broadcast/broadcast'
 require_relative './queue/board'
 require_relative './queue/queue'
 require_relative './pipe/pipe'
+require_relative './websocket/websocserver'
+require_relative './websocket/websocclient'
 
 module Smash
   module CloudPowers
@@ -15,6 +17,8 @@ module Smash
       include Smash::CloudPowers::Synapse::Broadcast
       include Smash::CloudPowers::Synapse::Pipe
       include Smash::CloudPowers::Synapse::Queue
+      include Smash::CloudPowers::Synapse::WebSocServer
+      include Smash::CloudPowers::Synapse::WebSocClient
     end
   end
 end
