@@ -17,6 +17,7 @@ module Smash
 
       # Gets the instance time or the time it was called and as seconds from
       # epoch
+      # === @returns Integer
       # TODO: use time codes
       def boot_time
         begin
@@ -66,10 +67,77 @@ module Smash
         instance_url # gets and sets @instance_url
       end
 
-      # Make sure there is always a valid instance id because many other Aws calls
-      # require it
+      # Assures there is always a valid instance id because many other Aws calls require it
+      # === @returns: String
       def instance_id
         @instance_id ||= metadata_request('instance_id')
+      end
+
+      # Gets and sets the public hostname of the instance
+      def instance_url
+        @instance_url ||= if zfind('TESTING')
+          'abc-1234'
+        else
+          hostname_uri = 'http://169.254.169.254/latest/meta-data/instance-id'
+          HTTParty.get(hostname_uri).parsed_response
+        end
+      end
+
+      # Makes the http request to self/meta-data to get all the metadata keys or,
+      # if a key is given, the method makes the http request to get that
+      # particular key from the metadata
+      # === @param: key String (optional)
+      # === @returns:
+      def metadata_request(key = '')
+        key = to_hyph(key)
+        begin
+          unless zfind('TESTING')
+            metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
+            HTTParty.get(metadata_uri).parsed_response.split("\n")
+          else
+            require_relative '../../spec/stubs/aws_stubs'
+            stubbed_metadata = Smash::CloudPowers::AwsStubs::INSTANCE_METADATA_STUB
+
+            key.empty? ? stubbed_metadata.keys : stubbed_metadata[to_hyph(key)]
+          end
+        rescue Exception => e
+          logger.fatal format_error_message e
+        end
+      end
+
+      # Return the time since boot_time
+      # === @returns: Integer
+      # Notes:
+      # * TODO: refactor to use valid time stamps for better tracking.
+      # * reason -> separate regions or OSs etc.
+      def run_time
+        Time.now.to_i - boot_time
+      end
+
+      # Send a message on a Pipe at an interval
+      def send_frequent_status_updates(opts = {})
+        sleep_time = opts.delete(:interval) || 10
+        stream = opts.delete(:stream_name)
+        while true
+          message = lambda { |o| update_message_body(o.merge(content: status)) }
+          logger.info "Send update to status board #{message.call(opts)}"
+          pipe_to(stream || :status_stream) { message.call(opts) }
+          sleep sleep_time
+        end
+      end
+
+      # Get the instance status.
+      # === @params: id String (optional)
+      #     * if no id is given, self-instance ID is returned
+      # === @returns: String
+      def status(id = @instance_id)
+        begin
+          ec2.describe_instances(dry_run: zfind('TESTING'), instance_ids: [id]).
+            reservations[0].instances[0].state.name
+        rescue Aws::EC2::Errors::DryRunOperation => e
+          logger.info "Dry run flag set for testing: #{e}"
+          'testing'
+        end
       end
 
       # Check self-tags for 'task' and act as an attr_accessor.
@@ -86,66 +154,6 @@ module Smash
         @task_name = resp.instances[0].tags.select do |t|
           t.value if t.key == 'taskType'
         end.first
-      end
-
-      # Gets and sets the public hostname of the instance
-      def instance_url
-        @instance_url ||= if zfind('TESTING')
-          'https://test-url.com'
-        else
-          hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
-          HTTParty.get(hostname_uri).parsed_response
-        end
-      end
-
-      # Makes the http request to self/meta-data to get all the metadata keys or,
-      # if a key is given, the method makes the http request to get that
-      # particular key from the metadata
-      # @param: [key <String>]
-      def metadata_request(key = '')
-        key = to_hyph(key)
-        begin
-          unless zfind('TESTING')
-            metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
-            HTTParty.get(metadata_uri).parsed_response.split("\n").inject({}) do |h,(k,v)|
-              h[to_snake(h).to_sym] = v
-            end
-          else
-            require_relative '../../spec/stubs/aws_stubs'
-            stubbed_metadata = Smash::CloudPowers::AwsStubs::INSTANCE_METADATA_STUB
-
-            key.empty? ? stubbed_metadata.keys : stubbed_metadata[key.to_s]
-          end
-        rescue Exception => e
-          logger.fatal format_error_message e
-        end
-      end
-
-      def run_time
-        # TODO: refactor to use valid time stamps for better tracking.
-        # reason -> separate regions or OSs etc.
-        Time.now.to_i - boot_time
-      end
-
-      def send_frequent_status_updates(opts = {})
-        sleep_time = opts.delete(:interval) || 10
-        stream = opts.delete(:stream_name)
-        while true
-          message = lambda { |o| update_message_body(o.merge(content: status)) }
-          logger.info "Send update to status board #{message.call(opts)}"
-          pipe_to(stream || :status_stream) { message.call(opts) }
-          sleep sleep_time
-        end
-      end
-
-      def status(id = @instance_id)
-        begin
-          ec2.describe_instances(dry_run: zfind('TESTING'), instance_ids: [id]).
-            reservations[0].instances[0].state.name
-        rescue Aws::EC2::Errors::DryRunOperation => e
-          logger.info "Dry run flag set for testing: #{e}"
-          'testing'
-        end
       end
 
       # This method will return true if:

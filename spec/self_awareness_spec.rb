@@ -23,8 +23,8 @@ describe 'SelfAwareness module' do
       expect(future).to be > boot_time
     end
 
-    it 'should get the public host as the "instance_url"' do
-      is_valid_url = !(@instance_url =~ URI::regexp).nil?
+    it 'should get the public host as the "@public_hostname"' do
+      is_valid_url = !("http://#{@public_hostname}" =~ URI::regexp).nil?
       expect(is_valid_url).to be true
     end
   end

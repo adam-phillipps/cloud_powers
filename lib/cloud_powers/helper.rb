@@ -28,10 +28,10 @@ module Smash
       #   puts @bar
       #   # => 'bar:1475434059'
       def attr_map!(keys)
-        keys.map do |attr|
-          key = to_i_var(attr)
+        keys.map do |key|
+          new_i_var = to_i_var(key)
           value = yield key if block_given?
-          instance_variable_set(key, value) unless instance_variable_get(to_i_var(key))
+          instance_variable_set(new_i_var, value) unless instance_variable_get(new_i_var)
         end
       end
 
@@ -162,7 +162,7 @@ module Smash
       # until another bit of logic does what it's supposed to, kind of like
       # continuing to poll something and doing something when a package is ready
       # to be taken and processed.
-      # @params:
+      # === @params:
       #   * [allowed_attempts] or Infinity(default) <Number>: The number of times
       #       the loop should be allowed to...well, loop, before a failed retry occurs.
       #   * &test <Block>: A predicate method or block of code that is callable
@@ -182,9 +182,9 @@ module Smash
       end
 
       # Gives the path from the project root to lib/tasks[/#{file}.rb]
-      # @params:
+      # === @params:
       #   * [file] <String>: name of a file
-      # @returns:
+      # === @returns:
       #   * path[/file] <String>
       #   * If a `file` is given, it will have a '.rb' file extension
       #   * If no `file` is given, it will return the `#task_require_path`
