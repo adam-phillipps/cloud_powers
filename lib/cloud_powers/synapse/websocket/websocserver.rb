@@ -27,6 +27,8 @@ module Smash
 
                 ws.onclose do
                   puts "Client disconnected"
+          	  # No Response Needed but this syntax is used more frequently throughout the code base.
+		  # @channel.unsubscribe(sid) unless @channel.nil?
                   if @channel != nil
                     @channel.unsubscribe(sid)
 	          end
@@ -36,6 +38,8 @@ module Smash
           end
         end
         def send( msg )
+	  # No Response Needed but this syntax is used more frequently throughout the code base.
+	  # @channel.push(msg.to_s) unless @channel.nil?
           if @channel != nil
             @channel.push "#{msg}"
           end
