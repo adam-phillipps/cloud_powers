@@ -5,8 +5,8 @@ module Smash
   module CloudPowers
     module Synapse
       module Queue
-        include Smash::CloudPowers::Helper
         include Smash::CloudPowers::AwsResources
+        include Smash::CloudPowers::Helper
 
         # A simpl Struct that acts as a Name to URL map
         NUMap = Struct.new(:set_name, :set_url) do
@@ -21,20 +21,15 @@ module Smash
 
         # This method can be used to parse a queue name from its address.  It can be handy if you need the name
         # of a queue but you don't want the overhead of creating a Board object.
+        # === @params: url String
+        # === @returns: String
+        # === Example:
+        #     ```Ruby
+        #      board_name('https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
+        #      => fooBar
+        #     ```
         def board_name(url)
           url.to_s.split('/').last
-        end
-
-        # This method allows you to create a queue on SQS without explicitly creating a Board object
-        # === @params: name <String>: The name of the queue to be created
-        # === @returns: Queue::Board
-        def create_queue!(name)
-          begin
-            Smash::CloudPowers::Queue::Board.create!(to_camel(name))
-          rescue Aws::SQS::Errors::QueueDeletedRecently => e
-            sleep 5
-            retry
-          end
         end
 
         # This method builds a Queue::Board object for you to use but doesn't
@@ -43,7 +38,19 @@ module Smash
         # === @params: name <String>: name of the queue you want to interact with
         # === @returns: Queue::Board
         def build_queue(name)
-          Smash::CloudPowers::Queue::Board.build(to_camel(name))
+          Smash::CloudPowers::Queue::Board.build(to_camel(name), sqs)
+        end
+
+        # This method allows you to create a queue on SQS without explicitly creating a Board object
+        # === @params: name <String>: The name of the queue to be created
+        # === @returns: Queue::Board
+        def create_queue!(name)
+          begin
+            Smash::CloudPowers::Queue::Board.create!(to_camel(name), sqs)
+          rescue Aws::SQS::Errors::QueueDeletedRecently => e
+            sleep 5
+            retry
+          end
         end
 
         # Deletes a queue message without caring about reading/interacting with the message.
@@ -81,12 +88,12 @@ module Smash
         # Polls the given board with the given options hash and a block that interacts with
         # the message that is retrieved from the queue
         # === @params: board <String>[, opts <Hash>]
-        #   board is the name of the queue you want to poll
-        #   opts can have any AWS::SQS polling option
-        #   &block is the block that is used to interact with the message that was retrieved
+        #   * `board` is the name of the queue you want to poll
+        #   * `opts` can have any AWS::SQS polling option
+        #   * `&block` is the block that is used to interact with the message that was retrieved
         # === @returns the results from the `message` and the `block` that interacts with the message(s)
-        def poll(board, opts = {})
-          this_poller = queue_poller(board)
+        def poll(board_name, opts = {})
+          this_poller = queue_poller(board_name)
           results = nil
           this_poller.poll(opts) do |msg|
             results = yield msg, this_poller if block_given?
@@ -102,25 +109,26 @@ module Smash
         # === @params: board_name <String>: name of the Queue you want to gain a QueuePoller for
         # === @returns: @<board_name:Queue::Board>
         def queue_poller(board_name)
-          board = Smash::CloudPowers::Queue::Board.create!(board_name)
+          board = Smash::CloudPowers::Queue::Board.create!(board_name, sqs)
 
           unless instance_variable_defined?(board.i_var)
-            instance_variable_set(
-              board.i_var,
-              board
-            )
+            instance_variable_set(board.i_var, board)
           end
           instance_variable_get(board.i_var).poller
         end
 
-        # Checks SQS for the existence of this queue
+        # Checks SQS for the existence of this queue using the #queue_search() method
+        # === @params: name String
+        # === @returns: Boolean
+        # === Notes:
+        #     * see #queue_search()
         def queue_exists?(name)
-          !sqs.list_queues(queue_name_prefix: name).queue_urls.empty?
+          !queue_search(name).empty?
         end
 
         # Searches for a queue based on the name
-        # === @params: name <String>
-        # === @returns: queue_urls <Array>
+        # === @params: name String
+        # === @returns: queue_urls [String]
         def queue_search(name)
           sqs.list_queues(queue_name_prefix: name).queue_urls
         end
@@ -128,11 +136,8 @@ module Smash
         # Sends a given message to a given queue
         # === @params: address <String>: address of the queue you want to interact with
         # === @returns: queue_urls <Array<String>> # TODO: verify this.  maybe it was late...
-        def send_queue_message(address, message)
-          sqs.send_message(
-            queue_url: address,
-            message_body: message
-          )
+        def send_queue_message(address, message, this_sqs = sqs)
+          this_sqs.send_message(queue_url: address, message_body: message)
         end
       end
     end

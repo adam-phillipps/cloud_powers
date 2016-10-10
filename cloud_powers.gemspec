@@ -7,19 +7,21 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version  =     '~> 2.3.0'
   spec.name                   =     'cloud_powers'
   spec.version                =     CloudPowers::VERSION
-  spec.author                 =     'Adam Phillipps'
-  spec.email                  =     'adam.phillipps@gmail.com'
+  spec.authors                =     ['Adam Phillipps', 'Faisal Irfan']
+  spec.email                  =     ['adam.phillipps@gmail.com', 'Faisal@smashanalytics.com']
   spec.summary                =     %q{Cloud providers wrapper.  Currently only AWS is supported.}
   spec.description            =     <<-EOF
     CloudPowers is a wrapper around AWS and in the future, other cloud service Providers.
     It was developed specifically for the Brain project but hopefully can be used
     in any other ruby project that needs to use cloud service providers' resources.
-    Version 0.2.6 has a little EC2, S3, SQS, SNS, Kinesis websockets some a few other
-    features you can find in the docs.
+    Version 0.2.6 has a little EC2, S3, SQS, SNS, Kinesis, websockets and a few other
+    features you can find in the docs.  There is also limitted support for stubbing
+    AWS RESTful API calls.  That can come in handy for local testing and extra setup on
+    AWS resource clients.
     The next versions will have more Kinesis, Workflow integration and IoT.
     This project is actively being developed, so more additions, specs and docs
     will be added and updated frequently with new funcionality but the gem will
-    follow good practices for versioning.  I always welcome input.
+    follow good practices for versioning.  Input is always welcome.
     Enjoy!
   EOF
   spec.homepage               =     'https://github.com/adam-phillipps/cloud_powers'

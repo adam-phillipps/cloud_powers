@@ -10,7 +10,7 @@ describe 'Node' do
 
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")
-    @config = Smash::CloudPowers::AwsStubs::NEURON_STUB.merge(max_count: 5)
+    @config = Smash::CloudPowers::AwsStubs::NODE_STUB.merge(max_count: 5)
   end
 
   before(:each) do

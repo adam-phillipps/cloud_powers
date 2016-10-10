@@ -74,12 +74,16 @@ module Smash
       end
 
       # Gets and sets the public hostname of the instance
+      # === @returns String
+      # === Notes:
+      #     * When this is being called from somewhere other than an Aws instance, a hardcoded example URL is returned
+      #       because of the way instance metadata is retrieved
       def instance_url
-        @instance_url ||= if zfind('TESTING')
-          'abc-1234'
-        else
-          hostname_uri = 'http://169.254.169.254/latest/meta-data/instance-id'
+        @instance_url ||= unless zfind('TESTING')
+          hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
           HTTParty.get(hostname_uri).parsed_response
+        else
+          'http://ec2-000-0-000-00.compute-0.amazonaws.com'
         end
       end
 
@@ -95,7 +99,7 @@ module Smash
             metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
             HTTParty.get(metadata_uri).parsed_response.split("\n")
           else
-            require_relative '../../spec/stubs/aws_stubs'
+            require_relative "#{Smash::CloudPowers::CLOUDPOWERS_SPECS_ROOT}/stubs/aws_stubs"
             stubbed_metadata = Smash::CloudPowers::AwsStubs::INSTANCE_METADATA_STUB
 
             key.empty? ? stubbed_metadata.keys : stubbed_metadata[to_hyph(key)]

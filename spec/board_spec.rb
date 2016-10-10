@@ -1,15 +1,17 @@
 require 'spec_helper'
+require_relative './stubs/aws_stubs'
 
 describe 'Queue::Board' do
   include Smash::CloudPowers::Synapse::Queue
 
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")
-    @test_name = 'testQueue'
+    @temp_name = 'testQueue'
     @test_queues = []
     @valid_message = { 'foo' => 'bar' }
     @invalid_message = 'foo:bar'
-    @board = Smash::CloudPowers::Queue::Board.create!(@test_name)
+    sqs(Smash::CloudPowers::AwsStubs.queue_stub(name: @temp_name))
+    @board = Smash::CloudPowers::Queue::Board.create!(@temp_name, sqs)
     @board.create_queue!
   end
 
@@ -25,11 +27,8 @@ describe 'Queue::Board' do
   end
 
   it 'should be able to send a message to a given queue' do
-    start = @board.message_count
-    @board.send_message(@valid_message)
-    sleep 5
-    final = @board.message_count
-    expect(start).to be < final
+    resp = @board.send_message(@valid_message)
+    expect(resp).to respond_to :md5_of_message_body
   end
 
   it 'should be able to get the count in its queue' do

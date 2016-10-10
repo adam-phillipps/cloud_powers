@@ -9,6 +9,7 @@ module Smash
 
       # This method is able to be called before an object is instantiated in order
       # to provide a region in AWS-land.
+      # === @returns: The region set in configuration or a 'us-west-2' default String
       def self.region
         zfind(:aws_region) || 'us-west-2'
       end

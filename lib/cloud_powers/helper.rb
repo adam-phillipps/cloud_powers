@@ -88,9 +88,7 @@ module Smash
                 key = yield k
 
                 value = if v.kind_of?(Hash)
-                    deep_modify_keys_with(v) do |new_key|
-                      Proc.new.call(new_key)
-                    end
+                    deep_modify_keys_with(v) { |new_key| Proc.new.call(new_key) }
                   else
                     v
                   end
@@ -106,11 +104,6 @@ module Smash
         else
           params
         end
-      end
-
-      def errors
-        # TODO: wow...needs work
-        $errors ||= SmashError.instance
       end
 
       # Join the message and backtrace into a String with line breaks
@@ -129,7 +122,7 @@ module Smash
         @log_file ||= zfind('LOG_FILE')
       end
 
-      # @returns: An instance of Logger, cached as @logger
+      # === @returns: An instance of Logger, cached as @logger
       def logger
         @logger ||= create_logger
       end

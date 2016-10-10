@@ -91,7 +91,7 @@ module Smash
       #    `<Array|List <Enumerable>`
       #    e.g.
       #      flat
-      #      ```
+      #      ```Ruby
       #      [
       #        object_name_1, config_1a, config_2a, ...,
       #        object_2, config_1b, etc,
@@ -100,16 +100,16 @@ module Smash
       #      ```
       #      grouped
       #      or
-      #      ```
+      #      ```Ruby
       #      [
       #        [object_name_1, config_1a, config_2a, ...],
       #        [object_2, config_1b, etc],
       #        ...
       #      ]
       #      ```
-      #      structured
       #      or
-      #      ```
+      #      structured
+      #      ```Ruby
       #      [
       #        [object_name_1, [config_1a, config_2a, ...]],
       #        [object_2, [config_1b, etc]],
@@ -117,7 +117,7 @@ module Smash
       #      ]
       #      ```
       #      returns
-      #      ```
+      #      ```Ruby
       #      {
       #        object_1: [config_1a, config_2a, ...],
       #        object_2: [config_1b, ...],
@@ -133,7 +133,7 @@ module Smash
       # Translates an Array into a valid @structure Hash
       # === @param arr <Array>
       #   e.g.
-      #   ```
+      #   ```Ruby
       #   [:task, 'demo', :queue, 'name1', {other config hash},...,:pipe, 'name1']
       #   ```
       # === @returns Hash
@@ -190,6 +190,8 @@ module Smash
       # class _should_ exist in.  It can be a vanilla version, where the @structure
       # is a Hash, structured correctly or it can be serialized into JSON or it can
       # be an Array
+      # === @params: args String
+      # === @returns: Boolean
       def valid_args?(args)
         case args
         when Hash

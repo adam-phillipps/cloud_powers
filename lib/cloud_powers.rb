@@ -19,5 +19,6 @@ module Smash
     include Smash::CloudPowers::Storage
     include Smash::CloudPowers::Synapse
     include Smash::CloudPowers::Node
+    Smash::CloudPowers::CLOUDPOWERS_SPECS_ROOT = File.absolute_path(`pwd`.gsub("\n", '/spec/'))
   end
 end

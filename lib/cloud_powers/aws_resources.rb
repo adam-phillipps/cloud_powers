@@ -67,10 +67,10 @@ module Smash
       end
 
       def sqs(opts = {})
-        @sqs ||= Aws::SQS::Client.new({
-            credentials: Auth.creds
-          }.merge(opts)
-        )
+        config = {
+          credentials: Auth.creds
+        }.merge(opts)
+        @sqs ||= Aws::SQS::Client.new(config)
       end
     end
   end
