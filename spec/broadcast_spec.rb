@@ -1,12 +1,15 @@
 require 'spec_helper'
+require_relative '../lib/stubs/aws_stubs'
 
 describe 'Broadcast' do
+  extend Smash::CloudPowers::AwsStubs
   include Smash::CloudPowers::Synapse::Broadcast
   include Smash::CloudPowers::Zenv
 
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")
     @channel_name = 'testChannel'
+    sns(Smash::CloudPowers::AwsStubs.broadcast_stub)
     @channel = create_channel!(@channel_name)
     @channels = [@channel]
   end
@@ -24,11 +27,10 @@ describe 'Broadcast' do
   end
 
   it 'should be able to create a channel to broadcast through' do
-    name = "testChannel#{rand(10000)}"
-    resp = create_channel!(name)
+    resp = create_channel!(@channel_name)
     @channels << resp
     expect(resp.arn).to be_truthy
-    expect(resp.name).to be_eql(name)
+    expect(resp.name).to be_eql(@channel_name)
   end
 
   after(:all) do

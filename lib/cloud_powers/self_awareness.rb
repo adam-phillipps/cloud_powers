@@ -99,7 +99,7 @@ module Smash
             metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
             HTTParty.get(metadata_uri).parsed_response.split("\n")
           else
-            require_relative "#{Smash::CloudPowers::CLOUDPOWERS_SPECS_ROOT}/stubs/aws_stubs"
+            require_relative '../stubs/aws_stubs'
             stubbed_metadata = Smash::CloudPowers::AwsStubs::INSTANCE_METADATA_STUB
 
             key.empty? ? stubbed_metadata.keys : stubbed_metadata[to_hyph(key)]

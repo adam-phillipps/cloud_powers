@@ -28,21 +28,21 @@ module Smash
         # end
 
         # Creates a point to connect to for information about a given topic
-        # @params: name <String>: the name of the Channel/Topic to be created
-        # @returns: Broadcast::Channel representing the created channel
+        # === @params: name String: the name of the Channel/Topic to be created
+        # === @returns: Broadcast::Channel representing the created channel
         def create_channel!(name)
           resp = sns.create_topic(name: name)
           Channel.new(nil, resp.topic_arn)
         end
 
         # Deletes a topic from SNS-land
-        # @params: channel <Broadcast::Channel>
+        # === @params: channel <Broadcast::Channel>
         def delete_channel!(channel)
           sns.delete_topic(topic_arn: channel.arn)
         end
 
         # Creates a connection to the Broadcast so that new messages will be picked up
-        # @params: channel <Broadcast::Channel>
+        # === @params: channel <Broadcast::Channel>
         def listen_on(channel)
           sns.subscribe(
             topic_arn:    channel.arn,
@@ -52,7 +52,7 @@ module Smash
         end
 
         # Lists the created topics in SNS.
-        # @returns results <Array
+        # === @returns results <Array
         def real_channels
           results = []
           next_token = ''
@@ -66,7 +66,7 @@ module Smash
         end
 
         # Send a message to a Channel using SNS#publish
-        # @params: [opts <Hash>]:
+        # === @params: [opts <Hash>]:
         #   this includes all the keys AWS uses but for now it only has defaults
         #   for topic_arn and the message
         def send_broadcast(opts = {})

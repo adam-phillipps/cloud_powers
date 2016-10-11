@@ -282,6 +282,7 @@ module Smash
         # TODO: Better implementation of merging message bodies and config needed
         unless opts.kind_of? Hash
           update = opts.to_s
+          opts = {}
           opts[:extraInfo] = { message: update }
         end
         updated_extra_info = opts.delete(:extraInfo) || {}

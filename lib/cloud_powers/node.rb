@@ -1,5 +1,6 @@
 require_relative 'auth'
 require_relative 'helper'
+require_relative 'self_awareness'
 require_relative 'zenv'
 
 module Smash
@@ -7,6 +8,7 @@ module Smash
     module Node
       include Smash::CloudPowers::Auth
       include Smash::CloudPowers::Helper
+      include Smash::CloudPowers::SelfAwareness
       include Smash::CloudPowers::Zenv
       # These are sensible defaults that can be overriden by providing a Hash as a param.
       # @params [opts <Hash>]

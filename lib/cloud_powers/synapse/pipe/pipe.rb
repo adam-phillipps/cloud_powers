@@ -1,20 +1,21 @@
-require_relative '../../helper'
-
 module Smash
   module CloudPowers
     module Synapse
-      include Smash::CloudPowers::Helper
-
       module Pipe
+        include Smash::CloudPowers::AwsResources
+        include Smash::CloudPowers::Helper
+        include Smash::CloudPowers::Zenv
+
         # Create a Kinesis stream or wait until the stream with the given name is
         # through being created.
         # === @params: name String
         # === @returns: Boolean or nil
-        #     * returns true or false if the request was successful
-        #     * returns false
+        #     * returns true or false if the request was successful or not
+        #     * returns true if the stream has already been created
+        #     * returns false if the stream was not created
         def create_stream(name)
           begin
-            config = stream_config(stream_name: env(name))
+            config = stream_config(stream_name: name)
             resp = kinesis.create_stream(config)
             kinesis.wait_until(:stream_exists, stream_name: config[:stream_name])
             resp.successful? # (http request successful && stream created)?
@@ -24,7 +25,7 @@ module Smash
               return if stream_status(name) == 'ACTIVE'
               logger.info "Not ready for traffic.  Wait for 30 seconds..."
               sleep 1
-              nil # no request -> no response
+              true # acts like it would if it had to create the stream
             else
               error_message = format_error_message(e)
               logger.error error_message
@@ -73,9 +74,9 @@ module Smash
         #     See #instance_id()
         def pipe_message_body(opts = {})
           {
-            stream_name:      env(opts[:stream_name]) || env('status_stream'),
+            stream_name:      zfind(opts[:stream_name]) || zfind('status_stream'),
             data:             opts[:data] || update_message_body(opts),
-            partition_key:    opts[:partition_key] || @instance_id
+            partition_key:    opts[:partition_key] || @instance_id || 'unk'
           }
         end
 
@@ -106,7 +107,7 @@ module Smash
         #     * stream_name:
         def stream_config(opts = {})
           config = {
-            stream_name: opts[:stream_name] || env('status_stream'),
+            stream_name: opts[:stream_name] || zfind(:status_stream),
             shard_count: opts[:shard_count] || 1
           }
         end
@@ -116,7 +117,7 @@ module Smash
         # === @returns: Boolean
         def stream_exists?(name)
           begin
-            kinesis.describe_stream(stream_name: env(name))
+            kinesis.describe_stream(stream_name: name)
             true
           rescue Aws::Kinesis::Errors::ResourceNotFoundException => e
             false
@@ -128,7 +129,7 @@ module Smash
         # === @returns: stream status, one of:
         #       CREATING, DELETING, ACTIVE, UPDATING
         def stream_status(name)
-          kinesis.describe_stream(name).stream_description.stream_status
+          kinesis.describe_stream(stream_name: name).stream_description.stream_status
         end
       end
     end
