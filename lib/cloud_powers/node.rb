@@ -11,7 +11,7 @@ module Smash
       include Smash::CloudPowers::SelfAwareness
       include Smash::CloudPowers::Zenv
       # These are sensible defaults that can be overriden by providing a Hash as a param.
-      # @params [opts <Hash>]
+      # Parameters [opts <Hash>]
       #   the opts Hash should have values that should be used instead of the given
       #   configuration.
       def node_config(opts = {})
@@ -36,7 +36,7 @@ module Smash
       # configuration for the #run_instances method by using the opts hash that was
       # provided as a parameter.
       #
-      # === @params opts Hash (optional)
+      # Parameters opts Hash (optional)
       #   an optional instance configuration hash can be passed, which will override
       #   the values in the default configuration returned by #instance_config()
       def spin_up_neurons(opts = {})

@@ -39,8 +39,12 @@ module Smash
         @structure = decipher(args)
       end
 
-      # # Decipher figures out which translation method to use by making some simple
-      # # type checks, etc. and then routing the args to the correct method.
+      # Decipher figures out which translation method to use by making some simple type checks, etc.
+      # and then routing the args to the correct method.
+      #
+      # Notes
+      # * See +#translate_json()+
+      # * See +#translate_list()+
       def decipher(args)
         case args
         when Hash
@@ -84,8 +88,7 @@ module Smash
       # * This uses the different Constants, like Smash, Synapse and anything it can find
       #   to decide what should be used as a key and what its following values array should
       #   contain.  It basically says:
-      #   1. if the nth item is a known key (from the above search), add it as an object in
-      #   the Array.
+      #   1. if the nth item is a known key (from the above search), add it as an object in the Array.
       #   2. else, add it to the last sub-Array
       #   3. move to n+1 in the +structure Hash+
       # * TODO: Check if this has a limit to n-layers
@@ -94,19 +97,20 @@ module Smash
       end
 
       # A Hash that represents the resources and some configuration for them
-      # Returns Hash
+      #
+      # Returns +Hash+
       def structure
         modify_keys_with(@structure) { |key| key.to_sym }
       end
 
       # Valid scheme for @structure is assured by running the arguments through
-      # the decipher method, which is how @structure is set in `#new(args)`
+      # the decipher method, which is how @structure is set in +#new(args)+
       def structure=(args)
         @structure = decipher(args)
       end
 
       # Parse the given JSON
-      # === @param: json_string <String::Json>
+      # Parameters: json_string <String::Json>
       # Returns <Hash>
       def translate_json(json_string)
         begin
@@ -162,7 +166,7 @@ module Smash
       end
 
       # Translates an Array into a valid @structure Hash
-      # === @param arr <Array>
+      # Parameters arr <Array>
       #   e.g.
       #   ```Ruby
       #   [:task, 'demo', :queue, 'name1', {other config hash},...,:pipe, 'name1']
@@ -186,7 +190,7 @@ module Smash
       end
 
       # Translates a 2D Array into a valid @structure Hash
-      # === @param arr <Array>
+      # Parameters arr <Array>
       #   e.g.
       #   ```
       #     [

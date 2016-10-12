@@ -11,18 +11,18 @@ module Smash
       # Sets an Array of instance variables, individually to a value that a
       # user given block returns.
       #
-      # === Attributes
+      # Parameters
       #
-      # * params Array
-      #   * each object will be used as the name for the instance variable that
+      # * keys +Array+
+      # * * each object will be used as the name for the instance variable that
       #     your block returns
-      # +&block+ (optional)
-      #   * this is called for each object in the Array and is used as the value
+      # +block+ (optional)
+      #   * this block is called for each object in the Array and is used as the value
       #   for the instance variable that is being named and created for each key
-      # === @return Array
+      # Returns Array
       #   * each object will either be the result of `#instance_variable_set(key, value)`
       #     or instance_variable_get(key)
-      # === Sampel use:
+      # Example
       #   keys = ['foo', 'bar', 'yo']
       #
       #   attr_map!(keys) { |key| sleep 1; "#{key}:#{Time.now.to_i}" }
@@ -40,7 +40,7 @@ module Smash
 
       # This is a way to find out if you are trying to work with a resource
       # available to CloudPowers
-      # === @returns <Array>
+      # Returns <Array>
       #   * Use `.constants` to find all the modules and classes available.
       # Notes:
       #   TODO: make this smartly pick up all the objects, within reason and
@@ -67,17 +67,17 @@ module Smash
 
       # Allows you to modify all keys, including nested, with a block that you pass.
       # If no block is passed, a copy is returned.
-      # === @params
+      # Parameters
       #   * params Hash|Array
       # === @&block (optional)
       #   * should modify the key and return that value so it can be used in the copy
-      # === @returns
+      # Returns
       #   * a copy of the given Array or Hash, with all Hash keys modified
       # === Sample use:
       #   hash = { 'foo' => 'v1', 'bar' => { fleep: { 'florp' => 'yo' } } }
       #   modify_keys_with(hash) { |key| key.to_sym }
       #   # => { foo: 'v1', bar: { fleep: { florp: 'yo' } } }
-      # === Notes:
+      # Notes:
       #   * see `#modify_keys_with()` for handling first-level keys
       #   * see `#pass_the_buck()` for the way nested structures are handled
       #   * case for different types taken from _MultiXML_ (multi_xml.rb)
@@ -120,29 +120,29 @@ module Smash
       end
 
       # Gets the path from the environment and sets @log_file using the path
-      # @returns @log_file path <String>
+      # Returns @log_file path <String>
       def log_file
         @log_file ||= zfind('LOG_FILE')
       end
 
-      # === @returns: An instance of Logger, cached as @logger
+      # Returns An instance of Logger, cached as @logger
       def logger
         @logger ||= create_logger
       end
 
       # Allows you to modify all first-level keys with a block that you pass.
       # If no block is passed, a copy is returned.
-      # === @params
+      # Parameters
       #   * params Hash|Array
       # === @&block (optional)
       #   * should modify the key and return that value so it can be used in the copy
-      # === @returns
+      # Returns
       #   * a copy of the given Array or Hash, with all Hash keys modified
       # === Sample use:
       #   hash = { 'foo' => 'v1', 'bar' => { fleep: { 'florp' => 'yo' } } }
       #   modify_keys_with(hash) { |k| k.to_sym }
       #   # => { :foo => 'v1', :bar => { fleep: { 'florp' => 'yo' } } }
-      # === Notes:
+      # Notes:
       #   * see `#deep_modify_keys_with()` for handling nested keys
       #   * case for different types taken from _MultiXML_ (multi_xml.rb)
       def modify_keys_with(params)
@@ -158,7 +158,7 @@ module Smash
       # until another bit of logic does what it's supposed to, kind of like
       # continuing to poll something and doing something when a package is ready
       # to be taken and processed.
-      # === @params:
+      # Parameters
       #   * [allowed_attempts] or Infinity(default) <Number>: The number of times
       #       the loop should be allowed to...well, loop, before a failed retry occurs.
       #   * &test <Block>: A predicate method or block of code that is callable
@@ -178,9 +178,9 @@ module Smash
       end
 
       # Gives the path from the project root to lib/tasks[/#{file}.rb]
-      # === @params:
+      # Parameters
       #   * [file] <String>: name of a file
-      # === @returns:
+      # Returns
       #   * path[/file] <String>
       #   * If a `file` is given, it will have a '.rb' file extension
       #   * If no `file` is given, it will return the `#task_require_path`
@@ -190,7 +190,7 @@ module Smash
       end
 
       # Gives the path from the project root to lib/tasks[/file]
-      # === @params String (optional)
+      # Parameters String (optional)
       #   * file_name name of a file
       # ===  @returns:
       #   * path[/file] String
@@ -201,8 +201,8 @@ module Smash
       end
 
       # Change strings into camelCase
-      # === @params var String
-      # === @returns String
+      # Parameters var String
+      # Returns String
       #     * givenString
       def to_camel(var)
         var = var.to_s unless var.kind_of? String
@@ -212,8 +212,8 @@ module Smash
       end
 
       # Change strings hyphen-delimited-string
-      # === @params var String
-      # === @returns String
+      # Parameters var String
+      # Returns String
       #     * given-string
       def to_hyph(var)
         var = var.to_s unless var.kind_of? String
@@ -228,8 +228,8 @@ module Smash
       end
 
       # Change strings into snake_case and add '@' at the front
-      # === @params var String
-      # === @returns String
+      # Parameters var String
+      # Returns String
       #     * @given_string
       def to_i_var(var)
         var = var.to_s unless var.kind_of? String
@@ -237,8 +237,8 @@ module Smash
       end
 
       # Change strings into PascalCase
-      # === @params var String
-      # === @returns String
+      # Parameters var String
+      # Returns String
       #     * givenString
       def to_pascal(var)
         var = var.to_s unless var.kind_of? String
@@ -246,8 +246,8 @@ module Smash
       end
 
       # Change strings into a ruby_file_name with extension
-      # === @params var String
-      # === @returns String
+      # Parameters var String
+      # Returns String
       #     * given_string.rb
       #     * includes ruby file extension
       #     * see #to_snake()
@@ -256,8 +256,8 @@ module Smash
       end
 
       # Change strings into snake_case
-      # === @params var String
-      # === @returns String
+      # Parameters var String
+      # Returns String
       #     * given_string
       #     * will not have file extensions
       #     * see #to_ruby_file_name()
@@ -274,9 +274,9 @@ module Smash
 
       # This method provides a default overrideable message body for things like
       # basic status updates.
-      # === @params Hash
+      # Parameters Hash
       #   - instanceId:
-      # === Notes:
+      # Notes:
       #   - camel casing is used on the keys because most other languages prefer
       #   that and it's not a huge problem in ruby.  Besides, there's some other
       #   handy methods in this module to get you through those issues, like

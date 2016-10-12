@@ -9,7 +9,7 @@ task :console do
   exec "irb -r cloud_powers -I ./lib"
 end
 
-Rake::RDocTask.new do |rd|
-  rd.main = "README.rdoc"
-  rd.rdoc_files.include("README.rdoc", "lib/**/*.rb")
-end
+# Rake::RDocTask.new do |rd|
+#   rd.main = "README.rdoc"
+#   rd.rdoc_files.include("README.rdoc", "lib/**/*.rb")
+# end

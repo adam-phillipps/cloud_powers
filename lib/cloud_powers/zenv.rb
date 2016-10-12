@@ -10,8 +10,8 @@ module Smash
 
       # Attempts to find a file by searching the current directory for the file
       # then walking up the file tree and searching at each stop
-      # @param: name <String>: name of the file or directory to find
-      # @return: Pathname: path to the file or directory given as the `name` param
+      # Parameters name <String>: name of the file or directory to find
+      # Returns Pathname: path to the file or directory given as the `name` param
       def file_tree_search(name)
         next_dir = Pathname.new(`pwd`.strip).parent
         current_dir = Pathname.new(`pwd`.strip)
@@ -33,8 +33,8 @@ module Smash
 
       # Search through the instance variables for a key or if no key is given,
       # return all the i-vars and their values
-      # @params: [key <String]:  The key to search for
-      # @return:
+      # Parameters [key <String]:  The key to search for
+      # Returns
       def i_vars(key = '')
         if key.empty?
           return self.instance_variables.inject({}) do |r,v|
@@ -47,7 +47,7 @@ module Smash
       # PROJECT_ROOT should be set as early as possible in this Node's initilize
       # method.  This method tries to search for it, using #zfind() and if a `nil`
       # result is returned from that search, `pwd` is used as the PROJECT_ROOT.
-      # @return: Path to the project root or where ever `pwd` resolves to <Pathname>
+      # Returns Path to the project root or where ever `pwd` resolves to <Pathname>
       # TODO: improve this...it needs to find the gem's method's caller's project
       # root or at least the gem's method's caller's file's location.
       def project_root
@@ -61,16 +61,16 @@ module Smash
       end
 
       # Manually set the `@project_root` i-var as a `Pathname` object.
-      # @param: New path to the project root <String|Pathname>
-      # @return: @project_root <Pathname>
+      # Parameters New path to the project root <String|Pathname>
+      # Returns @project_root <Pathname>
       def project_root=(var)
         @project_root = Pathname.new(var)
       end
 
       # Search through the system environment variables for a key or if no key
       # is given, return all the system-env-vars and their values
-      # @params: [key <String>]:  The key to search for
-      # @return: Value <String> for the given key or if no key was given, a
+      # Parameters [key <String>]:  The key to search for
+      # Returns Value <String> for the given key or if no key was given, a
       # Hash with { key => value, ... } is returned for all keys with a value.
       # Keys with no value are ommitted from the result.
       def system_vars(key = '')
@@ -98,8 +98,8 @@ module Smash
       #     it's important
       #   * System Env[@] variables are up next.  Hopefully by this time we've found
       #     our information but if not, it should "search" through the system env too.
-      # @params: key <String>: The key to search for
-      # @return: <String>
+      # Parameters key <String>: The key to search for
+      # Returns <String>
       #   TODO: implement a search for all 3 that can find close matches
       def zfind(key)
         project_root if @project_root.nil?

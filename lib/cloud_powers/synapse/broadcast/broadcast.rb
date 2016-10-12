@@ -21,7 +21,7 @@ module Smash
           # Prefers the given name but it can parse the arn to find one
           #
           # Returns
-          # arn +String+ - name for this resource
+          # name +String+ - name for this resource
           def name
             set_name || set_arn.split(':').last
           end

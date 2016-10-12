@@ -17,7 +17,7 @@ module Smash
 
       # Gets the instance time or the time it was called and as seconds from
       # epoch
-      # === @returns Integer
+      # Returns Integer
       # TODO: use time codes
       def boot_time
         begin
@@ -68,7 +68,7 @@ module Smash
       end
 
       # Assures there is always a valid instance id because many other Aws calls require it
-      # === @returns: String
+      # Returns String
       def instance_id
         @instance_id ||= metadata_request('instance_id')
       end
@@ -93,7 +93,7 @@ module Smash
       # if a key is given, the method makes the http request to get that
       # particular key from the metadata
       #
-      # === Attributes
+      # Parameters
       # * <tt>key</tt> - +String+ (optional)
       #
       # === Returns
@@ -117,7 +117,7 @@ module Smash
       end
 
       # Return the time since boot_time
-      # === @returns: Integer
+      # Returns Integer
       # Notes:
       # * TODO: refactor to use valid time stamps for better tracking.
       # * reason -> separate regions or OSs etc.
@@ -138,9 +138,9 @@ module Smash
       end
 
       # Get the instance status.
-      # === @params: id String (optional)
+      # Parameters id String (optional)
       #     * if no id is given, self-instance ID is returned
-      # === @returns: String
+      # Returns String
       def status(id = @instance_id)
         begin
           ec2.describe_instances(dry_run: zfind('TESTING'), instance_ids: [id]).

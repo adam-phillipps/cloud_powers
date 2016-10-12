@@ -136,7 +136,7 @@ module Smash
           # +Aws::SQS::QueuePoller+
           #
           # Notes
-          # Provide an existing SQS Client if one exists.  This is used to sort out development
+          # * Provide an existing SQS Client if one exists.  This is used to sort out development
           # production work.
           def poller
             args = @sqs.nil? ? address : [address, { client: sqs }]
