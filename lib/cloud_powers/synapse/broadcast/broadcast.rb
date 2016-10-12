@@ -11,11 +11,17 @@ module Smash
           include Smash::CloudPowers::Zenv
 
           # Prefers the given arn but it can make a best guess if none is given
+          #
+          # Returns
+          # arn +String+ - arn for this resource
           def arn
             set_arn || "arn:aws:sns:#{zfind(:region)}:#{zfind(:accound_number)}:#{set_name}"
           end
 
           # Prefers the given name but it can parse the arn to find one
+          #
+          # Returns
+          # arn +String+ - name for this resource
           def name
             set_name || set_arn.split(':').last
           end
@@ -23,26 +29,38 @@ module Smash
         #################
 
         # Creates a connection point for 1..N nodes to create a connection with the Broadcast
-        # def create_distributor(channel)
-        #   sns.create_application_platform()
-        # end
+        #
+        # Parameters
+        # * channel +String+
+        #
+        # Notes
+        # This method is not implemented yet (V 0.2.7)
+        def create_distributor(channel)
+          sns.create_application_platform()
+        end
 
         # Creates a point to connect to for information about a given topic
-        # === @params: name String: the name of the Channel/Topic to be created
-        # === @returns: Broadcast::Channel representing the created channel
+        #
+        # Parameters
+        # * name +String+ - the name of the Channel/Topic to be created
+        #
+        # Returns
+        # +Broadcast::Channel+ - representing the created channel
         def create_channel!(name)
           resp = sns.create_topic(name: name)
           Channel.new(nil, resp.topic_arn)
         end
 
         # Deletes a topic from SNS-land
-        # === @params: channel <Broadcast::Channel>
+        #
+        # Parameters
+        # * channel <Broadcast::Channel>
         def delete_channel!(channel)
           sns.delete_topic(topic_arn: channel.arn)
         end
 
         # Creates a connection to the Broadcast so that new messages will be picked up
-        # === @params: channel <Broadcast::Channel>
+        # Parameters channel <Broadcast::Channel>
         def listen_on(channel)
           sns.subscribe(
             topic_arn:    channel.arn,
@@ -52,7 +70,7 @@ module Smash
         end
 
         # Lists the created topics in SNS.
-        # === @returns results <Array
+        # Returns results <Array
         def real_channels
           results = []
           next_token = ''
@@ -66,7 +84,7 @@ module Smash
         end
 
         # Send a message to a Channel using SNS#publish
-        # === @params: [opts <Hash>]:
+        # Parameters [opts <Hash>]:
         #   this includes all the keys AWS uses but for now it only has defaults
         #   for topic_arn and the message
         def send_broadcast(opts = {})

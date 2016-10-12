@@ -10,10 +10,13 @@ module Smash
 
       # Sets an Array of instance variables, individually to a value that a
       # user given block returns.
-      # === @params Array
+      #
+      # === Attributes
+      #
+      # * params Array
       #   * each object will be used as the name for the instance variable that
       #     your block returns
-      # === @&block (optional)
+      # +&block+ (optional)
       #   * this is called for each object in the Array and is used as the value
       #   for the instance variable that is being named and created for each key
       # === @return Array

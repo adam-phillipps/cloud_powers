@@ -74,10 +74,12 @@ module Smash
       end
 
       # Gets and sets the public hostname of the instance
-      # === @returns String
-      # === Notes:
-      #     * When this is being called from somewhere other than an Aws instance, a hardcoded example URL is returned
-      #       because of the way instance metadata is retrieved
+      # Returns
+      #   +String+
+      # Notes
+      # When this is being called from somewhere other than an Aws instance,
+      # a hardcoded example URL is returned
+      # because of the way instance metadata is retrieved
       def instance_url
         @instance_url ||= unless zfind('TESTING')
           hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
@@ -90,8 +92,13 @@ module Smash
       # Makes the http request to self/meta-data to get all the metadata keys or,
       # if a key is given, the method makes the http request to get that
       # particular key from the metadata
-      # === @param: key String (optional)
-      # === @returns:
+      #
+      # === Attributes
+      # * <tt>key</tt> - +String+ (optional)
+      #
+      # === Returns
+      # * +Array+ if key is blank
+      # * +String+ if key is given
       def metadata_request(key = '')
         key = to_hyph(key)
         begin

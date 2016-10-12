@@ -8,11 +8,14 @@ module Smash
 
         # Create a Kinesis stream or wait until the stream with the given name is
         # through being created.
-        # === @params: name String
-        # === @returns: Boolean or nil
-        #     * returns true or false if the request was successful or not
-        #     * returns true if the stream has already been created
-        #     * returns false if the stream was not created
+        #
+        # Parameters
+        # * name +String+
+        #
+        # Returns Boolean or nil
+        # * returns true or false if the request was successful or not
+        # * returns true if the stream has already been created
+        # * returns false if the stream was not created
         def create_stream(name)
           begin
             config = stream_config(stream_name: name)
@@ -35,11 +38,25 @@ module Smash
         end
 
         # Use the KCL and LangDaemon to read from a stream
-        # === @params: stream String
+        # Parameters stream String
+        #
+        # Notes
+        # This method is not implemented yet (V 0.2.7)
         def flow_from_pipe(stream)
           throw NotImplementedError
         end
 
+        # Sends data through a Pipe.  This method is used for lower throughput
+        # applications, e.g. logging, status updates
+        #
+        # Parameters
+        # * stream +String+
+        #
+        # Returns
+        # @last_sequence_number +String+
+        #
+        # Notes
+        # This method is not implemented yet (V 0.2.7)
         def flow_to_pipe(stream)
           throw NotImplementedError
           create_stream(stream) unless stream_exists? stream
@@ -53,25 +70,41 @@ module Smash
         end
 
         # Read messages from the Pipe without using the KCL
-        # === @params: stream String
+        # Parameters stream String
+        #
+        # Notes
+        # This method is not implemented yet (V 0.2.7)
         def from_pipe(stream)
           # implement get_records and/or other consuming app stuff
           throw NotImplementedError
         end
 
+        # This message will prepare a set of collections to be sent through the Pipe
+        #
+        # Parameters
+        # * records
+        #
+        # Notes
+        # This method is not implemented yet (V 0.2.7)
         def message_body_collection(records)
           throw NotImplementedError
         end
 
         # Default message package.  This method yields the basic configuration
         # and message body for a stream and all options can be changed.
-        # === @params: opts Hash (optional)
-        #     * stream_name:    String name of the stream to pipe to
-        #     * data:           String message to send
-        #     * partition_key:  String defaults to  @instance_id
-        # === @returns: Hash
-        # === Notes:
-        #     See #instance_id()
+        #
+        # Parameters opts Hash (optional)
+        # * stream_name:    String name of the stream to pipe to
+        # * data:           String message to send
+        # * partition_key:  String defaults to  @instance_id
+        #
+        # Returns
+        # +Hash+
+        #
+        # Notes:
+        # * See +#zfind()+
+        # * See +#instance_id()+
+        # * See +#update_message_body()+
         def pipe_message_body(opts = {})
           {
             stream_name:      zfind(opts[:stream_name]) || zfind('status_stream'),
@@ -82,16 +115,19 @@ module Smash
 
         # Use Kinesis streams to send a message.  The message is given to the method
         # through a block that gets passed to the method.
-        # === @params: stream String
-        # === block: a block that generates a string that will be used in the message body
-        # === @returns: the sequence_number from the sent message.
-        # === Example use
-        #     ```Ruby
-        #     pipe_to(:status_stream) do
-        #       # the return from the inner method is what is sent
-        #       do_some_stuff_to_generate_a_message()
-        #     end
-        #     ```
+        #
+        # Parameters
+        # * stream +String+
+        # * block - a block that generates a string that will be used in the message body
+        #
+        # Returns
+        # the sequence_number from the sent message.
+        #
+        # Example use
+        #   pipe_to(:status_stream) do
+        #     # the return from the inner method is what is sent
+        #     do_some_stuff_to_generate_a_message()
+        #   end
         def pipe_to(stream)
           message = ''
           create_stream(stream) unless stream_exists? stream
@@ -103,8 +139,11 @@ module Smash
         end
 
         # New stream config with sensible defaults
-        # === @params: opts Hash
-        #     * stream_name:
+        #
+        # Parameters
+        # * opts +Hash+ (optional)
+        # * * stream_name - the name to give the stream
+        # * * shard_count - the number of shards to create
         def stream_config(opts = {})
           config = {
             stream_name: opts[:stream_name] || zfind(:status_stream),
@@ -113,8 +152,12 @@ module Smash
         end
 
         # Find out if the stream already exists.
-        # === @params: name String
-        # === @returns: Boolean
+        #
+        # Parameters
+        # * name +String+
+        #
+        # Returns
+        # +Boolean+
         def stream_exists?(name)
           begin
             kinesis.describe_stream(stream_name: name)
@@ -125,9 +168,12 @@ module Smash
         end
 
         # Get the status name for this stream
-        # === @params: name String
-        # === @returns: stream status, one of:
-        #       CREATING, DELETING, ACTIVE, UPDATING
+        #
+        # Parameters
+        # *name +String+
+        #
+        # Returns stream status, one of:
+        # CREATING, DELETING, ACTIVE, UPDATING
         def stream_status(name)
           kinesis.describe_stream(stream_name: name).stream_description.stream_status
         end

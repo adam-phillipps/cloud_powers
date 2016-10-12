@@ -10,41 +10,28 @@ module Smash
       include Smash::CloudPowers::Zenv
 
       # Get the region from the environment/context or use a default region for AWS API calls.
-      # === @returns String
+      #
+      # === Returns
+      # +String+
       def region
         zfind(:aws_region) || 'us-west-2'
       end
 
       # Get or create an EC2 client and cache that client so that a Context is more well tied together
-      # === @params: opts [Hash]
-      #      * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      #      * region: defaulted to use the `#region()` method
-      #      * AWS::Credentials object, which will also scour the context and environment for your keys
-      # === @returns: AWS::EC2 client
+      #
+      # Parameters
+      # * opts +Hash+ (optional)
+      # * * stub_responses - defaulted to +false+ but it can be overriden with the desired responses for local testing
+      # * * region - defaulted to use the <tt>#region()</tt> method
+      # * * AWS::Credentials object, which will also scour the context and environment for your keys
+      #
+      # === Returns
+      # <tt>AWS::EC2::Client</tt>
+      #
       # === Sample Usage
-      #     ```
-      #       config = stub_responses: {
-      #         run_instances: {
-      #           instances: [
-      #             { instance_id: 'asd-1234', launch_time: Time.now, state: { name: 'running' }
-      #         ] }
-      #         describe_instances: {
-      #           reservations: [
-      #             { instances: [
-      #               { instance_id: 'asd-1234', state: { code: 200, name: 'running' } },
-      #           ] }] },
-      #         describe_images: {
-      #           images: [
-      #             { image_id: 'asdf', state: 'available' }
-      #         ] }
-      #       }
-      #
-      #       ec2(config) # sets and gets an EC2 client
-      #
-      #       images = ec2.describe_images
-      #       images.first[:image_id]
-      #       # => 'asdf'
-      #     ```
+      #   images = ec2.describe_images
+      #   images.first[:image_id]
+      #   # => 'asdf'
       def ec2(opts = {})
         config = {
           stub_responses: false,
@@ -59,11 +46,15 @@ module Smash
       # Get an image using a name and filters functionality from EC2.  The name is required but the filter defaults
       # to search for the tag with the key `aminame` because this is the key that most Nodes will search for, when
       # they gather an AMI to start with.
-      # === @params: opts [Hash]
-      #      * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      #      * region: defaulted to use the `#region()` method
-      #      * AWS::Credentials object, which will also scour the context and environment for your keys
-      # === @returns: AMI
+      #
+      # Parameters
+      # * opts [Hash]
+      # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
+      # * * region: defaulted to use the `#region()` method
+      # * * AWS::Credentials object, which will also scour the context and environment for your keys
+      #
+      # === Returns
+      # Aws::EC2::Image
       def image(name, opts = {})
         config = {
           filters: [{ name: 'tag:aminame', values: [name.to_s] }]
@@ -74,36 +65,18 @@ module Smash
       end
 
       # Get or create an Kinesis client and cache that client so that a Context is more well tied together
-      # === @params: opts [Hash]
-      #      * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      #      * region: defaulted to use the `#region()` method
-      #      * AWS::Credentials object, which will also scour the context and environment for your keys
-      # === @returns: AWS::Kinesis client
-      # === Sample Usage
-      #     ```
-      #       config = {
-      #         stub_responses: {
-      #           create_stream: {},
-      #             put_record: {
-      #               shard_id: opts[:shard_id] || 'idididididididid',
-      #               sequence_number: opts[:sequence_number] || Time.now.to_i.to_s
-      #             },
-      #             describe_stream: {
-      #               stream_description: {
-      #                 stream_name: opts[:name] || 'somePipe',
-      #                 stream_arn:  'arnarnarnarnar',
-      #                 stream_status: 'ACTIVE',
-      #               }
-      #             }
-      #           }
-      #         }
-      #       }
+      # Parameters
+      # * opts <tt>Hash</tt>
+      # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
+      # * * region: defaulted to use the `#region()` method
+      # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      #       kinesis(config) # sets and gets an Kinesis client
+      # === Returns
+      # AWS::Kinesis client
       #
-      #       pipe_to('somePipe') { update_body(status: 'waHoo') }
-      #       # => sequence_number: '1676151970'
-      #     ```
+      # === Example
+      #   pipe_to('somePipe') { update_body(status: 'waHoo') } # uses Aws::Kinesis::Client.put_recor()
+      #   # => sequence_number: '1676151970'
       def kinesis(opts = {})
         config = {
           stub_responses: false,
@@ -116,21 +89,19 @@ module Smash
       end
 
       # Get or create an S3 client and cache that client so that a Context is more well tied together
-      # === @params: opts [Hash]
-      #      * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      #      * region: defaulted to use the `#region()` method
-      #      * AWS::Credentials object, which will also scour the context and environment for your keys
-      # === @returns: AWS::S3 client
-      # === Sample Usage
-      #     ```
-      #       config = {
-      #         stub_responses: {
       #
-      #         }
-      #       }
+      # Parameters
+      # * opts <tt>Hash</tt>
+      # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
+      # * * region: defaulted to use the `#region()` method
+      # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      #     ```
-
+      # === Returns
+      # AWS::S3 client
+      #
+      # === Example
+      #   expect(s3.head_bucket).to be_empty
+      #   # passing expectation
       def s3(opts = {})
         config = {
           stub_responses: false,
@@ -143,28 +114,18 @@ module Smash
       end
 
       # Get or create an SNS client and cache that client so that a Context is more well tied together
-      # === @params: opts [Hash]
-      #      * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      #      * region: defaulted to use the `#region()` method
-      #      * AWS::Credentials object, which will also scour the context and environment for your keys
-      # === @returns: AWS::SNS client
-      # === Sample Usage
-      #     ```
-      #       config = {
-      #         stub_responses: {
-      #           create_topic: {},
-      #           delete_topic: {},
-      #           list_topics: [],
-      #           publish: {},
-      #           subscribe: {}
-      #         }
-      #       }
+      # Parameters
+      # * opts +Hash+
+      # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
+      # * * region: defaulted to use the `#region()` method
+      # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      #       sns(config) # sets and gets an Kinesis client
+      # === Returns
+      # AWS::SNS client
       #
-      #       create_channel!('testBroadcast')
-      #       # => true
-      #     ```
+      # === Example
+      #   create_channel!('testBroadcast') # uses Aws::SNS::Client
+      #   # => true
       def sns(opts = {})
         config = {
           stub_responses: false,
@@ -177,23 +138,18 @@ module Smash
       end
 
       # Get or create an SQS client and cache that client so that a Context is more well tied together
-      # === @params: opts [Hash]
-      #      * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      #      * region: defaulted to use the `#region()` method
-      #      * AWS::Credentials object, which will also scour the context and environment for your keys
-      # === @returns: AWS::SQS client
-      # === Sample Usage
-      #     ```
-      #       config = stub_responses: {
-      #         create_queue: {
-      #           queue_url: "https://sqs.us-west-2.amazonaws.com/12345678/#{opts[:name] || 'testQueue'}"
-      #         }
-      #       }
       #
-      #       sqs(config) # sets and gets an Kinesis client
+      # Parameters
+      # * opts <tt>Hash</tt>
+      # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
+      # * * region: defaulted to use the `#region()` method
+      # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      #       create_queue('someQueue')
-      #     ```
+      # === Returns
+      # AWS::SQS client
+      #
+      # === Example
+      #   create_queue('someQueue') # Uses Aws::SQS::Client
       def sqs(opts = {})
         config = {
           stub_responses: false,
