@@ -96,7 +96,7 @@ module Smash
       # Parameters
       # * <tt>key</tt> - +String+ (optional)
       #
-      # === Returns
+      # Returns
       # * +Array+ if key is blank
       # * +String+ if key is given
       def metadata_request(key = '')

@@ -35,9 +35,10 @@ module Smash
       # * * region - defaulted to use the <tt>#region()</tt> method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
+      # Returns
       # <tt>AWS::EC2::Client</tt>
-      # === Sample Usage
+      #
+      # Example
       #   config = stub_responses: {
       #     run_instances: {
       #       instances: [{ instance_id: 'asd-1234', launch_time: Time.now, state: { name: 'running' }]
@@ -91,16 +92,17 @@ module Smash
       end
 
       # Stub data for a SNS client
+      #
       # Parameters
       # * opts +Hash+
       # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
+      # Returns
       # AWS::SNS client
       #
-      # === Example
+      # Example
       #   config = {
       #     stub_responses: {
       #       create_topic: {},
@@ -136,10 +138,10 @@ module Smash
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
+      # Returns
       # AWS::Kinesis client
       #
-      # === Example
+      # Example
       #   config = {
       #     stub_responses: {
       #       create_stream: {},
@@ -205,10 +207,10 @@ module Smash
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
+      # Returns
       # AWS::S3 client
       #
-      # === Example
+      # Example
       #   config = {
       #     stub_responses: {
       #       head_bucket: {}
@@ -234,10 +236,10 @@ module Smash
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
+      # Returns
       # AWS::SQS client
       #
-      # === Example
+      # Example
       #   create_queue('someQueue') # uses AWS::SQS
       #   some_queue_url = queue_search('someQueue').first # uses AWS::SQS
       def self.queue_stub(opts = {})

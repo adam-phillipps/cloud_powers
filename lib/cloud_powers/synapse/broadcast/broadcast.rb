@@ -29,6 +29,7 @@ module Smash
         #################
 
         # Creates a connection point for 1..N nodes to create a connection with the Broadcast
+        # <b>Not Implimented</b>
         #
         # Parameters
         # * channel +String+
@@ -60,6 +61,7 @@ module Smash
         end
 
         # Creates a connection to the Broadcast so that new messages will be picked up
+        #
         # Parameters channel <Broadcast::Channel>
         def listen_on(channel)
           sns.subscribe(
@@ -70,6 +72,7 @@ module Smash
         end
 
         # Lists the created topics in SNS.
+        #
         # Returns results <Array
         def real_channels
           results = []
@@ -84,9 +87,13 @@ module Smash
         end
 
         # Send a message to a Channel using SNS#publish
-        # Parameters [opts <Hash>]:
-        #   this includes all the keys AWS uses but for now it only has defaults
+        #
+        # Parameters
+        # * opts +Hash+ - this includes all the keys AWS uses but for now it only has defaults
         #   for topic_arn and the message
+        # * * +:topic_arn+ - the ARN for the topic in AWS
+        # * * +:message+ - the message that should be broadcasted to whoever is listening on this
+        #     Channel (AWS Topic)
         def send_broadcast(opts = {})
           msg = opts.delete(:message) || ""
 

@@ -13,12 +13,16 @@ module Smash
       # resources in the account that zfind searches for, using the <tt>ACCOUNT_NUMBER</tt>
       # key.
       #
-      # === Returns
+      # Returns
       # <tt>Aws::Credentials</tt>
       #
-      # === Example
+      # Example
       #   Auth.creds
-      #   => Aws::Credentials
+      #   => Aws::Credentials # can be used to authenticate to AWS
+      #
+      # Notes
+      # * This method relies on +#zfind()+ to locate the key/secret strings
+      # * See +Smash::CloudPowers::Zenv#zfind()+
       def self.creds
         @creds ||= Aws::Credentials.new(
           zfind(:aws_access_key_id),
@@ -29,10 +33,10 @@ module Smash
       # This method is able to be called before an object is instantiated in order
       # to provide a region in AWS-landia.
       #
-      # === Returns
+      # Returns
       # The region set in configuration or a <tt>'us-west-2'</tt> default <tt>String</tt>
       #
-      # === Example
+      # Example
       #   Auth.region
       #   => 'us-east-1'
       def self.region

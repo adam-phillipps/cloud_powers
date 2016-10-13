@@ -38,6 +38,7 @@ module Smash
         end
 
         # Use the KCL and LangDaemon to read from a stream
+        #
         # Parameters stream String
         #
         # Notes
@@ -70,6 +71,7 @@ module Smash
         end
 
         # Read messages from the Pipe without using the KCL
+        #
         # Parameters stream String
         #
         # Notes

@@ -11,7 +11,7 @@ module Smash
 
       # Get the region from the environment/context or use a default region for AWS API calls.
       #
-      # === Returns
+      # Returns
       # +String+
       def region
         zfind(:aws_region) || 'us-west-2'
@@ -25,10 +25,10 @@ module Smash
       # * * region - defaulted to use the <tt>#region()</tt> method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
-      # <tt>AWS::EC2::Client</tt>
+      # Returns
+      # +AWS::EC2::Client+
       #
-      # === Sample Usage
+      # Example
       #   images = ec2.describe_images
       #   images.first[:image_id]
       #   # => 'asdf'
@@ -53,7 +53,7 @@ module Smash
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
+      # Returns
       # Aws::EC2::Image
       def image(name, opts = {})
         config = {
@@ -65,16 +65,17 @@ module Smash
       end
 
       # Get or create an Kinesis client and cache that client so that a Context is more well tied together
+      #
       # Parameters
       # * opts <tt>Hash</tt>
       # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
-      # AWS::Kinesis client
+      # Returns
+      # +AWS::Kinesis client+
       #
-      # === Example
+      # Example
       #   pipe_to('somePipe') { update_body(status: 'waHoo') } # uses Aws::Kinesis::Client.put_recor()
       #   # => sequence_number: '1676151970'
       def kinesis(opts = {})
@@ -96,12 +97,12 @@ module Smash
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
-      # AWS::S3 client
+      # Returns
+      # +AWS::S3 client+
       #
-      # === Example
-      #   expect(s3.head_bucket).to be_empty
-      #   # passing expectation
+      # Example
+      #   expect(s3.head_bucket('exampleBucket')).to be_empty
+      #   # passing test
       def s3(opts = {})
         config = {
           stub_responses: false,
@@ -120,10 +121,10 @@ module Smash
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
-      # AWS::SNS client
+      # Returns
+      # +AWS::SNS client+
       #
-      # === Example
+      # Example
       #   create_channel!('testBroadcast') # uses Aws::SNS::Client
       #   # => true
       def sns(opts = {})
@@ -145,10 +146,10 @@ module Smash
       # * * region: defaulted to use the `#region()` method
       # * * AWS::Credentials object, which will also scour the context and environment for your keys
       #
-      # === Returns
-      # AWS::SQS client
+      # Returns
+      # +AWS::SQS client+
       #
-      # === Example
+      # Example
       #   create_queue('someQueue') # Uses Aws::SQS::Client
       def sqs(opts = {})
         config = {

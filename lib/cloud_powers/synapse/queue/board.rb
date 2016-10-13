@@ -10,7 +10,14 @@ module Smash
           include Smash::CloudPowers::Helper
           include Smash::CloudPowers::Zenv
 
-          attr_accessor :address, :name, :poller, :sqs
+          # The URL the Aws::SQS::Queue uses
+          attr_accessor :address
+          # The name the Aws::SQS::Queue uses
+          attr_accessor :name
+          # An Aws::SQS::QueuePoller for this Board/SQS::Queue
+          attr_accessor :poller
+          # An Aws::SQS::Client.  See +#Smash::CloudPowers::AwsResources.sqs()+
+          attr_accessor :sqs
 
           # Creates a Board object.
           # The +#new()+ method is wrapped in +#build()+ and +#create!()+ but isn't private so
@@ -22,7 +29,7 @@ module Smash
           #
           # Returns
           # +Queue::Board+
-          def initialize(name, this_sqs)# = sqs)
+          def initialize(name, this_sqs = sqs)
             @sqs = this_sqs
             @name = name
           end

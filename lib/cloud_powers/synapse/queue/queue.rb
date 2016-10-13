@@ -11,13 +11,24 @@ module Smash
         # A simple Struct that acts as a Name to URL map
         #
         # Parameters
-        # * <tt>:set_name</tt> - name of the Queue +String+
-        # * <tt>:set_url</tt> - the url for the Queue +String+
+        # * :set_name +String+ (optional) - An optional name.  It should be the same name as the
+        #   the Board and/or Queue you're working with, or else this Struct isn't that useful
+        # * :set_url +String+ (optional) - An optional URL.  It should be the same URL as the
+        #   the Board and/or Queue you're working with, or else this Struct isn't that useful
+        #
+        # Attributes
+        # * name +String+ - the +:set_name+ or parse the +#address()+ for the name
+        # * url +String+ - the +:set_url+ or add the name to the end of a best guess at the URL
         #
         # Example
-        #  name_url_map = NUMap.new(nil, 'https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
-        #  name_url_map.name
-        #  # => 'fooBar'
+        #   name_url_map = NUMap.new(nil, 'https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
+        #   name_url_map.name
+        #   # => 'fooBar'
+        #
+        #   # and now in reverse
+        #   url_name_map = NUMap.new('snargleBargle')
+        #   url_name_map.address
+        #   # => 'https://sqs.us-west-53.amazonaws.com/001101010010/snargleBargle'
         NUMap = Struct.new(:set_name, :set_url) do
           # Gives you back the name, even if it hasn't been set
           #
