@@ -91,9 +91,11 @@ module Smash
 
       # Manually set the +@project_root+ i-var as a +Pathname+ object.
       #
-      # Parameters New path to the project root +String+|+Pathname+
+      # Parameters
+      # * +String+|+Pathname+ - new path to the project root
       #
-      # Returns +Pathname+ - +@project_root+
+      # Returns
+      # +Pathname+ - +@project_root+
       #
       # Example
       #   project_root
@@ -108,7 +110,8 @@ module Smash
       # Search through the system environment variables for a key or if no key
       # is given, return all the system-env-vars and their values
       #
-      # Parameters [key <String>]:  The key to search for
+      # Parameters
+      # * key +String+ - the key to search for
       #
       # Returns
       # * if a +key+ is given as a parameter, +String+
@@ -145,7 +148,7 @@ module Smash
       # * key +String+|+Symbol+ - the key to search for
       #
       # Returns
-      # +String+
+      # * +String+
       #
       # Notes
       # * TODO: implement a search for all 3 that can find close matches
