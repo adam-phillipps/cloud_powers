@@ -128,7 +128,7 @@ module Smash
             HTTParty.get(metadata_uri).parsed_response.split("\n")
           else
             require_relative '../stubs/aws_stubs'
-            stubbed_metadata = Smash::CloudPowers::AwsStubs::INSTANCE_METADATA_STUB
+            stubbed_metadata = Smash::CloudPowers::AwsStubs.instance_metadata_stub
 
             key.empty? ? stubbed_metadata.keys : stubbed_metadata[to_hyph(key)]
           end

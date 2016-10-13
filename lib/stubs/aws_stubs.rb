@@ -4,7 +4,7 @@ module Smash
     module AwsStubs
 
       # Stub metadata for EC2 instance
-      def instance_metadata_stub(opts = {})
+      def self.instance_metadata_stub(opts = {})
         {
           'ami-id' => 'ami-1234',
           'ami-launch-index' => '1',
