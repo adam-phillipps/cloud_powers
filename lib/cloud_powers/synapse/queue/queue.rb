@@ -237,7 +237,7 @@ module Smash
         # Returns
         # Boolean
         #
-        # Notes:
+        # Notes
         #   * see <tt>#queue_search()</tt>
         def queue_exists?(name)
           !queue_search(name).empty?

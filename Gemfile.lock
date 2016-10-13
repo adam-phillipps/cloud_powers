@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloud_powers (0.2.7.4)
+    cloud_powers (0.2.7.5)
       activesupport-core-ext (~> 4)
       aws-sdk (~> 2)
       dotenv (~> 2.1)

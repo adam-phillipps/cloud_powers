@@ -10,9 +10,12 @@ module Smash
       include Smash::CloudPowers::Helper
       include Smash::CloudPowers::SelfAwareness
       include Smash::CloudPowers::Zenv
+
       # These are sensible defaults that can be overriden by providing a Hash as a param.
-      # Parameters [opts <Hash>]
-      #   the opts Hash should have values that should be used instead of the given
+      #
+      # Parameters
+      # * opts +Hash+ (optional)
+      #   the opts Hash should have values that should be used instead of the default
       #   configuration.
       def node_config(opts = {})
         {
@@ -30,13 +33,14 @@ module Smash
         }.merge(opts)
       end
 
-      # Uses `Aws::EC2#run_instances` to create nodes (Neurons or Cerebrums), at
+      # Uses +Aws::EC2#run_instances()+ to create nodes (Neurons or Cerebrums), at
       # a rate of 0..(n <= 100) at a time, until the required number of instances
       # has been started.  The #instance_config() method is used to create instance
       # configuration for the #run_instances method by using the opts hash that was
       # provided as a parameter.
       #
-      # Parameters opts Hash (optional)
+      # Parameters
+      # * opts +Hash+ (optional)
       #   an optional instance configuration hash can be passed, which will override
       #   the values in the default configuration returned by #instance_config()
       def spin_up_neurons(opts = {})

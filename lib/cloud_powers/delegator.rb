@@ -12,7 +12,7 @@ module Smash
     # be the name of the class you're trying to instantiate and use
     module Delegator
       extend Smash::CloudPowers::Auth
-      include Smash::CloudPowaters::AwsResources
+      include Smash::CloudPowers::AwsResources
       include Smash::CloudPowers::Helper
       include Smash::CloudPowers::Storage
 

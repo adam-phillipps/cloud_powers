@@ -42,7 +42,7 @@ module Smash
         # Parameters stream String
         #
         # Notes
-        # This method is not implemented yet (V 0.2.7)
+        # * This method is not implemented yet (V 0.2.7)
         def flow_from_pipe(stream)
           throw NotImplementedError
         end
@@ -57,7 +57,7 @@ module Smash
         # @last_sequence_number +String+
         #
         # Notes
-        # This method is not implemented yet (V 0.2.7)
+        # * This method is not implemented yet (V 0.2.7)
         def flow_to_pipe(stream)
           throw NotImplementedError
           create_stream(stream) unless stream_exists? stream
@@ -75,7 +75,7 @@ module Smash
         # Parameters stream String
         #
         # Notes
-        # This method is not implemented yet (V 0.2.7)
+        # * This method is not implemented yet (V 0.2.7)
         def from_pipe(stream)
           # implement get_records and/or other consuming app stuff
           throw NotImplementedError
@@ -87,7 +87,7 @@ module Smash
         # * records
         #
         # Notes
-        # This method is not implemented yet (V 0.2.7)
+        # * This method is not implemented yet (V 0.2.7)
         def message_body_collection(records)
           throw NotImplementedError
         end
@@ -103,7 +103,7 @@ module Smash
         # Returns
         # +Hash+
         #
-        # Notes:
+        # Notes
         # * See +#zfind()+
         # * See +#instance_id()+
         # * See +#update_message_body()+
@@ -125,7 +125,7 @@ module Smash
         # Returns
         # the sequence_number from the sent message.
         #
-        # Example use
+        # Example
         #   pipe_to(:status_stream) do
         #     # the return from the inner method is what is sent
         #     do_some_stuff_to_generate_a_message()
@@ -174,8 +174,8 @@ module Smash
         # Parameters
         # *name +String+
         #
-        # Returns stream status, one of:
-        # CREATING, DELETING, ACTIVE, UPDATING
+        # Returns
+        # +String+ - stream status, one of: CREATING, DELETING, ACTIVE or UPDATING
         def stream_status(name)
           kinesis.describe_stream(stream_name: name).stream_description.stream_status
         end
