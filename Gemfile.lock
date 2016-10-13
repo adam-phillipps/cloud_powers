@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cloud_powers (0.2.7.6)
+    cloud_powers (0.2.7.7)
       activesupport-core-ext (~> 4)
       aws-sdk (~> 2)
       dotenv (~> 2.1)
@@ -15,12 +15,12 @@ GEM
   remote: https://rubygems.org/
   specs:
     activesupport-core-ext (4.0.0.3)
-    aws-sdk (2.6.6)
-      aws-sdk-resources (= 2.6.6)
-    aws-sdk-core (2.6.6)
+    aws-sdk (2.6.7)
+      aws-sdk-resources (= 2.6.7)
+    aws-sdk-core (2.6.7)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.6.6)
-      aws-sdk-core (= 2.6.6)
+    aws-sdk-resources (2.6.7)
+      aws-sdk-core (= 2.6.7)
     byebug (9.0.6)
     diff-lcs (1.2.5)
     dotenv (2.1.1)
