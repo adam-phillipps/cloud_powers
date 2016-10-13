@@ -4,28 +4,30 @@ module Smash
     module AwsStubs
 
       # Stub metadata for EC2 instance
-      INSTANCE_METADATA_STUB = {
-        'ami-id' => 'ami-1234',
-        'ami-launch-index' => '1',
-        'ami-manifest-path' => '',
-        'block-device-mapping/' => '',
-        'hostname' => '',
-        'instance-action' => '',
-        'instance-id' => 'asd-1234',
-        'instance-type' => 't2.nano',
-        'kernel-id' => '',
-        'local-hostname' => 'ip-10-251-50-12.ec2.internal',
-        'local-ipv4' => '',
-        'mac network/' => '',
-        'placement/' => 'boogers',
-        'public-hostname' => 'ec2-203-0-113-25.compute-1.amazonaws.com',
-        'public-ipv4' => 'adsfasdfasfd',
-        'public-keys/' => 'jfakdsjfkdlsajfkldsajflkasjdfklajsdflkajsldkfjalsdfjaklsdjflasjfklasjdfkals',
-        'public-keys/0' => 'asdjfkasdjfkasdjflasjdfklsajdlkfjaldkgfjalkdfgjklsdfjgklsdjfklsjlkdfjakdlfjalskdfjlas',
-        'reservation-id' => 'r-fea54097',
-        'security-groups' => 'groupidygroupgroupgroup',
-        'services/' => ''
-      }
+      def instance_metadata_stub(opts = {})
+        {
+          'ami-id' => 'ami-1234',
+          'ami-launch-index' => '1',
+          'ami-manifest-path' => '',
+          'block-device-mapping/' => '',
+          'hostname' => '',
+          'instance-action' => '',
+          'instance-id' => 'asd-1234',
+          'instance-type' => 't2.nano',
+          'kernel-id' => '',
+          'local-hostname' => 'ip-10-251-50-12.ec2.internal',
+          'local-ipv4' => '',
+          'mac network/' => '',
+          'placement/' => 'boogers',
+          'public-hostname' => 'ec2-203-0-113-25.compute-1.amazonaws.com',
+          'public-ipv4' => 'adsfasdfasfd',
+          'public-keys/' => 'jfakdsjfkdlsajfkldsajflkasjdfklajsdflkajsldkfjalsdfjaklsdjflasjfklasjdfkals',
+          'public-keys/0' => 'asdjfkasdjfkasdjflasjdfklsajdlkfjaldkgfjalkdfgjklsdfjgklsdjfklsjlkdfjakdlfjalskdfjlas',
+          'reservation-id' => 'r-fea54097',
+          'security-groups' => 'groupidygroupgroupgroup',
+          'services/' => ''
+        }
+      end
 
       # Get or create an EC2 client and cache that client so that a Context is more well tied together
       #
@@ -39,24 +41,16 @@ module Smash
       # <tt>AWS::EC2::Client</tt>
       #
       # Example
-      #   config = stub_responses: {
-      #     run_instances: {
-      #       instances: [{ instance_id: 'asd-1234', launch_time: Time.now, state: { name: 'running' }]
-      #     },
-      #     describe_instances: {
-      #       reservations: [
-      #         { instances: [{ instance_id: 'asd-1234', state: { code: 200, name: 'running' } }] }
-      #     ] },
-      #     describe_images: {
-      #       images: [{ image_id: 'asdf', state: 'available' }]
-      #     }
-      #   }
-      #
-      #   ec2(config) # sets and gets an <tt>EC2::Client</tt> that is stubbed with the return data in the config <tt>Hash</tt>
+      #   ec2(Smash::CloudPowers::AwsStubs.node_stub) # sets and gets an <tt>EC2::Client</tt> that is stubbed with the return data in the config <tt>Hash</tt>
       #
       #   images = ec2.describe_images
       #   images.first[:image_id]
       #   # => 'asdf'
+      #
+      # Notes
+      # * defaults can't be overriden or don't have good support for
+      #   for it yet but you can use this hash as a guide
+      #   for your own custom configuration
       def self.node_stub(opts = {})
         {
           stub_responses: {
@@ -103,20 +97,15 @@ module Smash
       # AWS::SNS client
       #
       # Example
-      #   config = {
-      #     stub_responses: {
-      #       create_topic: {},
-      #       delete_topic: {},
-      #       list_topics: [],
-      #       publish: {},
-      #       subscribe: {}
-      #     }
-      #   }
-      #
-      #   sns(config) # sets and gets an Kinesis client
+      #   sns(Smash::CloudPowers::AwsStubs.broadcast_stub) # sets and gets an Kinesis client
       #
       #   create_channel!('testBroadcast')
       #   # => true
+      #
+      # Notes
+      # * defaults can't be overriden or don't have good support for
+      #   for it yet but you can use this hash as a guide
+      #   for your own custom configuration
       def self.broadcast_stub(opts = {})
         arn = "arn:aws:sns:us-west-2:8123456789:#{opts[:name] || 'testChannel'}"
        stub = {
@@ -142,35 +131,24 @@ module Smash
       # AWS::Kinesis client
       #
       # Example
-      #   config = {
-      #     stub_responses: {
-      #       create_stream: {},
-      #         put_record: {
-      #           shard_id: opts[:shard_id] || 'idididididididid',
-      #           sequence_number: opts[:sequence_number] || Time.now.to_i.to_s
-      #         },
-      #         describe_stream: {
-      #           stream_description: {
-      #             stream_name: opts[:name] || 'somePipe',
-      #             stream_arn:  'arnarnarnarnar',
-      #             stream_status: 'ACTIVE',
-      #           }
-      #         }
-      #       }
-      #     }
-      #   }
-      #
-      #   kinesis(config) # sets and gets an Kinesis client
+      #   # sets and gets an Kinesis client.  No need to set a variable because one was
+      #   # just created as +@kinesis+ and is set to the client
+      #   kinesis(Smash::CloudPowers::AwsStubs.pipe_stub)
       #
       #   pipe_to('somePipe') { update_body(status: 'waHoo') }
       #   # => sequence_number: '1676151970'
+      #
+      # Notes
+      # * defaults can't be overriden or don't have good support for
+      #   for it yet but you can use this hash as a guide
+      #   for your own custom configuration
       def self.pipe_stub(opts = {})
         stub = {
           stub_responses: {
             create_stream: {},
             put_record: {
               shard_id: opts[:shard_id] || 'idididididididid',
-              sequence_number: opts[:sequence_number] || '1234'
+              sequence_number: opts[:sequence_number] || '1676151970'
             },
             describe_stream: {
               stream_description: {
@@ -211,15 +189,14 @@ module Smash
       # AWS::S3 client
       #
       # Example
-      #   config = {
-      #     stub_responses: {
-      #       head_bucket: {}
-      #     }
-      #   }
-      #
-      #   s3(config)
+      #   s3(Smash::CloudPowers::AwsStubs.storage_stub)
       #   expect(s3.head_bucket).to be_empty
       #   # passing expectation
+      #
+      # Notes
+      # * defaults can't be overriden or don't have good support for
+      #   for it yet but you can use this hash as a guide
+      #   for your own custom configuration
       def self.storage_stub(opts = {})
         {
           stub_responses: {
@@ -231,17 +208,23 @@ module Smash
       # Stub data for an SQS client
       #
       # Parameters
-      # * opts <tt>Hash</tt>
-      # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      # * * region: defaulted to use the `#region()` method
-      # * * AWS::Credentials object, which will also scour the context and environment for your keys
+      # * opts +Hash+ (optional)
+      # * * +:stub_responses+ - defaulted to false but it can be overriden with the desired responses for local testing
+      # * * +:region+ - defaulted to use the +#region()+ method
+      # * * +AWS::Credentials+ object, which will also scour the context and environment for your keys
       #
       # Returns
       # AWS::SQS client
       #
       # Example
+      #   sqs(Smash::CloudPowers::AwsStubs.queue_stub(name: 'someQueue'))
       #   create_queue('someQueue') # uses AWS::SQS
-      #   some_queue_url = queue_search('someQueue').first # uses AWS::SQS
+      #   # => 'https://sqs.us-west-2.amazonaws.com/12345678/someQueue'
+      #
+      # Notes
+      # * defaults can't be overriden or don't have good support for
+      #   for it yet but you can use this hash as a guide
+      #   for your own custom configuration
       def self.queue_stub(opts = {})
         {
           stub_responses: {

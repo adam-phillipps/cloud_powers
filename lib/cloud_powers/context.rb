@@ -19,7 +19,7 @@ module Smash
       # passed.
       #
       # Parameters
-      # * args +Hash+|+JSON+|+Array+|+enumerable list+
+      # * args +Hash+|+JSON+|+Array+|+Enumerable+
       # * * expample +Hash+:
       # * * * each key is a module or class that is in CloudPowers and each value
       #       is either an array of configurations information or a single configuration.
