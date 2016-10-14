@@ -1,4 +1,4 @@
-# CloudPowers
+{<img src="https://badge.fury.io/rb/cloud_powers.svg" alt="Gem Version" />}[https://badge.fury.io/rb/cloud_powers]# CloudPowers
 
 ## Description
 

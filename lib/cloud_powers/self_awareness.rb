@@ -24,6 +24,11 @@ module Smash
       # * TODO: use time codes
       def boot_time
         begin
+          ec2(Smash::CloudPowers::AwsStubs.node_stub)
+          sqs(Smash::CloudPowers::AwsStubs.queue_stub)
+          sns(Smash::CloudPowers::AwsStubs.broadcast_stub)
+          kinesis(Smash::CloudPowers::AwsStubs.pipe_stub)
+
           @boot_time ||=
             ec2.describe_instances(dry_run: zfind(:testing), instance_ids:[instance_id]).
               reservations[0].instances[0].launch_time.to_i
