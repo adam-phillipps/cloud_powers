@@ -16,6 +16,20 @@ module Smash
       include Smash::CloudPowers::Helper
       include Smash::CloudPowers::Storage
 
+      # Predicate method to return true for valid job titles and false for invalid ones
+      #
+      # Parameters
+      # * name +String+ (optional) - name of the task in snake_case
+      #
+      # Returns
+      # +Boolean+
+      #
+      # Notes
+      # * TODO: needs improvement
+      def approved_task?(name = nil)
+        ['demo', 'testinz'].include? to_snake(name)
+      end
+
       # responsible for sourcing, loading into the global namespace
       # and use of Ruby source code, through the +#new()+ method on
       # that class
@@ -38,7 +52,7 @@ module Smash
       #   job.build('abc-1234', Aws::SQS::Message)
       #   # => +ExampleTask:Object+
       def build(id, msg)
-        body = JSON.parse(msg)
+        body = decipher_message(msg)
         begin
           task = body.delete('task')
           if approved_task? task
@@ -55,18 +69,44 @@ module Smash
         end
       end
 
-      # Predicate method to return true for valid job titles and false for invalid ones
+      # Get the body of the message out from a few different types of objects.
+      # The idea is to allow JSON, a String or some object that responds to :body
+      # through while continually attempting to decipher other types of objects
+      # finally giving up.  But wait, after it gives up, it just turns it into a
+      # Hash and assumes that the value is a Task name.
       #
       # Parameters
-      # * name +String+ (optional) - name of the task in snake_case
+      # * msg +String+
       #
       # Returns
-      # +Boolean+
+      # +Hash+
+      #
+      # Example
+      #   # given hash_message = { task: 'example' }
+      #   # givem json_message = "\{"task":"example"\}"
+      #   # given message_with_body = <Object @body="stuff stuff stuff">
+      #
+      #   decipher_message(hash_message)
+      #   # => { task: 'example' }
+      #   decipher_message(json_message)
+      #   # => { task: 'example' }
+      #   decipher_message(message_with_body)
+      #   # => { task: 'example' }
+      #   decipher_message('some ridiculous string')
+      #   # => { task: 'some_ridiculous_string'}
       #
       # Notes
-      # * TODO: needs improvement
-      def approved_task?(name = nil)
-        ['demo', 'testinz'].include? to_snake(name)
+      # See +#to_snake()+
+      def decipher_message(msg)
+        begin
+          if msg.respond_to? :body
+            decipher_message(msg.body)
+          else
+            msg.kind_of?(Hash) ? msg : JSON.parse(msg.to_s)
+          end
+        rescue Exception
+          { task: to_snake(msg.to_s) }
+        end
       end
     end
   end
