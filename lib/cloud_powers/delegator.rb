@@ -102,7 +102,7 @@ module Smash
           if msg.respond_to? :body
             decipher_message(msg.body)
           else
-            msg.kind_of?(Hash) ? msg : JSON.parse(msg.to_s)
+            msg.kind_of?(Hash) ? msg : JSON.parse(msg)
           end
         rescue Exception
           { task: to_snake(msg.to_s) }

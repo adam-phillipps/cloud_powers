@@ -1,6 +1,7 @@
 require 'aws-sdk'
 Aws.use_bundled_cert!
 require 'httparty'
+require 'stubs/aws_stubs'
 require_relative 'aws_resources'
 require_relative 'helper'
 require_relative './synapse/synapse'
@@ -127,7 +128,6 @@ module Smash
             metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
             HTTParty.get(metadata_uri).parsed_response.split("\n")
           else
-            require_relative '../stubs/aws_stubs'
             stubbed_metadata = Smash::CloudPowers::AwsStubs.instance_metadata_stub
 
             key.empty? ? stubbed_metadata.keys : stubbed_metadata[to_hyph(key)]

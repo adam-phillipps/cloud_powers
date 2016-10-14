@@ -1,4 +1,5 @@
 require 'logger'
+require 'fileutils'
 require 'pathname'
 require 'uri'
 require 'syslog/logger'
@@ -218,6 +219,26 @@ module Smash
         end
       end
 
+      # Gives a common home for tasks to live so they can be easily grouped and
+      # found.  This method will create nested directories, based on the
+      # <tt>#project_root()</tt> method and an additional 'lib/tasks' directory.
+      # If no project root has been set by the time this method is called, a new
+      # directory will be created relative to the gem's project root.
+      #
+      # Returns
+      # +String+
+      #
+      # Notes
+      # * # If no project root has been set by the time this method is called, a new
+      # directory will be created relative to the gem's project root.  This might
+      # have deeper implications than you want to deal with so it's always a good
+      # idea to set your project root as soon as you can.
+      # * TODO: find a way to have this method figure out the actual project's
+      #   root, as opposed to just making common <i>"good"</i> assumptions.
+      def task_home
+        FileUtils.mkdir_p("#{project_root}/lib/tasks").first
+      end
+
       # Gives the path from the project root to lib/tasks[/#{file}.rb]
       #
       # Parameters
@@ -229,10 +250,14 @@ module Smash
       # * file +String+ if +file+ parameter is not given it will return the <tt>#task_require_path()</tt>
       #
       # Notes
-      # * See <tt>#task_require_path()</tt>
+      # * See <tt>#task_home</tt>
       def task_path(file = '')
-        return task_require_path if file.empty?
-        Pathname(__FILE__).parent.dirname + 'tasks' + to_ruby_file_name(file)
+        begin
+         return task_home if file.empty?
+          File.new("#{task_home}/#{file}.rb")
+        rescue Errno::ENOENT => e
+          nil
+        end
       end
 
       # Gives the path from the project root to lib/tasks[/file]
@@ -246,9 +271,14 @@ module Smash
       #
       # Notes
       # * Neither path nor file will have a file extension
+      # * See <tt>#task_home</tt>
       def task_require_path(file_name = '')
-        file = File.basename(file_name, File.extname(file_name))
-        Pathname(__FILE__).parent.dirname + 'tasks' + file
+        begin
+          file_sans_extension = File.basename(file_name, '.*')
+          Pathname.new(task_home) + file_sans_extension
+        rescue Errno::ENOENT => e
+          nil
+        end
       end
 
       # Change strings into camelCase
