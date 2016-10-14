@@ -38,7 +38,7 @@ module Smash
       #   job.build('abc-1234', Aws::SQS::Message)
       #   # => +ExampleTask:Object+
       def build(id, msg)
-        body = JSON.parse(msg.body)
+        body = JSON.parse(msg)
         begin
           task = body.delete('task')
           if approved_task? task
