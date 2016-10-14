@@ -236,7 +236,8 @@ module Smash
       # * TODO: find a way to have this method figure out the actual project's
       #   root, as opposed to just making common <i>"good"</i> assumptions.
       def task_home
-        FileUtils.mkdir_p("#{project_root}/lib/tasks").first
+        string_th = FileUtils.mkdir_p("#{project_root}/lib/tasks/").first
+        @task_home ||= Pathname.new(string_th).realpath.to_s
       end
 
       # Gives the path from the project root to lib/tasks[/#{file}.rb]
@@ -252,11 +253,27 @@ module Smash
       # Notes
       # * See <tt>#task_home</tt>
       def task_path(file = '')
+       return task_home if file.empty?
+        Pathname.new("#{task_home}/#{file}").to_s
+      end
+
+
+      # Check if the task file exists in the task directory
+      #
+      # Parameters
+      # * file +String+
+      #
+      # Returns
+      # +Boolean+
+      #
+      # Notes
+      # * See +#task_home()+
+      def task_exist?(file)
         begin
-         return task_home if file.empty?
-          File.new("#{task_home}/#{file}.rb")
+          File.new("#{task_home}/#{file}")
+          true
         rescue Errno::ENOENT => e
-          nil
+          false
         end
       end
 
@@ -275,7 +292,7 @@ module Smash
       def task_require_path(file_name = '')
         begin
           file_sans_extension = File.basename(file_name, '.*')
-          Pathname.new(task_home) + file_sans_extension
+          (Pathname.new(task_home) + file_sans_extension).to_s
         rescue Errno::ENOENT => e
           nil
         end
