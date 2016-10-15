@@ -248,6 +248,17 @@ module Smash
       #   for it yet but you can use this hash as a guide
       #   for your own custom configuration
       def self.queue_stub(opts = {})
+        msg_body = if opts[:body]
+          if opts[:body].kind_of? Hash
+            opts[:body] = opts[:body].to_json
+          elsif JSON.parse(opts[:body])
+            begin
+              opts[:body]
+            rescue JSON::ParserError
+              {foo: 'bar'}.to_json
+            end
+          end
+        end
         {
           stub_responses: {
             create_queue: {
@@ -273,7 +284,7 @@ module Smash
                     "SenderId" => "AIDAIAZKMSNQ7TEXAMPLE",
                     "SentTimestamp" => "1442428276921"
                   },
-                  body: "{\"foo\":\"bar\"}",
+                  body: msg_body || "{\"foo\":\"bar\"}",
                   md5_of_body: "51b0a325...39163aa0",
                   md5_of_message_attributes: "00484c68...59e48f06",
                   message_attributes: {
