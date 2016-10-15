@@ -41,7 +41,7 @@ module Smash
       def source_task(file)
         # TODO: better path management
         bucket = zfind('task storage')
-        if task_path(file).nil?
+        if task_path(to_ruby_file_name(file)).nil?
           objects = s3.list_objects(bucket: bucket).contents.select do |f|
             /#{Regexp.escape file}/i =~ f.key
           end

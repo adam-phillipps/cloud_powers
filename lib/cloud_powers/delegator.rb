@@ -27,7 +27,7 @@ module Smash
       # Notes
       # * TODO: needs improvement
       def approved_task?(name = nil)
-        ['demo', 'testinz'].include? to_snake(name)
+        ['demo', 'testinz', 'true_roas'].include? to_snake(name)
       end
 
       # responsible for sourcing, loading into the global namespace
@@ -54,13 +54,13 @@ module Smash
       def build(id, msg)
         body = decipher_message(msg)
         begin
-          task = body.delete('task')
+          task = body['task']
           if approved_task? task
             source_task(task)
             require_relative task_require_path(task)
-            Smash.const_get(to_pascal(task)).new(id, msg)
+            Smash.const_get(to_pascal(task)).new(id, body)
           else
-            Smash::Task.new(id, msg) # returns a default Task
+            Smash::Task.new(id, body) # returns a default Task
           end
         rescue JSON::ParserError => e
           message = [msg.body, format_error_message(e)].join("\n")
