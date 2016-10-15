@@ -132,7 +132,8 @@ module Smash
         #   end
         def pipe_to(stream)
           message = ''
-          create_stream(stream) unless stream_exists? stream
+          stream_name = zfind(stream)
+          create_stream() unless stream_exists? stream
           message = yield if block_given?
           body = update_message_body(message)
           resp = kinesis.put_record pipe_message_body(stream_name: stream, data: body.to_json)
