@@ -13,20 +13,22 @@ module Smash
       include Smash::CloudPowers::Helper
 
       attr_accessor :package # The given data structure that is used to build @structure
-      attr_reader :structure # A Hash that is used to represent the scheme of the Context
 
       # Attempts to create a Context out of the argument(s) you've
       # passed.
-      # === @params args <Hash|JSON|Array|enumerable list>
-      #   - exp Hash:
-      #     `{ task: 'demo', queue: [:backlog, :sned], pipe: :status_stream }`
-      #     each key is a module or class that is in CloudPowers and each value
-      #     is either an array of configurations information or a single configuration.
-      #   - exp Array
-      #     `[:task, 'demo', :queue, :backlog, :sned, :pipe, :status_stream]`
-      #     each key is followed by 0..n valid configurations information
-      # === @returns
-      #   `Smash::Context`
+      #
+      # Parameters
+      # * args +Hash+|+JSON+|+Array+|+Enumerable+
+      # * * expample +Hash+:
+      # * * * each key is a module or class that is in CloudPowers and each value
+      #       is either an array of configurations information or a single configuration.
+      #         { task: 'demo', queue: [:backlog, :sned], pipe: :status_stream }
+      # * * expample Array
+      # * * * each key is followed by 0..n valid configurations information
+      #         [:task, 'demo', :queue, :backlog, :sned, :pipe, :status_stream]
+      #
+      # Returns
+      # +Smash::Context+
       def initialize(args)
         unless valid_args?(args)
           raise ArgumentError.new 'Can be either a Hash, JSON, or an Enumerable ' +
@@ -36,8 +38,12 @@ module Smash
         @structure = decipher(args)
       end
 
-      # # Decipher figures out which translation method to use by making some simple
-      # # type checks, etc. and then routing the args to the correct method.
+      # Decipher figures out which translation method to use by making some simple type checks, etc.
+      # and then routing the args to the correct method.
+      #
+      # Notes
+      # * See +#translate_json()+
+      # * See +#translate_list()+
       def decipher(args)
         case args
         when Hash
@@ -50,33 +56,63 @@ module Smash
       end
 
       # Creates a flat Array of the 2-D Array that gets returned from `#simplify()`
-      # === @returns <Array>
+      #
+      # Returns +Array+
+      #
+      # Example
+      #   example_context.structure
+      #   # => { task: 'demo', queue: [:backlog, :sned], pipe: [:status_stream] }
+      #   example.flatten
+      #   # => [:task, 'demo', :queue, :backlog, :sned, :pipe, :status_stream]
+      #
+      # Notes
+      # * See +#simplify()
+      # * See +#Array::flatten()+
       def flatten
         simplify.flatten
       end
 
       # Create an array version of @sructure by calling `#to_a()` on it
-      # === @returns Array<Array..n>
-      # TODO: Check if this has a limit to n-layers
+      #
+      # Returns
+      # <tt>Array[Array..n]</tt>
+      #
+      # Example
+      #   example_context.structure
+      #   # => { task: 'demo', queue: [:backlog, :sned], pipe: [:status_stream] }
+      #   example.simplify
+      #   # => [:task, 'demo', :queue, [:backlog, :sned], :pipe, [:status_stream]]
+      #
+      # Notes
+      # * This uses the different Constants, like Smash, Synapse and anything it can find
+      #   to decide what should be used as a key and what its following values array should
+      #   contain.  It basically says:
+      #   1. if the nth item is a known key (from the above search), add it as an object in the Array.
+      #   2. else, add it to the last sub-Array
+      #   3. move to n+1 in the +structure Hash+
+      # * TODO: Check if this has a limit to n-layers
       def simplify
         @structure.to_a
       end
 
       # A Hash that represents the resources and some configuration for them
-      # === @returns Hash
+      #
+      # Returns +Hash+
       def structure
         modify_keys_with(@structure) { |key| key.to_sym }
       end
 
       # Valid scheme for @structure is assured by running the arguments through
-      # the decipher method, which is how @structure is set in `#new(args)`
+      # the decipher method, which is how @structure is set in +#new(args)+
       def structure=(args)
         @structure = decipher(args)
       end
 
       # Parse the given JSON
-      # === @param: json_string <String::Json>
-      # === @returns <Hash>
+      # Parameters
+      # +JSON+
+      # Returns
+      # +Hash+
       def translate_json(json_string)
         begin
           JSON.parse(json_string)
@@ -86,58 +122,57 @@ module Smash
       end
 
       # Re-layer this flattened Array or enumerable list so that it looks like the
-      #  Hash that it used to be before the Smash::Context#flatten() method was called
-      #  === @param list
-      #    `<Array|List <Enumerable>`
-      #    e.g.
-      #      flat
-      #      ```Ruby
-      #      [
-      #        object_name_1, config_1a, config_2a, ...,
-      #        object_2, config_1b, etc,
-      #        ...
-      #      ]
-      #      ```
-      #      grouped
-      #      or
-      #      ```Ruby
-      #      [
-      #        [object_name_1, config_1a, config_2a, ...],
-      #        [object_2, config_1b, etc],
-      #        ...
-      #      ]
-      #      ```
-      #      or
-      #      structured
-      #      ```Ruby
-      #      [
-      #        [object_name_1, [config_1a, config_2a, ...]],
-      #        [object_2, [config_1b, etc]],
-      #        ...
-      #      ]
-      #      ```
-      #      returns
-      #      ```Ruby
-      #      {
-      #        object_1: [config_1a, config_2a, ...],
-      #        object_2: [config_1b, ...],
-      #        ...
-      #      }
-      #      ```
-      # === @returns Hash
-      #   If `#valid_package_hash?()` is called on this Hash, it will return true
+      # Hash that it used to be before the Smash::Context#flatten() method was called
+      #
+      # Parameters
+      # +Array+|+List+|+Enumerable+
+      #
+      # Example
+      # * flat
+      #
+      #   [
+      #     object_name_1, config_1a, config_2a, ...,
+      #     object_2, config_1b, etc,
+      #     ...
+      #   ]
+      #
+      # * or grouped
+      #
+      #   [
+      #     [object_name_1, config_1a, config_2a, ...],
+      #     [object_2, config_1b, etc],
+      #     ...
+      #   ]
+      #
+      # * or structured
+      #
+      #   [
+      #     [object_name_1, [config_1a, config_2a, ...]],
+      #     [object_2, [config_1b, etc]],
+      #     ...
+      #   ]
+      #
+      # * returns
+      #
+      #   {
+      #     object_1: [config_1a, config_2a, ...],
+      #     object_2: [config_1b, ...],
+      #     ...
+      #   }
+      # Returns Hash
+      #   If +#valid_package_hash?()+ is called on this Hash, it will return true
       def translate_list(list)
         list.first.kind_of?(Enumerable) ? translate_simplified(list) : translate_flattened(list)
       end
 
       # Translates an Array into a valid @structure Hash
-      # === @param arr <Array>
-      #   e.g.
-      #   ```Ruby
-      #   [:task, 'demo', :queue, 'name1', {other config hash},...,:pipe, 'name1']
-      #   ```
-      # === @returns Hash
-      #   calling `#valid_hash_format?()` on returned Hash will return true
+      # Parameters arr <Array>
+      # e.g.
+      #   [:task, ['demo'], :queue, ['name1','name2',.,.,.,.,.], {other config hash},..., :pipe, ['name1']
+      # Returns
+      # +Hash+
+      # Notes
+      # * calling +#valid_hash_format?()+ on returned Hash will return true
       def translate_flattened(list)
         arr = list.to_a
         results = []
@@ -155,7 +190,7 @@ module Smash
       end
 
       # Translates a 2D Array into a valid @structure Hash
-      # === @param arr <Array>
+      # Parameters arr <Array>
       #   e.g.
       #   ```
       #     [
@@ -169,7 +204,7 @@ module Smash
       #   - First object of each inner-Array is the key
       #   - All following values in that inner Array are separate configuration
       #     information pieces that can be used in the `#create!()` method for that particular resource
-      # === @returns Hash
+      # Returns Hash
       #   well formatted for the @structure
       def translate_simplified(arr)
         arr.inject({}) do |hash, key_config_map|
@@ -181,7 +216,7 @@ module Smash
       end
 
       # Uses `#to_json()` on the @structure
-      # === @returns Hash
+      # Returns Hash
       def to_json
         structure.to_json
       end
@@ -190,8 +225,8 @@ module Smash
       # class _should_ exist in.  It can be a vanilla version, where the @structure
       # is a Hash, structured correctly or it can be serialized into JSON or it can
       # be an Array
-      # === @params: args String
-      # === @returns: Boolean
+      # Parameters args String
+      # Returns Boolean
       def valid_args?(args)
         case args
         when Hash
@@ -208,16 +243,16 @@ module Smash
       # Makes sure that the list is enumerable and that at least the first term
       # is a resource name from Smash::CloudPowers.  All other objects can
       # potentially be configurations.
-      # @param list <Array|Enumerable>
-      # @returns Boolean
+      # Parameters list <Array|Enumerable>
+      # Returns Boolean
       def valid_array_format?(list)
         use = list.first.kind_of?(Enumerable) ? list.first.first : list.first
         ((list.kind_of? Enumerable) && (available_resources.include?(to_pascal(use).to_sym)))
       end
 
       # Makes sure that each key is the name of something CloudPowers can interact with
-      # @param hash <Hash>
-      # @returns Boolean
+      # Parameters hash <Hash>
+      # Returns Boolean
       def valid_hash_format?(hash)
         keys_arr = hash.keys.map { |key| to_pascal(key).to_sym }
         (keys_arr - available_resources).empty?
