@@ -95,7 +95,7 @@ module Smash
         def create_queue!(name)
           begin
             Smash::CloudPowers::Queue::Board.create!(to_camel(name), sqs)
-          rescue Aws::SQS::Errors::QueueDeletedRecently => e
+          rescue Aws::SQS::Errors::QueueDeletedRecently
             sleep 5
             retry
           end

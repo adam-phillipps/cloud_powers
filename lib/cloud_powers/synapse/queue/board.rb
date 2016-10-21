@@ -11,11 +11,9 @@ module Smash
           include Smash::CloudPowers::Zenv
 
           # The URL the Aws::SQS::Queue uses
-          attr_accessor :address
+          attr_writer :address
           # The name the Aws::SQS::Queue uses
           attr_accessor :name
-          # An Aws::SQS::QueuePoller for this Board/SQS::Queue
-          attr_accessor :poller
           # An Aws::SQS::Client.  See +#Smash::CloudPowers::AwsResources.sqs()+
           attr_accessor :sqs
 
@@ -105,7 +103,7 @@ module Smash
             begin
               sqs.create_queue(queue_name: to_camel(@name))
               self
-            rescue Aws::SQS::Errors::QueueDeletedRecently => e
+            rescue Aws::SQS::Errors::QueueDeletedRecently
               sleep 5
               retry
             end

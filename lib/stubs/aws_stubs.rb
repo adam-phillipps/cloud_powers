@@ -47,7 +47,7 @@ module Smash
           'reservation-id' => 'r-fea54097',
           'security-groups' => 'groupidygroupgroupgroup',
           'services/' => ''
-        }
+        }.merge(opts)
       end
 
       # Get or create an EC2 client and cache that client so that a Context is more well tied together

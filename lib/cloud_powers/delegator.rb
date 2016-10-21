@@ -58,11 +58,12 @@ module Smash
           if approved_task? task
             source_task(task)
             require_relative task_require_path(task)
-            Smash.const_get(to_pascal(task)).new(id, body)
+            # Smash.const_get(to_pascal(task)).new(id, body)
+            Smash.const_get(to_pascal(task)).create!(id, body)
           else
             Smash::Task.new(id, body) # returns a default Task
           end
-        rescue JSON::ParserError => e
+        rescue JSON::ParserError
           message = [msg.body, format_error_message(e)].join("\n")
           logger.info "Message in backlog is ill-formatted: #{message}"
           pipe_to(:status_stream) { sitrep(extraInfo: { message: message }) }

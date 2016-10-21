@@ -7,7 +7,7 @@ require 'cloud_powers/node'
 require 'cloud_powers/self_awareness'
 require 'cloud_powers/storage'
 require 'cloud_powers/version'
-require 'cloud_powers/workflow'
+require 'cloud_powers/workflow_factory'
 
 # The Smash module allows us to use CloudPowers under a shared name space with other projects.
 module Smash
@@ -29,5 +29,7 @@ module Smash
     include Smash::CloudPowers::Synapse
     # CRUD on Nodes, which are individual instances
     include Smash::CloudPowers::Node
+    # Dynamically Builds and loads a Workflow into a class at runtime
+    include Smash::CloudPowers::WorkflowFactory
   end
 end

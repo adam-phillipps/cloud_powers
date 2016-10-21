@@ -63,6 +63,7 @@ module Smash
           create_stream(stream) unless stream_exists? stream
           records = yield if block_given?
           body = message_body_collection(records)
+          puts body
           # TODO: this isn't working yet.  figure out retry logic
           # resp = kinesis.put_records(body)
           # retry(lambda { stream_exists? stream }) flow_to(stream)
@@ -132,8 +133,7 @@ module Smash
         #   end
         def pipe_to(stream)
           message = ''
-          stream_name = zfind(stream)
-          create_stream() unless stream_exists? stream
+          create_stream() unless stream_exists?(zfind(stream) || stream)
           message = yield if block_given?
           body = update_message_body(message)
           resp = kinesis.put_record pipe_message_body(stream_name: stream, data: body.to_json)
@@ -148,7 +148,7 @@ module Smash
         # * * stream_name - the name to give the stream
         # * * shard_count - the number of shards to create
         def stream_config(opts = {})
-          config = {
+          {
             stream_name: opts[:stream_name] || zfind(:status_stream),
             shard_count: opts[:shard_count] || 1
           }
@@ -165,7 +165,7 @@ module Smash
           begin
             kinesis.describe_stream(stream_name: name)
             true
-          rescue Aws::Kinesis::Errors::ResourceNotFoundException => e
+          rescue Aws::Kinesis::Errors::ResourceNotFoundException
             false
           end
         end

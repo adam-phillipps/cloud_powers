@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
     It was developed specifically for the Brain project but hopefully can be used
     in any other ruby project that needs to use cloud service providers' resources.
 
-    Version 0.2.8 has a little EC2, S3, SQS, SNS, Kinesis, websockets and a few other
+    Version 0.2.8 has a some EC2, S3, SQS, SNS, Kinesis, websockets and a few other
     features you can find in the docs.  There is also limitted support for stubbing
     AWS RESTful API calls.  That can come in handy for local testing and extra setup on
     AWS resource clients.
@@ -44,7 +44,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency       'websocket-eventmachine-server'
   spec.add_runtime_dependency       'websocket-eventmachine-client'
 
-  spec.add_development_dependency   'bundler', '~> 1.12'
+  spec.add_development_dependency   'bundler', '~> 1.13.5'
   spec.add_development_dependency   'byebug', '~> 9'
   spec.add_development_dependency   'rake', '~> 10.0'
   spec.add_development_dependency   'rspec', '~> 3.0'

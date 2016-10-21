@@ -139,7 +139,7 @@ module Smash
       def format_error_message(error)
         begin
           [error.message, error.backtrace.join("\n")].join("\n")
-        rescue Exception => e
+        rescue Exception
           # if the formatting won't work, return the original exception
           error
         end
@@ -272,7 +272,7 @@ module Smash
         begin
           File.new("#{task_home}/#{file}")
           true
-        rescue Errno::ENOENT => e
+        rescue Errno::ENOENT
           false
         end
       end
@@ -293,7 +293,7 @@ module Smash
         begin
           file_sans_extension = File.basename(file_name, '.*')
           (Pathname.new(task_home) + file_sans_extension).to_s
-        rescue Errno::ENOENT => e
+        rescue Errno::ENOENT
           nil
         end
       end
@@ -433,7 +433,7 @@ module Smash
         begin
           JSON.parse(json)
           true
-        rescue Exception => e
+        rescue Exception
           false
         end
       end

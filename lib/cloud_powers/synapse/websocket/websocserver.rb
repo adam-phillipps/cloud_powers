@@ -35,7 +35,7 @@ module Smash
         end
 
         def send( msg )
-          @channel.push "#{msg}" unless @channel.nil? nil
+          @channel.push "#{msg}" unless @channel.nil?
         end
       end
     end

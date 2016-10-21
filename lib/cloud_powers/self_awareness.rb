@@ -28,7 +28,7 @@ module Smash
           @boot_time ||=
             ec2.describe_instances(dry_run: zfind(:testing), instance_ids:[instance_id]).
               reservations[0].instances[0].launch_time.to_i
-        rescue Aws::EC2::Errors::DryRunOperation => e
+        rescue Aws::EC2::Errors::DryRunOperation
           logger.info "dry run for testing: #{e}"
           @boot_time ||= Time.now.to_i # comment the code below for development mode
         end
@@ -55,7 +55,7 @@ module Smash
         send_logs_to_s3
         begin
           ec2.terminate_instances(dry_run: zfind('testing'), ids: [@instance_id])
-        rescue Aws::EC2::Error::DryRunOperation => e
+        rescue Aws::EC2::Error::DryRunOperation
           logger.info "dry run testing in die! #{format_error_message(e)}"
           @instance_id
         end
@@ -176,7 +176,7 @@ module Smash
         begin
           ec2.describe_instances(dry_run: zfind('TESTING'), instance_ids: [id]).
             reservations[0].instances[0].state.name
-        rescue Aws::EC2::Errors::DryRunOperation => e
+        rescue Aws::EC2::Errors::DryRunOperation
           logger.info "Dry run flag set for testing: #{e}"
           'testing'
         end

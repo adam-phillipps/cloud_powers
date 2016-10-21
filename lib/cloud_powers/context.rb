@@ -13,7 +13,6 @@ module Smash
       include Smash::CloudPowers::Helper
 
       attr_accessor :package # The given data structure that is used to build @structure
-      attr_reader :structure # A Hash that is used to represent the scheme of the Context
 
       # Attempts to create a Context out of the argument(s) you've
       # passed.
