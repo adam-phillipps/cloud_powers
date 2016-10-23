@@ -109,8 +109,10 @@ module Smash
       end
 
       # Parse the given JSON
-      # Parameters: json_string <String::Json>
-      # Returns <Hash>
+      # Parameters
+      # +JSON+
+      # Returns
+      # +Hash+
       def translate_json(json_string)
         begin
           JSON.parse(json_string)
@@ -120,58 +122,60 @@ module Smash
       end
 
       # Re-layer this flattened Array or enumerable list so that it looks like the
-      #  Hash that it used to be before the Smash::Context#flatten() method was called
-      #  === @param list
-      #    `<Array|List <Enumerable>`
-      #    e.g.
-      #      flat
-      #      ```Ruby
-      #      [
-      #        object_name_1, config_1a, config_2a, ...,
-      #        object_2, config_1b, etc,
-      #        ...
-      #      ]
-      #      ```
-      #      grouped
-      #      or
-      #      ```Ruby
-      #      [
-      #        [object_name_1, config_1a, config_2a, ...],
-      #        [object_2, config_1b, etc],
-      #        ...
-      #      ]
-      #      ```
-      #      or
-      #      structured
-      #      ```Ruby
-      #      [
-      #        [object_name_1, [config_1a, config_2a, ...]],
-      #        [object_2, [config_1b, etc]],
-      #        ...
-      #      ]
-      #      ```
-      #      returns
-      #      ```Ruby
-      #      {
-      #        object_1: [config_1a, config_2a, ...],
-      #        object_2: [config_1b, ...],
-      #        ...
-      #      }
-      #      ```
-      # Returns Hash
-      #   If `#valid_package_hash?()` is called on this Hash, it will return true
+      # Hash that it used to be before the Smash::Context#flatten() method was called
+      #
+      # Parameters
+      # +Array+|+List+|+Enumerable+
+      #
+      # Example
+      # * flat
+      #
+      #     [
+      #       object_name_1, config_1a, config_2a, ...,
+      #       object_2, config_1b, etc,
+      #       ...
+      #     ]
+      #
+      # * or grouped
+      #
+      #     [
+      #       [object_name_1, config_1a, config_2a, ...],
+      #       [object_2, config_1b, etc],
+      #       ...
+      #     ]
+      #
+      # * or structured
+      #
+      #     [
+      #       [object_name_1, [config_1a, config_2a, ...]],
+      #       [object_2, [config_1b, etc]],
+      #       ...
+      #     ]
+      #
+      # * returns
+      #
+      #     {
+      #       object_1: [config_1a, config_2a, ...],
+      #       object_2: [config_1b, ...],
+      #       ...
+      #     }
+      # Returns
+      # +Hash+
+      #
+      # Notes
+      # If +#valid_package_hash?()+ is called on this Hash, it will return true
       def translate_list(list)
         list.first.kind_of?(Enumerable) ? translate_simplified(list) : translate_flattened(list)
       end
 
       # Translates an Array into a valid @structure Hash
       # Parameters arr <Array>
-      #   e.g.
-      #   ```Ruby
-      #   [:task, 'demo', :queue, 'name1', {other config hash},...,:pipe, 'name1']
-      #   ```
-      # Returns Hash
-      #   calling `#valid_hash_format?()` on returned Hash will return true
+      # e.g.
+      #   [:task, ['demo'], :queue, ['name1','name2',.,.,.,.,.], {other config hash},..., :pipe, ['name1']
+      # Returns
+      # +Hash+
+      # Notes
+      # * calling +#valid_hash_format?()+ on returned Hash will return true
       def translate_flattened(list)
         arr = list.to_a
         results = []

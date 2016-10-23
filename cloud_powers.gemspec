@@ -43,6 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency       'zip-zip', '~> 0.3'
   spec.add_runtime_dependency       'websocket-eventmachine-server'
   spec.add_runtime_dependency       'websocket-eventmachine-client'
+  spec.add_runtime_dependency       'workflow'
 
   spec.add_development_dependency   'bundler', '~> 1.13.5'
   spec.add_development_dependency   'byebug', '~> 9'

@@ -59,7 +59,7 @@ module Smash
             source_task(task)
             require_relative task_require_path(task)
             # Smash.const_get(to_pascal(task)).new(id, body)
-            Smash.const_get(to_pascal(task)).create!(id, body)
+            Smash.const_get(to_pascal(task)).create(id, body)
           else
             Smash::Task.new(id, body) # returns a default Task
           end
