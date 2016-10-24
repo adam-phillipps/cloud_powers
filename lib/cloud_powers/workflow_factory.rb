@@ -39,10 +39,10 @@ module Smash
       #       }
       #     }
       #
-      # ##Returns
+      # Returns
       # * +nil+
       #
-      # ##Example
+      # Example
       # * build the workflow using the description from above
       #     class Job
       #       # code code code...
@@ -85,6 +85,7 @@ module Smash
       #     # => :building
       #
       # Notes
+      # * See <tt>description_to_s()</tt>
       # * TODO: There has got to be a better way, so if any of you have suggestions...
       #   The fact that the eval gets evaluated and invoked in the workflow gem
       #   is of little comfort, despite how nice the gem is.  Long story short,
@@ -92,6 +93,51 @@ module Smash
       # * see the workflow gem docs and question me if you want some nice ways
       #   to really use this module. {workflow homepage}[https://github.com/geekq/workflow]
       def inject_workflow(description)
+        workflow_spec_string = description_to_s(description)
+        begin
+          self.class.class_eval(workflow_spec_string)
+          define_singleton_method(:has_workflow?) { true }
+        rescue Exception => e
+          define_singleton_method(:has_workflow?) { !!(puts e.backtrace) }
+        end
+      end
+
+      # Takes a description and turns it into a string that would describe the
+      # workflow you want to insert.
+      #
+      # Parameters
+      # * +description+ +Hash+ - of the format
+      #     {
+      #       workflow: {
+      #         states: [
+      #           { state_name: { event: :event_name, transitions_to: :transition_to_name } },
+      #           { state_name: nil }
+      #         ]
+      #       }
+      #     }
+      #
+      # Returns
+      # +String+
+      #
+      # Example
+      #   # given the description seen in <tt>inject_workflow()</tt>
+      #   puts description_to_s(description)
+      #   # =>
+      #   workflow do
+      #     state :new do
+      #       event :build, :transitions_to => :building
+      #     end
+      #     state :building do
+      #       event :run, :transitions_to => :in_progress
+      #     end
+      #     state :in_progress do
+      #       event :post_results, :transitions_to => :done
+      #     end
+      #     state :done
+      #   end
+      # Notes
+      # * See <tt>inject_workflow()</tt>
+      def description_to_s(description)
         description_string_builder = ['include Workflow', 'workflow do']
         description[:workflow][:states].each do |state|
           state.map do |name, state_description|
@@ -107,12 +153,7 @@ module Smash
           end
         end
         description_string_builder << "end\n"
-        begin
-          self.class.class_eval(description_string_builder.join("\n"))
-          define_singleton_method(:has_workflow?) { true }
-        rescue Exception => e
-          define_singleton_method(:has_workflow?) { !!(puts e.backtrace) }
-        end
+        description_string_builder.join("\n")
       end
     end
   end
