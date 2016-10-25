@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative '../lib/stubs/aws_stubs'
+require_relative '../../lib/stubs/aws_stubs'
 
 describe 'Pipe' do
   extend Smash::CloudPowers::AwsStubs

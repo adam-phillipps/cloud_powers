@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'json'
-require_relative '../lib/stubs/aws_stubs'
+require_relative '../../lib/stubs/aws_stubs'
 
 describe 'Synapse::Queue' do
   extend Smash::CloudPowers::AwsStubs

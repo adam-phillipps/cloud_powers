@@ -3,7 +3,7 @@ require 'dotenv'
 
 
 describe 'Delegator' do
-  include Smash::CloudPowers::Delegator
+  include Smash::BrainFunc::Delegator
   include Smash::CloudPowers::Zenv
 
   before(:all) do

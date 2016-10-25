@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative '../lib/stubs/aws_stubs'
+require_relative '../../lib/stubs/aws_stubs'
 
 describe 'Node' do
   include Smash::CloudPowers::AwsStubs

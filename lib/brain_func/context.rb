@@ -1,8 +1,7 @@
 require 'json'
-require_relative 'helper'
 
 module Smash
-  module CloudPowers
+  module BrainFunc
     # The Context class is the class that handles serializing the Context so that it
     # can be passed from node to node and rebuilt.  This provides a way for nodes in
     # the same Brain to have an awareness of required communication modes, for example.
@@ -79,7 +78,7 @@ module Smash
       #
       # Example
       #   example_context.structure
-      #   # => { task: 'demo', queue: [:backlog, :sned], pipe: [:status_stream] }
+      #   # => { task: ['demo'], queue: [:backlog, :sned], pipe: [:status_stream] }
       #   example.simplify
       #   # => [:task, 'demo', :queue, [:backlog, :sned], :pipe, [:status_stream]]
       #
@@ -106,6 +105,12 @@ module Smash
       # the decipher method, which is how @structure is set in +#new(args)+
       def structure=(args)
         @structure = decipher(args)
+      end
+
+      # Uses `#to_json()` on the @structure
+      # Returns Hash
+      def to_json
+        { context: structure }.to_json
       end
 
       # Parse the given JSON
@@ -216,12 +221,6 @@ module Smash
             h[key.to_sym] = *key_config_map.flatten
           end
         end
-      end
-
-      # Uses `#to_json()` on the @structure
-      # Returns Hash
-      def to_json
-        structure.to_json
       end
 
       # The Context class can be initialized in any of the formats that a Context
