@@ -22,8 +22,8 @@ module Smash
           dry_run:                                zfind(:testing) || false,
           image_id:                               image('crawlbotprod').image_id, # image(:neuron).image_id
           instance_type:                          't2.nano',
-          min_count:                              opts[:max_count] || 1, # 2 ways to override
-          max_count:                              1,
+          min_count:                              opts[:max_count] || 0,
+          max_count:                              0,
           key_name:                               'crawlBot',
           security_groups:                        ['webCrawler'],
           security_group_ids:                     ['sg-940edcf2'],
@@ -44,36 +44,24 @@ module Smash
       #   an optional instance configuration hash can be passed, which will override
       #   the values in the default configuration returned by #instance_config()
       def spin_up_neurons(opts = {})
+        should_wait = opts.delete(:wait) || true
         ids = nil
         begin
           response = ec2.run_instances(node_config(opts))
           ids = response.instances.map(&:instance_id)
 
-          begin
+          if should_wait
             count = 0
-            ec2.wait_until(:instance_running, instance_ids: ids) do
-              # !    Pretty important.  probably a 2.  it could take a day to get
-              #      it right and it could take an hour or so to write specs
-              # !
-              # !TODO: deal with borked instances.  Aws throws errors for failed
-              # instances.  We should:
-              #   1. gracefully deal with errors that could break
-              #      out of this waiter
-              #   2. gather failed ids and try to get some info about if these
-              #      failed instances are going down (terminating) or they're good
-              #      but they're failing for some other reason e.g. we didn't
-              #      set the timeout on the waiter for long enough for a windows
-              #      instance or something like that.
-              #   3. deal with #2 appropriately and continue.  It would be nice
-              #      and clean to just invoke this method again, for
-              #      +failed_ids+ number of new instances and re-wait with appropriate
-              #      waiter configuration or something like that!
-              # ODOT!
-              logger.info "waiting for #{ids.count} Neurons to start..."
+            begin
+              ec2.wait_until(:instance_running, instance_ids: ids) do
+                logger.info "waiting for #{ids.count} Neurons to start..."
+              end
+            rescue Aws::Waiters::Errors::WaiterFailed => e
+              # TODO: deal with failed instances
+              # redo unless (count += 1 <=3 )
             end
-          rescue Aws::Waiters::Errors::WaiterFailed => e
-            redo unless (count += 1 <=3 )
           end
+          ids
 
           # tag(ids, { key: 'task', value: to_camel(self.class.to_s) })
         rescue Aws::EC2::Errors::DryRunOperation

@@ -10,8 +10,8 @@ describe 'Delegator' do
     Dotenv.load("#{project_root}/spec/.test.env")
     FileUtils::mkdir_p task_path
     FileUtils::touch(task_path('testinz.rb'))
-    class Testinz; def initialize(*args); end; end
     class Task; end
+    class Testinz < Task; def initialize(*args); end; def self.create(*args); new; end; end
     @message = OpenStruct.new(body: { task: 'testinz' }.to_json)
   end
 

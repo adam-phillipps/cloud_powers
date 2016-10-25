@@ -1,6 +1,7 @@
 /.bundle/
 /.yardoc
 /Gemfile.lock
+*Gemfile.lock
 /_yardoc/
 /coverage/
 /doc/
@@ -12,4 +13,5 @@
 lib/cloud_powers/synapse/.DS_Store
 .DS_Store
 ./**/.DS_Store
+lib/tasks
 .idea

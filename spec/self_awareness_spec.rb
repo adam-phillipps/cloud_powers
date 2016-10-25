@@ -1,5 +1,5 @@
 require 'spec_helper'
-require_relative './stubs/aws_stubs'
+require_relative '../lib/stubs/aws_stubs'
 
 
 describe 'SelfAwareness module' do
@@ -9,7 +9,7 @@ describe 'SelfAwareness module' do
 
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")
-    @config = Smash::CloudPowers::AwsStubs::NODE_STUB.merge(max_count: 5)
+    @config = Smash::CloudPowers::AwsStubs.node_stub.merge(max_count: 5)
   end
 
   context '#get_awareness!' do

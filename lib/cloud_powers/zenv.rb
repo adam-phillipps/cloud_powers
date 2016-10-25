@@ -1,17 +1,25 @@
 require 'dotenv'
 require_relative 'helper'
+
 module Smash
   module CloudPowers
     # This module provides some environment variable management and functionality
+    # Hopefully it should provide us with some "Zen", when dealing with normally
+    # annoying env issues.  Meh, it probably won't but I like the name, so it stays :}
     # System ENV, dotenv ENV and instance variables are considered for now but this
-    # will also use elasticache/redis...some other stuff too, in the coming weeks
+    # will also use elasticache/redis...some other stuff too, in the coming versions
     module Zenv
       include Smash::CloudPowers::Helper
 
       # Attempts to find a file by searching the current directory for the file
-      # then walking up the file tree and searching at each stop
-      # @param: name <String>: name of the file or directory to find
-      # @return: Pathname: path to the file or directory given as the `name` param
+      # then walking up the file tree and searching at each stop all the way up
+      # to the root directory
+      #
+      # Parameters
+      # * name +String+ - name of the file or directory to find
+      #
+      # Returns
+      # +Pathname+ - path to the file or directory given as the +name+ parameter
       def file_tree_search(name)
         next_dir = Pathname.new(`pwd`.strip).parent
         current_dir = Pathname.new(`pwd`.strip)
@@ -24,8 +32,12 @@ module Smash
         return nil
       end
 
-      # Search through the .env variables for a key or if no key is given,
-      # return all the .env-vars and their values
+      # Search through the {Dotenv}[https://github.com/bkeepers/dotenv]
+      # variables for a key or if no key is given, return all the .env-vars
+      # and their values
+      #
+      # Parameters
+      # * key +String+ -
       def env_vars(key = '')
         return ENV if key.empty?
         ENV[to_snake(key).upcase]
@@ -33,8 +45,11 @@ module Smash
 
       # Search through the instance variables for a key or if no key is given,
       # return all the i-vars and their values
-      # @params: [key <String]:  The key to search for
-      # @return:
+      #
+      # Parameters [key <String]:  The key to search for
+      #
+      # Returns
+      # the value of the +key+ searched for
       def i_vars(key = '')
         if key.empty?
           return self.instance_variables.inject({}) do |r,v|
@@ -47,9 +62,23 @@ module Smash
       # PROJECT_ROOT should be set as early as possible in this Node's initilize
       # method.  This method tries to search for it, using #zfind() and if a `nil`
       # result is returned from that search, `pwd` is used as the PROJECT_ROOT.
-      # @return: Path to the project root or where ever `pwd` resolves to <Pathname>
-      # TODO: improve this...it needs to find the gem's method's caller's project
+      #
+      # Returns
+      # +Pathname+ - path to the project root or where ever <tt>`pwd`</tt> resolves
+      # to for the caller
+      #
+      # Notes
+      # * TODO: improve this...it needs to find the gem's method's caller's project
       # root or at least the gem's method's caller's file's location.
+      #
+      # Example
+      #   # called from cerebrum/cerebrum.rb in /home/ubuntu
+      #   project_root
+      #   # => '/home/ubuntu/cerebrum/'
+      #   # or
+      #   # called from go_nuts.rb#begin_going_crazy():(line -999999999.9) in /Users/crazyman/.ssh/why/all/the/madness/
+      #   project_root
+      #   # => '/Users/crazyman/.ssh/why/all/the/madness/'
       def project_root
         if @project_root.nil?
           file_home = Pathname.new(
@@ -60,18 +89,34 @@ module Smash
         @project_root
       end
 
-      # Manually set the `@project_root` i-var as a `Pathname` object.
-      # @param: New path to the project root <String|Pathname>
-      # @return: @project_root <Pathname>
+      # Manually set the +@project_root+ i-var as a +Pathname+ object.
+      #
+      # Parameters
+      # * +String+|+Pathname+ - new path to the project root
+      #
+      # Returns
+      # +Pathname+ - +@project_root+
+      #
+      # Example
+      #   project_root
+      #   # => '/home/ubuntu/cerebrum/'
+      #   project_root = Pathname.new(`pwd`)
+      #   project_root == `pwd`
+      #   # => true
       def project_root=(var)
         @project_root = Pathname.new(var)
       end
 
       # Search through the system environment variables for a key or if no key
       # is given, return all the system-env-vars and their values
-      # @params: [key <String>]:  The key to search for
-      # @return: Value <String> for the given key or if no key was given, a
-      # Hash with { key => value, ... } is returned for all keys with a value.
+      #
+      # Parameters
+      # * key +String+ - the key to search for
+      #
+      # Returns
+      # * if a +key+ is given as a parameter, +String+
+      # * if no +key+ is given as a parameter, +Hash+
+      # with this structure +{ key => value, ... }+ is returned for all keys with a value.
       # Keys with no value are ommitted from the result.
       def system_vars(key = '')
         if key.empty?
@@ -92,15 +137,21 @@ module Smash
       end
 
       # ZFind looks for the key in a preditermined order of importance:
-      #   * i-vars are considered first becuase they might be tracking different
-      #     locations for multiple tasks or something like that.
-      #   * dotenv files are second because they were manually set, so for sure
-      #     it's important
-      #   * System Env[@] variables are up next.  Hopefully by this time we've found
-      #     our information but if not, it should "search" through the system env too.
-      # @params: key <String>: The key to search for
-      # @return: <String>
-      #   TODO: implement a search for all 3 that can find close matches
+      # * i-vars are considered first becuase they might be tracking different
+      #   locations for multiple tasks or something like that.
+      # * dotenv files are second because they were manually set, so for sure
+      #   it's important
+      # * System Env[@] variables are up next.  Hopefully by this time we've found
+      #   our information but if not, it should "search" through the system env too.
+      #
+      # Parameters
+      # * key +String+|+Symbol+ - the key to search for
+      #
+      # Returns
+      # * +String+
+      #
+      # Notes
+      # * TODO: implement a search for all 3 that can find close matches
       def zfind(key)
         project_root if @project_root.nil?
         res = (i_vars[to_snake(key).upcase] or
