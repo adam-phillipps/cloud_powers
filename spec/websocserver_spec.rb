@@ -1,10 +1,16 @@
 require 'spec_helper'
-require 'dotenv'
 
 describe 'Synapse::WebSocServer' do
-  include Smash::CloudPowers::Zenv
+
+  include Smash::CloudPowers::Synapse::WebSocServer
 
   before(:all) do
-    Dotenv.load("#{project_root}/spec/.test.env")
+    @default_config = {host:'127.0.0.1',port:'9090'}
   end
+
+  it '#create_websoc_server() should be not nil' do
+    websocket_server = create_websoc_server(@default_config)
+    expect(websocket_server).to be_truthy
+  end
+
 end
