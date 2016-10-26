@@ -31,7 +31,7 @@ module Smash
       def initialize(args)
         unless valid_args?(args)
           raise ArgumentError.new 'Can be either a Hash, JSON, or an Enumerable ' +
-            "arguments: #{args}"
+            "arguments in question: #{args}"
         end
         @package = args
         @structure = decipher(args)
@@ -51,6 +51,12 @@ module Smash
           translate_json(args)
         when Enumerable
           translate_list(args)
+        end
+      end
+
+      def each_resource_with_config
+        @structure.each do |resource, configs_arr|
+          yield (resource, configs_arr) if block_given
         end
       end
 
@@ -107,6 +113,12 @@ module Smash
         @structure = decipher(args)
       end
 
+      # Get the structure ready to be used by messages by adding the +@structure+
+      # to a +Hash+ under the <tt>:context</tt>
+      def to_h
+        { context: structure }
+      end
+
       # Uses <tt>JSON#to_json()</tt> on the <tt>@structure</tt> and puts that description
       # into a hash with this format.
       #   "{\"context\":{\"task\":[\"demo\"],\"queue\":...}"
@@ -119,8 +131,9 @@ module Smash
       #
       # Notes
       # * Calling <tt>JSON.parse(context.to_json)</tt> will yield a valid +Hash+
+      # * See <tt>to_h()</tt>
       def to_json
-        { context: structure }.to_json
+        to_h.to_json
       end
 
       # Parse the given JSON

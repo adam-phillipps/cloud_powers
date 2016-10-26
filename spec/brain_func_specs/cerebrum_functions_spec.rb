@@ -17,20 +17,15 @@ describe 'Shared Cerebrum Functions' do
     }
   end
 
-  it '#create_message() should be able to add a Context' do
-    message = create_message(context)
-    expect(message).to eq(context.to_json)
-  end
-
   it '#create_message() should be able to add a workflow' do
     message = create_message(workflow_description)
     expect(message).to eq(workflow_description.to_json)
   end
 
   it '#create_message() should be able to add multiple descriptions' do
-    byebug
-    message = create_message(workflow_description, context.structure)
-    expect(message).to eq(workflow_description.to_json)
+    message = create_message(workflow_description, context.to_h)
+    final = context.to_h.merge(workflow_description).to_json
+    expect(JSON.parse(message)).to eq(JSON.parse(final))
   end
 
   it '#build_context() should be able to build the Context' do

@@ -114,5 +114,11 @@ describe 'Smash::BrainFunc::Context' do
       context = Smash::BrainFunc::Context.new(@vanilla_json)
       expect(context.structure).to eql(@vanilla_config_hash)
     end
+
+    it 'should be able to serialize its resource into a Hash' do
+      context = Smash::BrainFunc::Context.new(@vanilla_config_hash)
+      final_product = { context: @vanilla_config_hash }
+      expect(context.to_h).to eq(final_product)
+    end
   end
 end
