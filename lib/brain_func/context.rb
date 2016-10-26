@@ -56,7 +56,7 @@ module Smash
 
       def each_resource_with_config
         @structure.each do |resource, configs_arr|
-          yield (resource, configs_arr) if block_given
+          yield resource, configs_arr if block_given
         end
       end
 
