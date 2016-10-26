@@ -74,6 +74,7 @@ module Smash
       #   for your own custom configuration
       def self.node_stub(opts = {})
         time = opts[:launch_time] || Time.new((Time.now.utc.to_i / 86400 * 86400)) # midnight
+        tags = [{key: 'task', value: 'test'}]
         {
           stub_responses: {
             create_tags: {},
@@ -88,11 +89,11 @@ module Smash
             describe_instances: {
               reservations: [
                 { instances: [
-                  { instance_id: 'asd-1234', state: { code: 200, name: 'running' } },
-                  { instance_id: 'qwe-4323', state: { code: 200, name: 'running' } },
-                  { instance_id: 'tee-4322', state: { code: 200, name: 'running' } },
-                  { instance_id: 'bbf-6969', state: { code: 200, name: 'running' } },
-                  { instance_id: 'lkj-0987', state: { code: 200, name: 'running' } }
+                  { instance_id: 'asd-1234', state: { code: 200, name: 'running' }, tags: tags },
+                  { instance_id: 'qwe-4323', state: { code: 200, name: 'running' }, tags: tags },
+                  { instance_id: 'tee-4322', state: { code: 200, name: 'running' }, tags: tags },
+                  { instance_id: 'bbf-6969', state: { code: 200, name: 'running' }, tags: tags },
+                  { instance_id: 'lkj-0987', state: { code: 200, name: 'running' }, tags: tags }
             ] }] },
             describe_images: {
               images: [
