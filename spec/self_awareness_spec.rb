@@ -27,5 +27,9 @@ describe 'SelfAwareness module' do
       is_valid_url = !("http://#{@public_hostname}" =~ URI::regexp).nil?
       expect(is_valid_url).to be true
     end
+
+    it '#tag_search() should be able to find a tag on a given instance' do
+      expect(tag_search('task')).to eq('test')
+    end
   end
 end
