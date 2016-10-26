@@ -2,8 +2,19 @@ module Smash
   module BrainFunc
     module CerebrumFunctions
       def create_message(*args)
+        merge_arguments(*args).to_json
+      end
+
+      def create_messages(n, *args)
+        n.times { create_message(*args) }
+      end
+
+      def merge_arguments(*args)
         byebug
-        args.map(&:to_json)
+        args.inject({}) do |carry, msg_piece|
+          formatted_piece = msg_piece.kind_of?(Hash) ? msg_piece : JSON.parse(msg_piece)
+          carry.merge(formatted_piece)
+        end
       end
     end
   end

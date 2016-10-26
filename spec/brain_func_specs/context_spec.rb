@@ -16,7 +16,9 @@ describe 'Smash::BrainFunc::Context' do
     }
     @vanilla_config_arr = [:task, 'demo', :queue, 'backlog', 'sned', :pipe, 'status_stream']
     @vanilla_2d_arr = [[:task, 'demo'], [:queue, 'backlog', 'sned'], [:pipe, 'status_stream']]
-    @vanilla_json = "{\"task\":[\"demo\"],\"queue\":[\"backlog\",\"sned\"],\"pipe\":[\"status_stream\"]}"
+    @vanilla_hash = {"task"=>["demo"], "queue"=>["backlog", "sned"], "pipe"=>["status_stream"]}
+    @vanilla_json = @vanilla_hash.to_json
+    @vanilla_to_json = { context: @vanilla_hash }.to_json
     @vanilla_context = Smash::BrainFunc::Context.new('task' => 'test')
   end
 
@@ -76,7 +78,7 @@ describe 'Smash::BrainFunc::Context' do
 
     it 'should be able to take JSON for #new()' do
       context = Smash::BrainFunc::Context.new(json)
-      expect(context.to_json).to eql(JSON.parse(json).to_json)
+      expect(context.to_json).to eql(@vanilla_to_json)
     end
 
     it 'should be able to validate a well formatted JSON string' do
@@ -103,9 +105,9 @@ describe 'Smash::BrainFunc::Context' do
   end
 
   context 'serializing' do
-    it 'should be able to serialize its resources into JSON' do
+    it '#to_json() should be able to serialize its resources into JSON' do
       context = Smash::BrainFunc::Context.new(@vanilla_config_hash)
-      expect(context.to_json).to eql(@vanilla_config_hash.to_json)
+      expect(context.to_json).to eql(@vanilla_to_json)
     end
 
     it 'should be able to parse JSON into a valid Context' do

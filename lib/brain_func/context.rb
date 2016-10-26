@@ -107,8 +107,18 @@ module Smash
         @structure = decipher(args)
       end
 
-      # Uses `#to_json()` on the @structure
-      # Returns Hash
+      # Uses <tt>JSON#to_json()</tt> on the <tt>@structure</tt> and puts that description
+      # into a hash with this format.
+      #   "{\"context\":{\"task\":[\"demo\"],\"queue\":...}"
+      # This gives us an easy way to add this information to a larger message
+      # without that effort having to keep track of what this is.
+      # A similar strategy is used for all other to_json methods in CloudPowers
+      #
+      # Returns
+      # +Hash+
+      #
+      # Notes
+      # * Calling <tt>JSON.parse(context.to_json)</tt> will yield a valid +Hash+
       def to_json
         { context: structure }.to_json
       end
@@ -120,7 +130,8 @@ module Smash
       # +Hash+
       def translate_json(json_string)
         begin
-          JSON.parse(json_string)
+          data = JSON.parse(json_string)
+          data
         rescue JSON::ParserError
           raise ArgumentError "Incorrectly formatted JSON"
         end
@@ -215,8 +226,8 @@ module Smash
       # Returns Hash
       #   well formatted for the @structure
       def translate_simplified(arr)
-        arr.inject({}) do |hash, key_config_map|
-          hash.tap do |h|
+        arr.inject({}) do |carry, key_config_map|
+          carry.tap do |h|
             key = key_config_map.shift
             h[key.to_sym] = *key_config_map.flatten
           end

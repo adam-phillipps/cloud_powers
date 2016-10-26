@@ -49,7 +49,6 @@ module Smash
       # * TODO: make this smartly pick up all the objects, within reason and
       #   considering need, that we have access to
       def available_resources
-        byebug
         [:Task].concat(Smash.constants.map { |c| Smash.const_get(c).public_send :constants }.flatten)
       end
 
