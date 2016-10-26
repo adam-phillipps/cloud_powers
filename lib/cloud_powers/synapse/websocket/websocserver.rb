@@ -37,7 +37,7 @@ module Smash
           channel
         end
 
-        def send(channel, msg)
+        def broadcast(channel, msg)
           channel.push msg
         end
       end
