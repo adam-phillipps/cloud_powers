@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version  =     '~> 2.3.0'
   spec.name                   =     'cloud_powers'
   spec.version                =     CloudPowers::VERSION
-  spec.authors                =     ['Adam Phillipps', 'Faisal Irfan']
-  spec.email                  =     ['adam.phillipps@gmail.com', 'Faisal@smashanalytics.com']
+  spec.authors                =     ['Adam Phillipps', 'Faisal Irfan', 'Gerardo Parajeles']
+  spec.email                  =     ['adam.phillipps@gmail.com', 'faisal@smashanalytics.com', 'gerardo@smashanalytics.com']
   spec.summary                =     %q{Cloud providers wrapper.  Currently only AWS is supported.}
   spec.description            =     <<-EOF
     CloudPowers is a wrapper around AWS and in the future, other cloud service Providers.
