@@ -19,6 +19,9 @@ describe 'WorkflowFactory' do
     def run;  end
     def post_results; end
     def build_two; end
+    def next!
+      public_send "#{current_state.events.first.first}!"
+    end
   end
 
   let(:description) do
@@ -75,7 +78,7 @@ describe 'WorkflowFactory' do
 
     it 'should be able to move from a state to the next, on demand' do
       expect(task.new?).to be true
-      task.build!
+      task.next!
       expect(task.building?).to be true
     end
   end
