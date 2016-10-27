@@ -1,6 +1,27 @@
 module Smash
   module BrainFunc
     module CerebrumFunctions
+      # This method uses the Smash namespace to find all the resources that it
+      # has.  It does this because those are the only kinds of resources we can
+      # reliably produce, dynamically.  It moves through the given context to
+      # match the keys with the type of resource.  It then matches the parameters
+      # it has in the configuration array (the value in the key/pair <tt>{ resource: [config(s)] }</tt>)
+      # and attempts to set the appropriate params or build the necessary objects
+      # and/or resources in the cloud.
+      #
+      # Parameters
+      # * +context+ <tt>Smash::Context</tt>|+Hash+ - A <tt>smash::Context</tt>
+      #   can be used.  If a +Hash+ is given, it should be a
+      #   <tt>Smash::Context.to_h</tt>-styled +Hash+
+      #
+      # Returns
+      # * TODO: +nil+ # biunno...probably reuturn something?  maybe true?  but then
+      #   false isn't a good thing to return if some fail but some succeed.
+      def build_context(context)
+        raise NotImplimentedError.new '#build_context() not implimented. ' +
+          "called from: #{caller.join("\n")}"
+      end
+
       # Creates a JSON structure from all the given arguments
       # When arguments are structured correctly, they are merged together
       # into a larger +Hash+ then turned into +JSON+ and returned
