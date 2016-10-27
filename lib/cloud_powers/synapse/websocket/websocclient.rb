@@ -8,9 +8,8 @@ module Smash
         def create_websoc_client(opts = {})
 
           EM.run do
-
             ws = WebSocket::EventMachine::Client.connect(:uri => 'ws://' + opts[:host]  + ':' + opts[:port])
-            add_to_clients(opts[:name],ws)
+            add_to_clients(opts[:name], ws)
 
             open_callback = opts[:on_open] || Proc.new do
               puts "Connected"
@@ -30,24 +29,23 @@ module Smash
 
             ws.onerror &on_error_callback
 
-            on_close_callback = opts[:on_close] || Proc.new do |code, reason|
+            on_close_callback = opts[:on_close] || Proc.new do |was_clean, code, reason|
               puts "Disconnected with status code: #{code}"
               puts "Disconnected with status message: #{reason}"
             end
 
             ws.onclose &on_close_callback
-
           end
-
         end
 
-        def add_to_clients(name,client)
+        def add_to_clients(name, client)
           begin
-            @clients[name] = client
+            @websoc_clients[name] = client
           rescue NoMethodError => e
             puts e.backtrace
             puts "no client hash is available"
           end
+          @websoc_clients
         end
       end
     end

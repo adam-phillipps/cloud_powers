@@ -6,7 +6,7 @@ describe 'WorkflowFactory' do
   include Smash::BrainFunc::WorkflowFactory
   include Smash::CloudPowers::Zenv
 
-  # simple testing class
+  # simple testing class that has a realistic setup
   class Task
     include Smash::BrainFunc::WorkflowFactory
     def initialize(*args); end

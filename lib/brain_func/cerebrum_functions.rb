@@ -1,6 +1,9 @@
+require 'cloud_powers'
+
 module Smash
   module BrainFunc
     module CerebrumFunctions
+      include Smash::CloudPowers::Helper
       # This method uses the Smash namespace to find all the resources that it
       # has.  It does this because those are the only kinds of resources we can
       # reliably produce, dynamically.  It moves through the given context to
@@ -20,6 +23,18 @@ module Smash
       def build_context(context)
         raise NotImplimentedError.new '#build_context() not implimented. ' +
           "called from: #{caller.join("\n")}"
+      end
+
+      def verify_context_built(context)
+        raise NotImplimentedError.new '#verify_context_built() not implimented. ' +
+          "called from: #{caller.join("\n")}"
+      end
+
+      def self.create(id, msg)
+        job = new(id, msg)
+        job.set_context(msg)
+        job.set_workflow(msg)
+        job
       end
 
       # Creates a JSON structure from all the given arguments
@@ -71,6 +86,10 @@ module Smash
         end
       end
 
+      def set_context(context)
+
+      end
+
       # Just some overridable message body that's going to get a rework ASAP
       def sitrep_message(opts = {})
         # TODO: find better implementation of merging nested hashes
@@ -92,11 +111,7 @@ module Smash
       end
 
       def state
-        begin
-          current_state.name
-        rescue NoMethodError => e
-          :unk
-        end
+        current_state.name rescue :unk
       end
 
       # Time should be set already, early in your class but if it wasn't, the
@@ -122,12 +137,8 @@ module Smash
       # * +Boolean+
       def valid_entrypoint_message_format?(*args)
         begin
-          # This will iterate through the arguments and, one by one, ask
-          # "Is this a hash?  If so, we're good.  If not, try to find out if
-          # it's parsable JSON.  If it's not parsable as JSON, an exception will
-          # be thrown and caught, then +false+ returned"
-          !!args.each do |info|
-            info.kind_of?(Hash) ? true : JSON.parse(info)
+          args.each do |info|
+            !!(info.kind_of?(Hash) ? true : JSON.parse(info))
           end
         rescue JSON::ParserError
           false

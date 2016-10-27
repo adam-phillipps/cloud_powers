@@ -5,9 +5,7 @@ describe 'Synapse::WebSocClient' do
   include Smash::CloudPowers::Synapse::WebSocServer
   include Smash::CloudPowers::Synapse::WebSocClient
 
-  before(:all) do
-    @default_config = {host:'127.0.0.1',port:'9090'}
-  end
+    let(:default_config) { { host: '127.0.0.1', port: '9090' } }
 
   it '#create_websoc_server() should be not nil' do
     @websocket_server = create_websoc_server(@default_config)
@@ -22,9 +20,5 @@ describe 'Synapse::WebSocClient' do
 
     @default_client = @clients[@default_client_configs[:name]]
     expect(@default_client).to be_truthy
-
   end
-
-
-
 end

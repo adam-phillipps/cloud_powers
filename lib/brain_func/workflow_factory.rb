@@ -123,7 +123,7 @@ module Smash
       #   # given the description seen in <tt>inject_workflow()</tt>
       #   puts description_to_s(description)
       #   # =>
-      #   workflow do
+      #   "workflow do
       #     state :new do
       #       event :build, :transitions_to => :building
       #     end
@@ -134,7 +134,8 @@ module Smash
       #       event :post_results, :transitions_to => :done
       #     end
       #     state :done
-      #   end
+      #   end"
+      #
       # Notes
       # * See <tt>inject_workflow()</tt>
       def description_to_s(description)
