@@ -13,7 +13,7 @@ module Smash
 
               client_name = opts[:client] || 'default_client'
 
-              self.instance_variable_set(:"@#{client_name}",ws)
+              instance_variable_set(:"@#{client_name}",ws)
 
               open_callback = opts[:on_open] || Proc.new do
                 puts "Connected"
