@@ -130,37 +130,40 @@ module Smash
       # Example
       # * flat
       #
-      #   [
-      #     object_name_1, config_1a, config_2a, ...,
-      #     object_2, config_1b, etc,
-      #     ...
-      #   ]
+      #     [
+      #       object_name_1, config_1a, config_2a, ...,
+      #       object_2, config_1b, etc,
+      #       ...
+      #     ]
       #
       # * or grouped
       #
-      #   [
-      #     [object_name_1, config_1a, config_2a, ...],
-      #     [object_2, config_1b, etc],
-      #     ...
-      #   ]
+      #     [
+      #       [object_name_1, config_1a, config_2a, ...],
+      #       [object_2, config_1b, etc],
+      #       ...
+      #     ]
       #
       # * or structured
       #
-      #   [
-      #     [object_name_1, [config_1a, config_2a, ...]],
-      #     [object_2, [config_1b, etc]],
-      #     ...
-      #   ]
+      #     [
+      #       [object_name_1, [config_1a, config_2a, ...]],
+      #       [object_2, [config_1b, etc]],
+      #       ...
+      #     ]
       #
       # * returns
       #
-      #   {
-      #     object_1: [config_1a, config_2a, ...],
-      #     object_2: [config_1b, ...],
-      #     ...
-      #   }
-      # Returns Hash
-      #   If +#valid_package_hash?()+ is called on this Hash, it will return true
+      #     {
+      #       object_1: [config_1a, config_2a, ...],
+      #       object_2: [config_1b, ...],
+      #       ...
+      #     }
+      # Returns
+      # +Hash+
+      #
+      # Notes
+      # If +#valid_package_hash?()+ is called on this Hash, it will return true
       def translate_list(list)
         list.first.kind_of?(Enumerable) ? translate_simplified(list) : translate_flattened(list)
       end

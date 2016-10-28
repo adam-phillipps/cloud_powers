@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'json'
-require_relative './stubs/aws_stubs'
+require_relative '../lib/stubs/aws_stubs'
 
 describe 'Synapse::Queue' do
   extend Smash::CloudPowers::AwsStubs
@@ -52,8 +52,4 @@ describe 'Synapse::Queue' do
       expect(message).to eql @valid_message.to_json
     end
   end
-
-  # after(:all) do
-  #   @test_queues.each { |queue| queue.destroy! }
-  # end
 end

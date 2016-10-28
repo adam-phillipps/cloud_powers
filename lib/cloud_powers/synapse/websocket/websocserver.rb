@@ -1,41 +1,44 @@
 require 'websocket-eventmachine-server'
-
 module Smash
   module CloudPowers
     module Synapse
       module WebSocServer
-        def create_websoc_server( host, port )
-          @channel = EM::Channel.new
+        def create_websoc_server(opts = {})
+          channel = opts[:channel] || EM::Channel.new
           Thread.new do
             EM.run do
-              WebSocket::EventMachine::Server.start(:host => host, :port => port) do |ws|
+              WebSocket::EventMachine::Server.start(:host => opts[:host], :port => opts[:port]) do |ws|
                 sid = nil
 
-                ws.onopen do
+                open_callback = opts[:on_open] || Proc.new do
                   puts "Client connected"
-                  sid = @channel.subscribe { |msg| ws.send msg }
+                  sid = channel.subscribe { |msg| ws.send msg }
                 end
+                ws.onopen &open_callback
 
-                ws.onmessage do |msg, type|
-                  puts "Received message: #{msg}"
-                  @channel.push "<#{sid}>: #{msg}"
+                on_message_callback = opts[:on_message] || Proc.new do |msg, type|
+                  @current_websocket_message = msg
                 end
+                ws.onmessage &on_message_callback
 
-                ws.onerror do |error|
+                on_error_callback = opts[:on_error] || Proc.new do |error|
                   puts "Error occured: #{error}"
                 end
+                ws.onerror &on_error_callback
 
-                ws.onclose do
+                on_close_callback = opts[:on_close] || Proc.new do
                   puts "Client disconnected"
-                  @channel.unsubscribe(sid) unless @channel.nil?
+                  channel.unsubscribe(sid) unless channel.nil?
                 end
+                ws.onclose &on_close_callback
               end
             end
           end
+          channel
         end
 
-        def send( msg )
-          @channel.push "#{msg}" unless @channel.nil? nil
+        def broadcast_message(channel, msg)
+          channel.push msg
         end
       end
     end

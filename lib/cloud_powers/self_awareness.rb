@@ -1,6 +1,7 @@
 require 'aws-sdk'
 Aws.use_bundled_cert!
 require 'httparty'
+require 'stubs/aws_stubs'
 require_relative 'aws_resources'
 require_relative 'helper'
 require_relative './synapse/synapse'
@@ -17,14 +18,17 @@ module Smash
 
       # Gets the instance time or the time it was called and as seconds from
       # epoch
-      # === @returns Integer
-      # TODO: use time codes
+      #
+      # Returns Integer
+      #
+      # Notes
+      # * TODO: use time codes
       def boot_time
         begin
           @boot_time ||=
             ec2.describe_instances(dry_run: zfind(:testing), instance_ids:[instance_id]).
               reservations[0].instances[0].launch_time.to_i
-        rescue Aws::EC2::Errors::DryRunOperation => e
+        rescue Aws::EC2::Errors::DryRunOperation
           logger.info "dry run for testing: #{e}"
           @boot_time ||= Time.now.to_i # comment the code below for development mode
         end
@@ -51,7 +55,7 @@ module Smash
         send_logs_to_s3
         begin
           ec2.terminate_instances(dry_run: zfind('testing'), ids: [@instance_id])
-        rescue Aws::EC2::Error::DryRunOperation => e
+        rescue Aws::EC2::Error::DryRunOperation
           logger.info "dry run testing in die! #{format_error_message(e)}"
           @instance_id
         end
@@ -59,6 +63,14 @@ module Smash
 
       # Get resource metadata, public host, boot time and task name
       # and set them as instance variables
+      #
+      # Returns
+      # +Array+ of values, each from a separate key, set in the order
+      # in the Array
+      #
+      # Notes
+      # * See +#metadata_request()+
+      # * See +#attr_map!()+
       def get_awareness!
         keys = metadata_request
         attr_map!(keys) { |key| metadata_request(key) }
@@ -68,16 +80,21 @@ module Smash
       end
 
       # Assures there is always a valid instance id because many other Aws calls require it
-      # === @returns: String
+      #
+      # Returns
+      # +String+
       def instance_id
         @instance_id ||= metadata_request('instance_id')
       end
 
       # Gets and sets the public hostname of the instance
-      # === @returns String
-      # === Notes:
-      #     * When this is being called from somewhere other than an Aws instance, a hardcoded example URL is returned
-      #       because of the way instance metadata is retrieved
+      #
+      # Returns
+      # +String+ - the Public Hostname for this instance
+      #
+      # Notes
+      # * When this is being called from somewhere other than an Aws instance,
+      #   a hardcoded example URL is returned because of the way instance metadata is retrieved
       def instance_url
         @instance_url ||= unless zfind('TESTING')
           hostname_uri = 'http://169.254.169.254/latest/meta-data/public-hostname'
@@ -90,8 +107,20 @@ module Smash
       # Makes the http request to self/meta-data to get all the metadata keys or,
       # if a key is given, the method makes the http request to get that
       # particular key from the metadata
-      # === @param: key String (optional)
-      # === @returns:
+      #
+      # Parameters
+      # * key +String+ (optional) (default is '') - the key for the metadata information
+      #   you want from this instance.
+      #
+      # Returns
+      # * +Array+ if key is blank
+      # * +String+ if key is given
+      #
+      # Example
+      #   metadata_request
+      #   # => a +Hash+ containing every key => value pair AWS provides
+      #   metadata_request('instance-id')
+      #   # => 'abc-1234'
       def metadata_request(key = '')
         key = to_hyph(key)
         begin
@@ -99,8 +128,7 @@ module Smash
             metadata_uri = "http://169.254.169.254/latest/meta-data/#{key}"
             HTTParty.get(metadata_uri).parsed_response.split("\n")
           else
-            require_relative "#{Smash::CloudPowers::CLOUDPOWERS_SPECS_ROOT}/stubs/aws_stubs"
-            stubbed_metadata = Smash::CloudPowers::AwsStubs::INSTANCE_METADATA_STUB
+            stubbed_metadata = Smash::CloudPowers::AwsStubs.instance_metadata_stub
 
             key.empty? ? stubbed_metadata.keys : stubbed_metadata[to_hyph(key)]
           end
@@ -110,8 +138,11 @@ module Smash
       end
 
       # Return the time since boot_time
-      # === @returns: Integer
-      # Notes:
+      #
+      # Returns
+      # +Integer+
+      #
+      # Notes
       # * TODO: refactor to use valid time stamps for better tracking.
       # * reason -> separate regions or OSs etc.
       def run_time
@@ -119,6 +150,11 @@ module Smash
       end
 
       # Send a message on a Pipe at an interval
+      #
+      # Parameters
+      # * opts +Hash+ (optional)
+      # * * +:interval+ - how long to wait between sending updates
+      # * * +:stream_name+ - name of stream you want to use
       def send_frequent_status_updates(opts = {})
         sleep_time = opts.delete(:interval) || 10
         stream = opts.delete(:stream_name)
@@ -131,14 +167,16 @@ module Smash
       end
 
       # Get the instance status.
-      # === @params: id String (optional)
-      #     * if no id is given, self-instance ID is returned
-      # === @returns: String
+      #
+      # Parameters
+      # * id +String+ (optional) (default is @instance_id)
+      #
+      # Returns String
       def status(id = @instance_id)
         begin
           ec2.describe_instances(dry_run: zfind('TESTING'), instance_ids: [id]).
             reservations[0].instances[0].state.name
-        rescue Aws::EC2::Errors::DryRunOperation => e
+        rescue Aws::EC2::Errors::DryRunOperation
           logger.info "Dry run flag set for testing: #{e}"
           'testing'
         end
@@ -146,8 +184,13 @@ module Smash
 
       # Check self-tags for 'task' and act as an attr_accessor.
       # A different node's tag's can be checked for a task by passing
-      # the id param
-      # see also: SelfAwareness#task_names
+      # that instance's id as a parameter
+      #
+      # Parameters
+      # * id +String+ (optional) (default is @instance_id) - instance you want a tag from
+      #
+      # Returns
+      # +String+
       def task_name(id = @instance_id)
         # get @task_name
         return @task_name unless @task_name.nil?
@@ -164,6 +207,10 @@ module Smash
       # * The run time is more than 5 minutes
       # and
       # * The run time is 5 minutes from the hour mark from when the instance started
+      # and will return false otherwise
+      #
+      # Returns
+      # +Boolean+
       def time_is_up?
         an_hours_time = 60 * 60
         five_minutes_time = 60 * 5
