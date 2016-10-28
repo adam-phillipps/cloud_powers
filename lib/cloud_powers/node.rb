@@ -72,7 +72,7 @@ module Smash
               logger.info "waiting for #{ids.count} Neurons to start..."
             end
           rescue Aws::Waiters::Errors::WaiterFailed => e
-            redo unless (count += 1 <=3 )
+            # redo unless ((count += 1) <=3)
           end
 
           # tag(ids, { key: 'task', value: to_camel(self.class.to_s) })
