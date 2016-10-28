@@ -196,8 +196,9 @@ module Smash
         resp = ec2.describe_instances(instance_ids: [id].flatten).reservations.first
         return nil if resp.nil?
         resp.instances[0].tags.select do |tag|
-          tag.value if (%r[#{pattern}] =~ tag.key)
-        end.map(&:value).first
+          # tag.value if (%r[#{pattern}] =~ tag.key)
+          tag.value if (tag.key =~ %r[#{pattern}])
+        end.collect.map(&:value).first
       end
 
       # Check self-tags for 'task' and act as an attr_accessor.
