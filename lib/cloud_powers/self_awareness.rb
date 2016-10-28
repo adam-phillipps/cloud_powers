@@ -182,6 +182,24 @@ module Smash
         end
       end
 
+
+      # Search through tags on an instances using a regex pattern for your tag's
+      # key/name
+      #
+      # Parameters
+      # * pattern +String+|+Regex+
+      #
+      # Returns
+      # * +String+ - if a tag is found
+      # * +nil+ - if a tag is not found
+      def tag_search(pattern, id = @instance_id)
+        resp = ec2.describe_instances(instance_ids: [id].flatten).reservations.first
+        return nil if resp.nil?
+        resp.instances[0].tags.select do |tag|
+          tag.value if (tag.key =~ %r[#{pattern}])
+        end.collect.map(&:value).first
+      end
+
       # Check self-tags for 'task' and act as an attr_accessor.
       # A different node's tag's can be checked for a task by passing
       # that instance's id as a parameter
@@ -191,16 +209,15 @@ module Smash
       #
       # Returns
       # +String+
+      #
+      # Notes
+      # * See <tt>tag_search()</tt>
       def task_name(id = @instance_id)
         # get @task_name
         return @task_name unless @task_name.nil?
         # set @task_name
         # TODO: get all tasks instead of just the first
-        resp = ec2.describe_instances(instance_ids: [id].flatten).reservations.first
-        return @task_name = nil if resp.nil?
-        @task_name = resp.instances[0].tags.select do |t|
-          t.value if t.key == 'taskType'
-        end.first
+        @task_name = tag_search('task', id)
       end
 
       # This method will return true if:
