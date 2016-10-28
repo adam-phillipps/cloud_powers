@@ -16,15 +16,12 @@ describe 'Synapse::WebSocClient' do
 
 
   it '#create_websoc_client() should be not nil' do
-    @clients = {}
-    @default_client_configs = {name:'default_client',host:'127.0.0.1',port:'9090'}
+    @default_client_configs = {name:'default_client',host:'127.0.0.1',port:'9090',
+                               on_open: Proc.new do
+                                 expect(@default_client).to be_truthy
+                               end
+    }
     create_websoc_client(@default_client_configs)
-
-    @default_client = @clients[@default_client_configs[:name]]
-    expect(@default_client).to be_truthy
-
   end
-
-
 
 end
