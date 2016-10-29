@@ -31,5 +31,13 @@ describe 'SelfAwareness module' do
     it '#tag_search() should be able to find a tag on a given instance' do
       expect(tag_search('task')).to eq('test')
     end
+
+    it '#tag_search() should return `nil` when there is no appropriate tag' do
+      expect(tag_search('bogusnessumusmaximus')).to eq(nil)
+    end
+
+    it '#tag_search() should return the first result when many results are found' do
+      expect(tag_search('ta')).to eq('test')
+    end
   end
 end
