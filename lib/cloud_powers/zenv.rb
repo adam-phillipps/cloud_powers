@@ -1,5 +1,5 @@
 require 'dotenv'
-require_relative 'helper'
+require 'helpers/lang_help'
 
 module Smash
   module CloudPowers
@@ -9,7 +9,7 @@ module Smash
     # System ENV, dotenv ENV and instance variables are considered for now but this
     # will also use elasticache/redis...some other stuff too, in the coming versions
     module Zenv
-      include Smash::CloudPowers::Helper
+      include Smash::Helpers
 
       # Attempts to find a file by searching the current directory for the file
       # then walking up the file tree and searching at each stop all the way up
@@ -23,6 +23,7 @@ module Smash
       def file_tree_search(name)
         next_dir = Pathname.new(`pwd`.strip).parent
         current_dir = Pathname.new(`pwd`.strip)
+
         until(next_dir == current_dir) do
           path = Dir.glob("#{current_dir}/#{name}").first
           return current_dir unless path.nil?

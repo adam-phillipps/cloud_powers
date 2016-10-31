@@ -10,7 +10,7 @@ module Smash
     module Delegator
       extend Smash::CloudPowers::Auth
       include Smash::CloudPowers::AwsResources
-      include Smash::CloudPowers::Helper
+      include Smash::Helpers
       include Smash::CloudPowers::Storage
 
       # Predicate method to return true for valid job titles and false for invalid ones
@@ -22,7 +22,7 @@ module Smash
       # +Boolean+
       #
       # Notes
-      # * TODO: needs improvement
+      # * TODO: needs improvement.  Look to ActiveRecord's attributes -> find_...
       def approved_task?(name = nil)
         ['demo', 'testinz', 'true_roas'].include? to_snake(name)
       end
@@ -48,7 +48,7 @@ module Smash
       #   # the message responds to +#body()+ with "ExampleTask"
       #   job.build('abc-1234', Aws::SQS::Message)
       #   # => +ExampleTask:Object+
-      def build(id, msg)
+      def build_resource(id, msg)
         body = decipher_message(msg)
         begin
           task = body['task']

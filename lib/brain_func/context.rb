@@ -9,7 +9,7 @@ module Smash
     # or create and a Brain operates in the same Context, it can use the Context to
     # decouple the creation and usage from the coordination.
     class Context
-      include Smash::CloudPowers::Helper
+      include Smash::Helpers
 
       attr_accessor :package # The given data structure that is used to build @structure
 

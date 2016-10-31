@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'dotenv'
 
 describe 'Helper' do
-  include Smash::CloudPowers::Helper
+  include Smash::Helpers
   include Smash::CloudPowers::Zenv
 
   before(:all) do
@@ -11,7 +11,7 @@ describe 'Helper' do
 
   it '#availabe_resources should be able to provide an Array of all CloudPowers resources' do
     expect(available_resources.count).to be > 1
-    expect(available_resources).to include(:Helper)
+    expect(available_resources).to include(:Helpers)
   end
 
   it '#create_logger should return a logger' do

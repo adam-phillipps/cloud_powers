@@ -6,7 +6,7 @@ module Smash
     module Synapse
       module Queue
         include Smash::CloudPowers::AwsResources
-        include Smash::CloudPowers::Helper
+        include Smash::Helpers
 
         # A simple Struct that acts as a Name to URL map
         #

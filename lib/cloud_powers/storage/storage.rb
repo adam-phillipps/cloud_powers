@@ -41,10 +41,10 @@ module Smash
       #                   |             |_demorific.rb
       #                   |             |_foobar.rb
       #                   |             |_custom_greetings.js # could be an after effects JS script
-      def source_task(file, force = false)
+      def source_task(file)
         # TODO: better path management
         bucket = zfind('task storage')
-        unless (force || local_job_file_exists?(file))
+        if local_job_file_exists?(file)
           objects = s3.list_objects(bucket: bucket).contents.select do |f|
             /#{Regexp.escape file}/i =~ f.key
           end
@@ -68,7 +68,7 @@ module Smash
       #   # => 238934 # integer representation of the file size
       def search(bucket, pattern)
         s3.list_objects(bucket: bucket).contents.select do |o|
-          %r[#{pattern}] =~ o.key
+          o.key =~ pattern
         end
       end
 

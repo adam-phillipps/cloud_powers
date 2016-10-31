@@ -3,7 +3,7 @@ module Smash
     module Synapse
       module Pipe
         include Smash::CloudPowers::AwsResources
-        include Smash::CloudPowers::Helper
+        include Smash::Helpers
         include Smash::CloudPowers::Zenv
 
         # Create a Kinesis stream or wait until the stream with the given name is

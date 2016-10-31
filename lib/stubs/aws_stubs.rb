@@ -221,9 +221,18 @@ module Smash
       #   for it yet but you can use this hash as a guide
       #   for your own custom configuration
       def self.storage_stub(opts = {})
+        opts[:contents] ||= [
+          { key: 'testinz.rb' }
+        ]
         {
           stub_responses: {
-            head_bucket: {}
+            head_bucket: {},
+            list_objects: {
+              contents: opts[:contents]
+            },
+            get_object: {
+              body: 'class Testinz; include Smash::BrainFunc::Delegator; end'
+            }
           }
         }
       end

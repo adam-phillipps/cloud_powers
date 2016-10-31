@@ -3,14 +3,14 @@ Aws.use_bundled_cert!
 require 'httparty'
 require 'stubs/aws_stubs'
 require_relative 'aws_resources'
-require_relative 'helper'
+require 'helpers'
 require_relative './synapse/synapse'
 require_relative 'zenv'
 
 module Smash
   module CloudPowers
     module SelfAwareness
-      extend Smash::CloudPowers::Helper
+      include Smash::Helpers
       extend Smash::CloudPowers::Synapse::Pipe
       extend Smash::CloudPowers::Synapse::Queue
       extend Smash::CloudPowers::Zenv

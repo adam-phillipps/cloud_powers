@@ -1,12 +1,11 @@
 require_relative 'auth'
-require_relative 'helper'
 require_relative 'zenv'
 
 module Smash
   module CloudPowers
     module AwsResources
       include Smash::CloudPowers::Auth
-      include Smash::CloudPowers::Helper
+      include Smash::Helpers
       include Smash::CloudPowers::Zenv
 
       # Get the region from the environment/context or use a default region for AWS API calls.

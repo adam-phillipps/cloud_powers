@@ -3,7 +3,7 @@ require 'cloud_powers'
 module Smash
   module BrainFunc
     module CerebrumFunctions
-      include Smash::CloudPowers::Helper
+      include Smash::Helpers
       # This method uses the Smash namespace to find all the resources that it
       # has.  It does this because those are the only kinds of resources we can
       # reliably produce, dynamically.  It moves through the given context to

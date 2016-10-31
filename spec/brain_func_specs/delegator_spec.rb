@@ -16,7 +16,7 @@ describe 'Delegator' do
   end
 
   it 'should build a default Task if no Task is found' do
-    test_task = build('abcd-1234', @message)
+    test_task = build_resource('abcd-1234', @message)
     expect(test_task.kind_of? Testinz).to be true
   end
 
