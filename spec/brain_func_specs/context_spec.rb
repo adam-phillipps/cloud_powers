@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe 'Smash::BrainFunc::Context' do
-  include Smash::CloudPowers::Helper
+  include Smash::Helpers
   include Smash::CloudPowers::Zenv
 
   before(:all) do
@@ -19,6 +19,7 @@ describe 'Smash::BrainFunc::Context' do
     @vanilla_hash = {"task"=>["demo"], "queue"=>["backlog", "sned"], "pipe"=>["status_stream"]}
     @vanilla_json = @vanilla_hash.to_json
     @vanilla_to_json = { context: @vanilla_hash }.to_json
+    byebug
     @vanilla_context = Smash::BrainFunc::Context.new('task' => 'test')
   end
 
@@ -28,7 +29,9 @@ describe 'Smash::BrainFunc::Context' do
     let(:invalid_arr) { arr[0] = :foo; arr }
 
     it 'should be able to take an Array for #new()' do
+      byebug
       context = Smash::BrainFunc::Context.new(arr)
+      byebug
       expect(context.structure).to eql(@vanilla_config_hash)
     end
 

@@ -18,8 +18,15 @@ require 'logger'
 # other projects.
 module Smash
   module Helpers
+    # various common methods to alter or translate messages, var names etc
     include Smash::Helpers::LangHelp
+    # various common methods to help aid a larger problem.  You can gather available
+    # resources in a namespace, find out where a method was called from and other
+    # useful introspection assists
     include Smash::Helpers::LogicHelp
+    # various methods to help tie projects together.  If you want to know how
+    # your path is being referenced or you need a nice place to keep things in
+    # order, use the path helpers.
     include Smash::Helpers::PathHelp
 
     # creates a default logger
@@ -61,17 +68,17 @@ module Smash
     end
   end
   # BrainFunc is the power in CloudPowers.
-  # You can build custom workflows and attach them to tasks, decide on a class
+  # You can build custom workflows and attach them to jobs, decide on a class
   # dynamically and run a job, from start to finish, inside a serialized context,
   # automatically and it can all be done in a few lines of code.
   module BrainFunc
-    # Methods to help tie a few tasks together
+    # Methods to help tie a few jobs together
     include Smash::BrainFunc::CerebrumFunctions
     # Problem context awareness, building assist and serialization
     # <tt>Context</tt> +Class+
     # Dynamic Class use
     include Smash::BrainFunc::Delegator
-    # Methods to help you brutalize a hard task
+    # Methods to help you brutalize a hard job
     include Smash::BrainFunc::NeuronFunctions
     # Dynamic, responsive workflows
     include Smash::BrainFunc::WorkflowFactory

@@ -10,7 +10,7 @@ describe CloudPowers do
   end
 
   it 'should have a Helper module' do
-    expect(Smash::CloudPowers.included_modules).to include(Smash::CloudPowers::Helper)
+    expect(Smash::CloudPowers.included_modules).to include(Smash::Helpers)
   end
 
   it 'should have a Node module' do

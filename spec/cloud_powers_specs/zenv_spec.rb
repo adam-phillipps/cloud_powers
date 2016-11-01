@@ -5,7 +5,7 @@ describe 'Zenv' do
   include Smash::CloudPowers::Zenv
 
   before(:all) do
-    Dotenv.load("#{project_root}/spec/.test.env")
+    Dotenv.load("#{project_root}/.test.env")
   end
 
   it 'should be able to search the system environment' do

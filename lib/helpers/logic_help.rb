@@ -31,25 +31,41 @@ module Smash
         end
       end
 
-      # This is a way to find out if you are trying to work with a resource
-      # available to CloudPowers
-      #
-      # Returns <Array>
-      # Use +.constants+ to find all the modules and classes available.
-      #
-      # Notes
-      # * TODO: make this smartly pick up all the objects, within reason and
-      #   considering need, that we have access to
-      def available_resources
-        byebug
-        [:Job].concat(
-          Smash.constants.map do |group_name|
-            Smash.const_get(group_name).constants.select do |possible_resource|
-              possible_resource.respond_to? :create
-            end.collect
-          end.flatten.uniq
-        )
+
+
+      def available_resources(parent = Smash)
+        parent.constants.select do |possible_resource|
+          parent.const_get(possible_resource).is_a? Module
+        end.compact.map do |v|
+
+        end
       end
+
+
+
+      # # This is a way to find out if you are trying to work with a resource
+      # # available to CloudPowers
+      # #
+      # # Returns <Array>
+      # # Use +.constants+ to find all the modules and classes available.
+      # #
+      # # Notes
+      # # * TODO: make this smartly pick up all the objects, within reason and
+      # #   considering need, that we have access to
+      # def available_resources
+      #   [:BrainFunc, :CloudPowers, :Helpers, :Job, :Task].concat(
+      #     Smash.constants.map do |group_name|
+      #       Smash.const_get(group_name).constants.select do |possible_resource|
+      #         possible_resource.respond_to? :create
+      #       end.collect.flatten
+      #     end.flatten.uniq
+      #   )
+      # end
+
+
+
+
+
 
       # Does its best job at guessing where this method was called from, in terms
       # of where it is located on the file system.  It helps track down where a

@@ -1,5 +1,5 @@
 require 'dotenv'
-require 'helpers/lang_help'
+require 'helpers'
 
 module Smash
   module CloudPowers
@@ -9,7 +9,8 @@ module Smash
     # System ENV, dotenv ENV and instance variables are considered for now but this
     # will also use elasticache/redis...some other stuff too, in the coming versions
     module Zenv
-      include Smash::Helpers
+      include Smash::Helpers::LangHelp
+      include Smash::Helpers::PathHelp
 
       # Attempts to find a file by searching the current directory for the file
       # then walking up the file tree and searching at each stop all the way up

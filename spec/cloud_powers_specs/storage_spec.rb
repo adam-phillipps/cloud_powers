@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'Storage' do
   extend Smash::CloudPowers::AwsStubs
-  include Smash::CloudPowers::Helper
+  include Smash::Helpers
   include Smash::CloudPowers::Storage
   include Smash::CloudPowers::Zenv
 
