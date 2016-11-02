@@ -64,7 +64,7 @@ module Smash
           end
 
           if !tags.empty?
-            create_tags(ids,tags)
+            batch_tag(ids,tags)
           end
 
           ids
@@ -76,9 +76,12 @@ module Smash
         ids
       end
 
+      # this method add certain tags to an array of resources ids.
+      # example of the create tags request
+      # [ "ami-78a54011"], tags: [ { key: "Stack", value: "production"}]
 
-      def create_tags(ids,tags)
-        tags_opts = {resources:ids,tags:tags}
+      def batch_tag(ids,tags)
+        tags_opts = { resources: ids, tags: tags }
         ec2.create_tags(tags_opts)
         logger.info "tags for #{ids} created"
       end
