@@ -325,7 +325,6 @@ module Smash
           ]
         }.merge(opts)
       end
-
     end
   end
 end
