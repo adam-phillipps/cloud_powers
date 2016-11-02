@@ -23,6 +23,14 @@ describe 'Node' do
     end
   end
 
+  context('#batch_tags') do
+    it 'should be able to add or overwrite tags to resources' do
+      ids = ['asd-1234']
+      tags = [{ key: 'stack', value: 'production' }]
+      expect(create_tags(ids, tags)).not_to be_nil
+    end
+  end
+
   it '#node_config should have a valid default Hash for starting nodes' do
     expect(node_config).to be_kind_of(Hash)
   end
