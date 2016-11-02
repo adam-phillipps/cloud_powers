@@ -9,7 +9,7 @@ describe 'Node' do
   include Smash::CloudPowers::Zenv
 
   before(:all) do
-    Dotenv.load("#{project_root}/.test.env")
+    Dotenv.load("#{project_root}/.test.env.example")
     @config = Smash::CloudPowers::AwsStubs.node_stub.merge(max_count: 5)
   end
 
