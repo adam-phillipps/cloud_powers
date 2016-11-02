@@ -31,16 +31,30 @@ module Smash
         end
       end
 
+      def nested_resources_for(current_resource)
 
-
-      def available_resources(parent = Smash)
-        parent.constants.select do |possible_resource|
-          parent.const_get(possible_resource).is_a? Module
-        end.compact.map do |v|
-
+        resource = Smash.const_get(current_resource.to_s)
+        next_layer = resource.constants.select do |res|
+          resource.const_get(res.to_s).is_a? Module
         end
+
+        return resource if next_layer.empty?
+
+        all = next_layer.map do |possible_resource|
+          puts "43 possible_resource #{possible_resource}\ncount: #{@count}\n"
+          nested_resources_for(resource.const_get(possible_resource))
+        end
+        # byebug
+        all
       end
 
+      def available_resources
+        byebug
+        @count = 0
+        ping = nested_resources_for(Smash)
+        puts ping
+        # byebug
+      end
 
 
       # # This is a way to find out if you are trying to work with a resource

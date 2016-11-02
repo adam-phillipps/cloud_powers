@@ -17,6 +17,9 @@ require 'logger'
 # The Smash module allows us to use CloudPowers under a shared name space with
 # other projects.
 module Smash
+  # Helpers provide you with a few types of assistance.  You can get help with
+  # translating variables, understanding what resources a given project has and
+  # where to store everything for a dynamically changing project.
   module Helpers
     # various common methods to alter or translate messages, var names etc
     include Smash::Helpers::LangHelp
@@ -92,8 +95,6 @@ module Smash
     extend Smash::CloudPowers::Auth
     # Aws clients, like EC2 and S3
     include Smash::CloudPowers::AwsResources
-    # Various helper methods
-    include Smash::Helpers
     # Gathers data about an instance, itself
     include Smash::CloudPowers::SelfAwareness
     # Store files
