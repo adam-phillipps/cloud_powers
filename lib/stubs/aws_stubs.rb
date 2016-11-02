@@ -310,6 +310,22 @@ module Smash
           }
         }.merge(opts)
       end
+
+      # Stub metadata for EC2 tags
+      #
+      # Notes
+      # * defaults can't be overriden or don't have good support for
+      #   for it yet but you can use this hash as a guide
+      #   for your own custom configuration
+      def self.instance_tags_stub(opts = {})
+        {
+          tags: [
+            { key: 'tag_one_key', value: 'tag_one_value' },
+            { key: 'tag_two_key', value: 'tag_two_value' }
+          ]
+        }.merge(opts)
+      end
+      
     end
   end
 end
