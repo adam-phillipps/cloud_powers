@@ -19,17 +19,17 @@ module Smash
       #   configuration.
       def node_config(opts = {})
         {
-            dry_run:                                zfind(:testing) || false,
-            image_id:                               image('crawlbotprod').image_id, # image(:neuron).image_id
-            instance_type:                          't2.nano',
-            min_count:                              opts[:max_count] || 0,
-            max_count:                              0,
-            key_name:                               'crawlBot',
-            security_groups:                        ['webCrawler'],
-            security_group_ids:                     ['sg-940edcf2'],
-            placement:                              { availability_zone: 'us-west-2c' },
-            disable_api_termination:                'false',
-            instance_initiated_shutdown_behavior:   'terminate'
+          dry_run:                                zfind(:testing) || false,
+          image_id:                               image('crawlbotprod').image_id, # image(:neuron).image_id
+          instance_type:                          't2.nano',
+          min_count:                              opts[:max_count] || 0,
+          max_count:                              0,
+          key_name:                               'crawlBot',
+          security_groups:                        ['webCrawler'],
+          security_group_ids:                     ['sg-940edcf2'],
+          placement:                              { availability_zone: 'us-west-2c' },
+          disable_api_termination:                'false',
+          instance_initiated_shutdown_behavior:   'terminate'
         }.merge(opts)
       end
 
