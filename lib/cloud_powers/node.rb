@@ -43,10 +43,11 @@ module Smash
       # * opts +Hash+ (optional)
       #   an optional instance configuration hash can be passed, which will override
       #   the values in the default configuration returned by #instance_config()
-      def spin_up_neurons(opts = {})
+      def spin_up_neurons(opts = {}, tags = [])
         should_wait = opts.delete(:wait) || true
         ids = nil
         begin
+
           response = ec2.run_instances(node_config(opts))
           ids = response.instances.map(&:instance_id)
 
@@ -61,9 +62,10 @@ module Smash
               # redo unless (count += 1 <=3 )
             end
           end
+
+          batch_tag(ids, tags) unless tags.empty?
           ids
 
-          # tag(ids, { key: 'task', value: to_camel(self.class.to_s) })
         rescue Aws::EC2::Errors::DryRunOperation
           ids = (1..(opts[:max_count] || 0)).to_a.map { |n| n.to_s }
           logger.info "waiting for #{ids.count} Neurons to start..."
@@ -71,6 +73,28 @@ module Smash
 
         ids
       end
+
+      # This method adds certain tags to an array of resource ids.
+      #
+      # Parameters
+      # * ids +Array+|+String+ - an Array or a single instance id, as an Array of Strings or a single String
+      # * tags +Array+ - an Array of key, value hash
+      #
+      # Returns
+      # * Returns an empty response.
+      #
+      # Examples
+      #   create_tag('ami-2342354', tags: { key: "stack", value: "production"})
+      #   or
+      #   create_tag(['ami-2432342'], tags: [{ key: 'stack', value: 'production' }])
+      #   or any permutation of those
+
+      def batch_tag(ids, tags)
+        tags_opts = { resources: ids, tags: tags }
+        ec2.create_tags(tags_opts)
+        logger.info "tags for #{ids} created"
+      end
+
     end
   end
 end
