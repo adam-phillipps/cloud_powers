@@ -23,11 +23,11 @@ describe 'Node' do
     end
   end
 
-  context('#batch_tags') do
+  context('#batch_tag') do
     it 'should be able to add or overwrite tags to resources' do
       ids = @config[:stub_responses][:describe_instances][:reservations].first[:instances].map { |f| f[:instance_id] }
       tags = Smash::CloudPowers::AwsStubs.instance_tags_stub[:tags]
-      expect(create_tags(ids, tags)).not_to be_nil
+      expect(batch_tag(ids, tags)).not_to be_nil
     end
   end
 
