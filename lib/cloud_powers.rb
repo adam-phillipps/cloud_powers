@@ -1,13 +1,13 @@
 require 'cloud_powers/auth'
 require 'cloud_powers/aws_resources'
 require 'cloud_powers/node'
-require 'cloud_powers/self_awareness'
 require 'cloud_powers/storage'
 require 'cloud_powers/version'
 require 'brain_func/cerebrum_functions'
 require 'brain_func/context'
 require 'brain_func/delegator'
 require 'brain_func/neuron_functions'
+require 'brain_func/self_awareness'
 require 'brain_func/workflow_factory'
 require 'helpers/lang_help'
 require 'helpers/path_help'
@@ -83,6 +83,8 @@ module Smash
     include Smash::BrainFunc::Delegator
     # Methods to help you brutalize a hard job
     include Smash::BrainFunc::NeuronFunctions
+    # Gathers data about an instance, itself
+    include Smash::BrainFunc::SelfAwareness
     # Dynamic, responsive workflows
     include Smash::BrainFunc::WorkflowFactory
   end
@@ -95,8 +97,6 @@ module Smash
     extend Smash::CloudPowers::Auth
     # Aws clients, like EC2 and S3
     include Smash::CloudPowers::AwsResources
-    # Gathers data about an instance, itself
-    include Smash::CloudPowers::SelfAwareness
     # Store files
     include Smash::CloudPowers::Storage
     # Communication modules

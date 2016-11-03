@@ -1,15 +1,16 @@
 require 'helpers'
 require_relative 'auth'
-require_relative 'self_awareness'
+# require_relative 'self_awareness'
 require_relative 'zenv'
 
 module Smash
   module CloudPowers
     module Node
-      include Smash::CloudPowers::Auth
-      include Smash::Helpers
-      include Smash::CloudPowers::SelfAwareness
-      include Smash::CloudPowers::Zenv
+      # include Smash::BrainFunc::SelfAwareness
+      # include Smash::CloudPowers::Auth
+      # include Smash::Helpers
+      # include Smash::CloudPowers::Zenv
+      include Smash::CloudPowers::AwsResources
 
       # These are sensible defaults that can be overriden by providing a Hash as a param.
       #
@@ -94,7 +95,6 @@ module Smash
         ec2.create_tags(tags_opts)
         logger.info "tags for #{ids} created"
       end
-
     end
   end
 end

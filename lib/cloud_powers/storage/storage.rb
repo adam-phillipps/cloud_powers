@@ -9,6 +9,7 @@ module Smash
       def local_job_file_exists?(file)
         File.exists?(task_path(to_ruby_file_name(file)))
       end
+
       # Searches a local task storage location for the given +file+ name
       # if it exists - exit the method
       # if it does <i>not</i> exist - get the file from s3 and place it in

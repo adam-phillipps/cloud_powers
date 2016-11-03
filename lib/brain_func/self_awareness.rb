@@ -1,20 +1,15 @@
 require 'aws-sdk'
 Aws.use_bundled_cert!
+require 'cloud_powers'
 require 'httparty'
-require 'stubs/aws_stubs'
-require_relative 'aws_resources'
-require 'helpers'
-require_relative './synapse/synapse'
-require_relative 'zenv'
+# require 'stubs/aws_stubs'
+# require 'helpers'
 
 module Smash
-  module CloudPowers
+  module BrainFunc
     module SelfAwareness
       include Smash::Helpers
-      extend Smash::CloudPowers::Synapse::Pipe
-      extend Smash::CloudPowers::Synapse::Queue
-      extend Smash::CloudPowers::Zenv
-      include Smash::CloudPowers::AwsResources
+      include Smash::CloudPowers
 
       # Gets the instance time or the time it was called and as seconds from
       # epoch
@@ -25,9 +20,10 @@ module Smash
       # * TODO: use time codes
       def boot_time
         begin
-          @boot_time ||=
-            ec2.describe_instances(dry_run: zfind(:testing), instance_ids:[instance_id]).
-              reservations[0].instances[0].launch_time.to_i
+          @boot_time ||= ec2.describe_instances(
+            dry_run:              zfind(:testing),
+            instance_ids:         [instance_id]
+          ).reservations[0].instances[0].launch_time.to_i
         rescue Aws::EC2::Errors::DryRunOperation
           logger.info "dry run for testing: #{e}"
           @boot_time ||= Time.now.to_i # comment the code below for development mode
