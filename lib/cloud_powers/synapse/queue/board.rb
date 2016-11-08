@@ -7,7 +7,7 @@ module Smash
         class Board
           include Smash::CloudPowers::AwsResources
           include Smash::CloudPowers::Synapse::Queue
-          include Smash::CloudPowers::Helper
+          include Smash::CloudPowers::Helpers
           include Smash::CloudPowers::Zenv
 
           # The URL the Aws::SQS::Queue uses

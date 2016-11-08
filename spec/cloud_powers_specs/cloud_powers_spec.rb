@@ -1,6 +1,6 @@
 require 'spec_helper'
 require 'dotenv'
-require_relative '../lib/stubs/aws_stubs'
+require 'cloud_powers/stubs/aws_stubs'
 
 describe CloudPowers do
   include Smash::CloudPowers::Zenv

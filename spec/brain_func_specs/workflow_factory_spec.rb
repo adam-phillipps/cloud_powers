@@ -1,15 +1,15 @@
 require 'spec_helper'
-require_relative '../lib/stubs/aws_stubs'
+require 'cloud_powers/stubs/aws_stubs'
 
 describe 'WorkflowFactory' do
+  include Smash::BrainFunc::WorkflowFactory
   extend Smash::CloudPowers::AwsStubs
-  include Workflow
-  include Smash::CloudPowers::WorkflowFactory
   include Smash::CloudPowers::Zenv
+  include Workflow
 
   # simple testing class
   class Task
-    include Smash::CloudPowers::WorkflowFactory
+    include Smash::BrainFunc::WorkflowFactory
     def initialize(*args); end
     def self.create(description)
       t = new

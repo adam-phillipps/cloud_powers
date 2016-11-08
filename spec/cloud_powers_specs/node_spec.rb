@@ -1,10 +1,10 @@
 require 'spec_helper'
-require_relative '../lib/stubs/aws_stubs'
+require 'cloud_powers/stubs/aws_stubs'
 
 describe 'Node' do
   include Smash::CloudPowers::AwsStubs
   include Smash::CloudPowers::AwsResources
-  include Smash::CloudPowers::Helper
+  include Smash::CloudPowers::Helpers
   include Smash::CloudPowers::Node
   include Smash::CloudPowers::Zenv
 

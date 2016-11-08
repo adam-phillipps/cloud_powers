@@ -1,9 +1,9 @@
-require_relative './broadcast/broadcast'
-require_relative './queue/board'
-require_relative './queue/queue'
-require_relative './pipe/pipe'
-require_relative './websocket/websocserver'
-require_relative './websocket/websocclient'
+require 'cloud_powers/synapse/broadcast/broadcast'
+require 'cloud_powers/synapse/queue/board'
+require 'cloud_powers/synapse/queue/queue'
+require 'cloud_powers/synapse/pipe/pipe'
+require 'cloud_powers/synapse/websocket/websocserver'
+require 'cloud_powers/synapse/websocket/websocclient'
 
 module Smash
   module CloudPowers

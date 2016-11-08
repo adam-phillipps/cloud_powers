@@ -2,7 +2,7 @@ module Smash
   module CloudPowers
     module Synapse
       module Broadcast
-        include Smash::CloudPowers::Helper
+        include Smash::CloudPowers::Helpers
         include Smash::CloudPowers::AwsResources
         include Smash::CloudPowers::Zenv
 

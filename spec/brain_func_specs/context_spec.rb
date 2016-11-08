@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe 'Smash::CloudPowers::Context' do
-  include Smash::CloudPowers::Helper
+describe 'Smash::BrainFunc::Context' do
+  include Smash::CloudPowers::Helpers
   include Smash::CloudPowers::Zenv
 
   before(:all) do
@@ -17,7 +17,7 @@ describe 'Smash::CloudPowers::Context' do
     @vanilla_config_arr = [:task, 'demo', :queue, 'backlog', 'sned', :pipe, 'status_stream']
     @vanilla_2d_arr = [[:task, 'demo'], [:queue, 'backlog', 'sned'], [:pipe, 'status_stream']]
     @vanilla_json = "{\"task\":[\"demo\"],\"queue\":[\"backlog\",\"sned\"],\"pipe\":[\"status_stream\"]}"
-    @vanilla_context = Smash::CloudPowers::Context.new('task' => 'test')
+    @vanilla_context = Smash::BrainFunc::Context.new('task' => 'test')
   end
 
   context 'Enumerable validation' do
@@ -26,12 +26,12 @@ describe 'Smash::CloudPowers::Context' do
     let(:invalid_arr) { arr[0] = :foo; arr }
 
     it 'should be able to take an Array for #new()' do
-      context = Smash::CloudPowers::Context.new(arr)
+      context = Smash::BrainFunc::Context.new(arr)
       expect(context.structure).to eql(@vanilla_config_hash)
     end
 
     it 'should be able to take a 2D Array for #new()' do
-      context = Smash::CloudPowers::Context.new(two_d_arr)
+      context = Smash::BrainFunc::Context.new(two_d_arr)
       expect(context.structure).to eql(@vanilla_config_hash)
     end
 
@@ -55,7 +55,7 @@ describe 'Smash::CloudPowers::Context' do
     end
 
     it 'should be able to take a Hash for #new()' do
-      context = Smash::CloudPowers::Context.new(config_hash)
+      context = Smash::BrainFunc::Context.new(config_hash)
       expect(context.package).to eql(config_hash)
     end
 
@@ -75,7 +75,7 @@ describe 'Smash::CloudPowers::Context' do
     let(:invalid_json) { "{\"foo\":[\"demo\"],\"queue\":[\"backlog\",\"sned\"],\"pipe\":[\"status_stream\"]}" }
 
     it 'should be able to take JSON for #new()' do
-      context = Smash::CloudPowers::Context.new(json)
+      context = Smash::BrainFunc::Context.new(json)
       expect(context.to_json).to eql(JSON.parse(json).to_json)
     end
 
@@ -92,24 +92,24 @@ describe 'Smash::CloudPowers::Context' do
 
   context 'translations' do
     it 'should be able to translate a flattened Array into a valid structure' do
-      context = Smash::CloudPowers::Context.new(@vanilla_config_arr)
+      context = Smash::BrainFunc::Context.new(@vanilla_config_arr)
       expect(context.structure).to be_kind_of Hash
     end
 
     it 'should be able to translate a 2D Array into a valid structure' do
-      context = Smash::CloudPowers::Context.new(@vanilla_2d_arr)
+      context = Smash::BrainFunc::Context.new(@vanilla_2d_arr)
       expect(context.structure).to be_kind_of Hash
     end
   end
 
   context 'serializing' do
     it 'should be able to serialize its resources into JSON' do
-      context = Smash::CloudPowers::Context.new(@vanilla_config_hash)
+      context = Smash::BrainFunc::Context.new(@vanilla_config_hash)
       expect(context.to_json).to eql(@vanilla_config_hash.to_json)
     end
 
     it 'should be able to parse JSON into a valid Context' do
-      context = Smash::CloudPowers::Context.new(@vanilla_json)
+      context = Smash::BrainFunc::Context.new(@vanilla_json)
       expect(context.structure).to eql(@vanilla_config_hash)
     end
   end

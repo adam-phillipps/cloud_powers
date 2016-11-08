@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'dotenv'
 
 describe 'Helper' do
-  include Smash::CloudPowers::Helper
+  include Smash::CloudPowers::Helpers
   include Smash::CloudPowers::Zenv
 
   before(:all) do

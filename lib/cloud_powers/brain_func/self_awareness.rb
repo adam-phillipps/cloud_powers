@@ -1,16 +1,16 @@
 require 'aws-sdk'
 Aws.use_bundled_cert!
 require 'httparty'
-require 'stubs/aws_stubs'
-require_relative 'aws_resources'
-require_relative 'helper'
-require_relative './synapse/synapse'
-require_relative 'zenv'
+require 'cloud_powers/stubs/aws_stubs'
+require 'cloud_powers/aws_resources'
+require 'cloud_powers/helpers'
+require 'cloud_powers/synapse/synapse'
+require 'cloud_powers/zenv'
 
 module Smash
-  module CloudPowers
+  module BrainFunc
     module SelfAwareness
-      extend Smash::CloudPowers::Helper
+      extend Smash::CloudPowers::Helpers
       extend Smash::CloudPowers::Synapse::Pipe
       extend Smash::CloudPowers::Synapse::Queue
       extend Smash::CloudPowers::Zenv

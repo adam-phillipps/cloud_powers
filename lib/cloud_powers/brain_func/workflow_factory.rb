@@ -1,7 +1,7 @@
 require 'workflow'
 
 module Smash
-  module CloudPowers
+  module BrainFunc
     # The WorkflowFactory module provides you with a custom, embeddable workflow
     # for classes.  To do this, it takes a description of the workflow, in
     # the form of a <tt>Hash</tt> and injects it into the class' Singleton/Eigan

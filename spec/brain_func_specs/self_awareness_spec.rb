@@ -1,10 +1,10 @@
 require 'spec_helper'
-require_relative '../lib/stubs/aws_stubs'
+require 'cloud_powers/stubs/aws_stubs'
 
 
 describe 'SelfAwareness module' do
   include Smash::CloudPowers::AwsStubs
-  include Smash::CloudPowers::SelfAwareness
+  include Smash::BrainFunc::SelfAwareness
   extend Smash::CloudPowers::Zenv
 
   before(:all) do

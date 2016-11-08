@@ -1,11 +1,11 @@
-# require 'auth'
-# require 'aws_resources'
 require 'json'
-require_relative 'helper'
-require_relative 'storage'
+require 'cloud_powers/auth'
+require 'cloud_powers/aws_resources'
+require 'cloud_powers/helpers'
+require 'cloud_powers/storage'
 
 module Smash
-  module CloudPowers
+  module BrainFunc
     # The Delegator module is a way to dynamically source and use
     # Ruby source code.  You pass a message or something that can
     # respond to +#body()+ and give back a String.  The String should
@@ -13,7 +13,7 @@ module Smash
     module Delegator
       extend Smash::CloudPowers::Auth
       include Smash::CloudPowers::AwsResources
-      include Smash::CloudPowers::Helper
+      include Smash::CloudPowers::Helpers
       include Smash::CloudPowers::Storage
 
       # Predicate method to return true for valid job titles and false for invalid ones

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'dotenv'
 
 describe 'Zenv' do
   include Smash::CloudPowers::Zenv

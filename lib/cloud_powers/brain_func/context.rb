@@ -1,8 +1,8 @@
 require 'json'
-require_relative 'helper'
+require 'cloud_powers/helpers'
 
 module Smash
-  module CloudPowers
+  module BrainFunc
     # The Context class is the class that handles serializing the Context so that it
     # can be passed from node to node and rebuilt.  This provides a way for nodes in
     # the same Brain to have an awareness of required communication modes, for example.
@@ -10,7 +10,7 @@ module Smash
     # or create and a Brain operates in the same Context, it can use the Context to
     # decouple the creation and usage from the coordination.
     class Context
-      include Smash::CloudPowers::Helper
+      include Smash::CloudPowers::Helpers
 
       attr_accessor :package # The given data structure that is used to build @structure
 
