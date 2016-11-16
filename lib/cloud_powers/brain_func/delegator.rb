@@ -51,14 +51,14 @@ module Smash
       #   # the message responds to +#body()+ with "ExampleTask"
       #   job.build('abc-1234', Aws::SQS::Message)
       #   # => +ExampleTask:Object+
-      def build(id, msg)
+      def build_job(id, msg)
         body = decipher_message(msg)
         begin
           task = body['task']
           if approved_task? task
             source_task(task)
             require_relative task_require_path(task)
-            Smash.const_get(to_pascal(task)).public_send :create, id, body
+            create_resource!(task, body)
           else
             Smash::Task.new(id, body) # returns a default Task
           end
@@ -67,6 +67,11 @@ module Smash
           logger.info "Message in backlog is ill-formatted: #{message}"
           pipe_to(:status_stream) { sitrep(extraInfo: { message: message }) }
         end
+      end
+
+      # Create any Constant
+      def create_resource!(resource_name, opts = {})
+        Smash.const_get(to_pascal(resource_name)).create_resource! opts
       end
 
       # Get the body of the message out from a few different types of objects.

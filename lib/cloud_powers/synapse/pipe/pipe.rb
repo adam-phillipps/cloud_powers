@@ -6,6 +6,8 @@ module Smash
         include Smash::CloudPowers::Helpers
         include Smash::CloudPowers::Zenv
 
+        def create_resource(name:, **opts)
+
         # Create a Kinesis stream or wait until the stream with the given name is
         # through being created.
         #

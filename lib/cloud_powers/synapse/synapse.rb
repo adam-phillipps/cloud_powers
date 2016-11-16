@@ -1,9 +1,7 @@
 require 'cloud_powers/synapse/broadcast/broadcast'
-require 'cloud_powers/synapse/queue/board'
 require 'cloud_powers/synapse/queue/queue'
 require 'cloud_powers/synapse/pipe/pipe'
-require 'cloud_powers/synapse/websocket/websocserver'
-require 'cloud_powers/synapse/websocket/websocclient'
+require 'cloud_powers/synapse/websocket/socket'
 
 module Smash
   module CloudPowers
@@ -17,10 +15,9 @@ module Smash
       # Queue is a module that is primarily used for asynchronous communications between a sender
       # and any number of users or apps that _might_ need to use it
       include Smash::CloudPowers::Synapse::Queue
-      # WebSocClient ..._Faisal's turn_...
-      include Smash::CloudPowers::Synapse::WebSocClient
-      # WebSocServer ..._Faisal's turn_...
-      include Smash::CloudPowers::Synapse::WebSocServer
+      # Socket is a module that allows Nodes to make a direct connection while
+      # still allowing others to read messages.  Websockets are used
+      include Smash::CloudPowers::Synapse::Socket
     end
   end
 end

@@ -1,3 +1,3 @@
 module CloudPowers
-  VERSION = '0.2.7.23'
+  VERSION = '2.0.pre'
 end

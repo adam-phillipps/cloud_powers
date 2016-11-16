@@ -12,7 +12,15 @@ module Smash
     class Context
       include Smash::CloudPowers::Helpers
 
-      attr_accessor :package # The given data structure that is used to build @structure
+      # The given data structure that is used to build <tt>@structure</tt>
+      attr_accessor :package
+      # The "deciphered" package that was received to build this +Context+.
+      # +Context+s have some built in logics that allows them to be easy to use
+      # and very customizable.  Deciphering the <tt>@package</tt>, made usable
+      # by the +Delegator+ module, gives us a common way to build objects.
+      attr_reader :structure
+      # <tt>@job</tt> is the main-highest-parent Job that started this whole mess
+      attr_reader :job
 
       # Attempts to create a Context out of the argument(s) you've
       # passed.
@@ -29,13 +37,14 @@ module Smash
       #
       # Returns
       # +Smash::Context+
-      def initialize(args)
-        unless valid_args?(args)
-          raise ArgumentError.new 'Can be either a Hash, JSON, or an Enumerable ' +
-            "arguments: #{args}"
+      def initialize(job:, **configs)
+        @job = job
+        unless valid_args?(configs)
+          raise ArgumentError.new 'Can be a well formed Hash, JSON String, or an Ordered Enumerable.' +
+            "job: #{job}\nargument(s): #{configs}"
         end
-        @package = args
-        @structure = decipher(args)
+        @package = configs
+        @structure = decipher(configs)
       end
 
       # Decipher figures out which translation method to use by making some simple type checks, etc.
@@ -49,7 +58,8 @@ module Smash
         when Hash
           args
         when String
-          translate_json(args)
+          hash_description = translate_json(args)
+          decipher_hash(hash_description)
         when Enumerable
           translate_list(args)
         end
@@ -105,6 +115,11 @@ module Smash
       # Valid scheme for @structure is assured by running the arguments through
       # the decipher method, which is how @structure is set in +#new(args)+
       def structure=(args)
+        unless valid_args?(args)
+          raise ArgumentError.new(
+            'Can be a well formed Hash, JSON String, or an Enumerable.' +
+            "arguments: #{args}"
+        end
         @structure = decipher(args)
       end
 
@@ -228,8 +243,11 @@ module Smash
       # class _should_ exist in.  It can be a vanilla version, where the @structure
       # is a Hash, structured correctly or it can be serialized into JSON or it can
       # be an Array
+      #
       # Parameters args String
-      # Returns Boolean
+      #
+      # Returns
+      # +Boolean+
       def valid_args?(args)
         case args
         when Hash
@@ -243,20 +261,32 @@ module Smash
         end
       end
 
-      # Makes sure that the list is enumerable and that at least the first term
-      # is a resource name from Smash::CloudPowers.  All other objects can
+      # Makes sure that the list is enumerable and that the first element
+      # is a resource name from <tt>CloudPowers</tt>.  All other objects can
       # potentially be configurations.
-      # Parameters list <Array|Enumerable>
-      # Returns Boolean
+      #
+      # Parameters
+      # * list <Array|Enumerable>
+      #
+      # Returns
+      # Boolean
       def valid_array_format?(list)
-        use = list.first.kind_of?(Enumerable) ? list.first.first : list.first
+        use = *list.first
+        # use = list.first.kind_of?(Enumerable) ? list.first.first : list.first
         ((list.kind_of? Enumerable) && (available_resources.include?(to_pascal(use).to_sym)))
       end
 
       # Makes sure that each key is the name of something CloudPowers can interact with
-      # Parameters hash <Hash>
-      # Returns Boolean
-      def valid_hash_format?(hash)
+      #
+      # Parameters
+      # * :task +Object+ - used to build the foundation of this +Context+ it
+      #   doesn't really matter what the value is, as long as the value exists
+      #   and belongs to the +:task+ key.
+      # * hash +Hash+
+      #
+      # Returns
+      # +Boolean+
+      def valid_hash_format?(**hash)
         keys_arr = hash.keys.map { |key| to_pascal(key).to_sym }
         (keys_arr - available_resources).empty?
       end

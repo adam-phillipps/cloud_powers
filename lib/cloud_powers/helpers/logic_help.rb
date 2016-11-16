@@ -1,6 +1,48 @@
 module Smash
   module CloudPowers
     module LogicHelp
+      # Create an <tt>attr_accessor</tt> feeling getter and setter for an instance
+      # variable.  The method doesn't create a getter or setter if it is already
+      # defined.
+      #
+      # Parameters
+      # * base_name +String+ - the name, without the '@' symbol
+      #     # ok
+      #     add_instance_attr_accessor('my_variable_name', my_value)
+      #     => <your_instance @my_variable_name=my_value, ...>
+      #     # not ok
+      #     add_instance_attr_accessor('@#!!)', my_value)
+      #     => <your_instance> <i>no new instance variable found</i>
+      # * value +Object+ - the actual instance variable that matches the +base_name+
+      #
+      # Returns
+      # * the value of the instance variable that matches the +base_name+ (first) argument
+      #
+      # Notes
+      # * if a matching getter or setter method can be found, this method won't
+      #   stomp on it.  nothing happens, in that case
+      # * if an appropriately named instance variable can't be found, the getter
+      #   method will return nil until you set it again.
+      # * <b>it is the responsibility of you and me to make sure our variable names
+      #   are valid, i.e. proper Ruby instance variable names
+      def instance_attr_accessor(base_name)
+        i_var_name = to_i_var(base_name)
+        getter_signature = to_snake(base_name)
+        setter_signature = "#{getter}="
+
+        unless respond_to? getter_signature
+          define_singleton_method(getter_signature) do
+            instance_variable_get(i_var_name)
+          end
+        end
+
+        unless respond_to? setter_signature
+          define_singleton_method(setter_signature) do |argument|
+            instance_variable_set(i_var_name, argument)
+          end
+        end
+      end
+
       # Sets an Array of instance variables, individually to a value that a
       # user given block returns.
       #
@@ -23,11 +65,16 @@ module Smash
       #
       #   puts @bar
       #   # => 'bar:1475434059'
-      def attr_map!(keys)
-        keys.map do |key|
-          new_i_var = to_i_var(key)
-          value = yield key if block_given?
-          instance_variable_set(new_i_var, value) unless instance_variable_get(new_i_var)
+      def attr_map!(attributes)
+        attributes.map do |attribute|
+          new_i_var_name = to_i_var(attribute)
+
+          value = block_given? ? (yield attribute) : attribute
+
+          # create getter and setter for the i-var
+          instance_attr_accessor to_snake(attribute)
+          # set the i-var to the value that was obtained above
+          instance_variable_set(new_i_var_name, value)
         end
       end
 

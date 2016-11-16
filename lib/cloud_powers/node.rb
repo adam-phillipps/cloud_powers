@@ -1,14 +1,14 @@
-require 'cloud_powers/auth'
-require 'cloud_powers/helpers'
-require 'cloud_powers/zenv'
-# require 'cloud_powers/brain_func/self_awareness'
+require_relative 'auth'
+require_relative 'helper'
+require_relative 'self_awareness'
+require_relative 'zenv'
 
 module Smash
   module CloudPowers
     module Node
-      # include Smash::BrainFunc::SelfAwareness
       include Smash::CloudPowers::Auth
-      include Smash::CloudPowers::Helpers
+      include Smash::CloudPowers::Helper
+      include Smash::CloudPowers::SelfAwareness
       include Smash::CloudPowers::Zenv
 
       # These are sensible defaults that can be overriden by providing a Hash as a param.
@@ -65,9 +65,10 @@ module Smash
 
           batch_tag(ids, tags) unless tags.empty?
           ids
-
+        # TODO: should be using stubbing
         rescue Aws::EC2::Errors::DryRunOperation
-          ids = (1..(opts[:max_count] || 0)).to_a.map { |n| n.to_s }
+          up_to = opts[:max_count] || 0
+          ids = (1..up_to).to_a.map(&:to_s)
           logger.info "waiting for #{ids.count} Neurons to start..."
         end
 
