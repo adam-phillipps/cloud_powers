@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe 'Synapse::WebSocServer' do
-
-  include Smash::CloudPowers::Synapse::WebSocServer
+describe 'Synapse::WebSoc::Server' do
+  include Smash::CloudPowers::Synapse::WebSoc::SocClient
+  include Smash::CloudPowers::Synapse::WebSoc::SocServer
 
   before(:all) do
     @default_config = {host:'127.0.0.1',port:'9090'}

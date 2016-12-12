@@ -8,7 +8,7 @@ describe 'WorkflowFactory' do
   include Workflow
 
   # simple testing class
-  class Task
+  class Job
     include Smash::BrainFunc::WorkflowFactory
     def initialize(*args); end
     def self.create(description)
@@ -50,37 +50,37 @@ describe 'WorkflowFactory' do
   end
 
   it 'should be able to inject a workflow on an object' do
-    t = Task.new
+    t = Job.new
     t.inject_workflow(description)
     expect(t.has_workflow?).to be true
   end
 
   it 'should be instance specific' do
-    t = Task.create(description_two)
+    t = Job.create(description_two)
     expect(t.done?).to be false
     t.build_two!
     expect(t.done?).to be true
   end
 
   context('state awareness') do
-    let(:task) { Task.create(description) }
+    let(:job) { Job.create(description) }
 
     it 'should be able to answer if it is in a certain state' do
-      expect(task.new?).to be true
+      expect(job.new?).to be true
     end
 
     it 'should be able to answer if it is not in a certain state' do
-      expect(task.done?).to be false
+      expect(job.done?).to be false
     end
   end
 
   context('state progression') do
-    let(:task) { Task.create(description) }
+    let(:job) { Job.create(description) }
 
     it 'should be able to move from a state to the next, on demand' do
-      expect(task.new?).to be true
-      task.next!
-      expect(task.building?).to be true
+      expect(job.new?).to be true
+      job.next!
+      expect(job.building?).to be true
     end
   end
 end

@@ -7,8 +7,13 @@ require 'cloud_powers/helpers/path_help'
 module Smash
   module CloudPowers
     module Helpers
+      # methods to help change convert between different cases, like the
+      # <tt>from_json</tt> and <tt>to_camel</tt> and other help with Ruby
       include Smash::CloudPowers::LangHelp
+      # methods to help awareness, dynamic code and other such fun
       include Smash::CloudPowers::LogicHelp
+      # methods to help find locations of files and directories.  This provides
+      # common locations for code to reference.
       include Smash::CloudPowers::PathHelp
 
       # creates a default logger

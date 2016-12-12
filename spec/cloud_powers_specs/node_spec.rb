@@ -9,23 +9,26 @@ describe 'Node' do
   include Smash::CloudPowers::Zenv
 
   before(:all) do
-    Dotenv.load("#{project_root}/.test.env.example")
+    Dotenv.load("#{project_root}/.test.env")
     @config = Smash::CloudPowers::AwsStubs.node_stub.merge(max_count: 5)
+    @name = 'test'
   end
 
   before(:each) do
     @ec2 = ec2(@config) # ec2 is now stubbed and cached
   end
 
-  context('#spin_up_neurons') do
+  context '#create_nodes' do
+    let(:default_config) { { name: @name, client: ec2, max_count: 5 } }
+
     it 'should be able to start n number of nodes' do
-      expect(spin_up_neurons.count).to eql(5)
+      expect(create_nodes(default_config).count).to eql(5)
     end
   end
 
-  context('#batch_tag') do
+  context '#batch_tag' do
     it 'should be able to add or overwrite tags to resources' do
-      ids = @config[:stub_responses][:describe_instances][:reservations].first[:instances].map { |f| f[:instance_id] }
+      ids = @config[:stub_responses][:describe_instances][:reservations].first[:instances].map { |i| i[:instance_id] }
       tags = Smash::CloudPowers::AwsStubs.instance_tags_stub[:tags]
       expect(batch_tag(ids, tags)).not_to be_nil
     end

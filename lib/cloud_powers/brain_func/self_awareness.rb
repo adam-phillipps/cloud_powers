@@ -61,7 +61,7 @@ module Smash
         end
       end
 
-      # Get resource metadata, public host, boot time and task name
+      # Get resource metadata, public host, boot time and job name
       # and set them as instance variables
       #
       # Returns
@@ -70,12 +70,16 @@ module Smash
       #
       # Notes
       # * See +#metadata_request()+
-      # * See +#attr_map!()+
+      # * See +#attr_map()+
       def get_awareness!
         keys = metadata_request
-        attr_map!(keys) { |key| metadata_request(key) }
+
+        attr_map(keys) do |key|
+          zfind(key) || metadata_request(key)
+        end
+
         boot_time # gets and sets @boot_time
-        task_name # gets and sets @task_name
+        job_name # gets and sets @job_name
         instance_url # gets and sets @instance_url
       end
 
@@ -200,8 +204,8 @@ module Smash
         end.collect.map(&:value).first
       end
 
-      # Check self-tags for 'task' and act as an attr_accessor.
-      # A different node's tag's can be checked for a task by passing
+      # Check self-tags for 'job' and act as an attr_accessor.
+      # A different node's tag's can be checked for a job by passing
       # that instance's id as a parameter
       #
       # Parameters
@@ -212,12 +216,12 @@ module Smash
       #
       # Notes
       # * See <tt>tag_search()</tt>
-      def task_name(id = @instance_id)
-        # get @task_name
-        return @task_name unless @task_name.nil?
-        # set @task_name
-        # TODO: get all tasks instead of just the first
-        @task_name = tag_search('task', id)
+      def job_name(id = @instance_id)
+        # get @job_name
+        return @job_name unless @job_name.nil?
+        # set @job_name
+        # TODO: get all jobs instead of just the first
+        @job_name = tag_search('job', id)
       end
 
       # This method will return true if:

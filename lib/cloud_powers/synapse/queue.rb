@@ -1,5 +1,5 @@
 require 'uri'
-require 'cloud_powers/synapse/queue/resource'
+require 'cloud_powers/synapse/queue/board'
 
 module Smash
   module CloudPowers
@@ -43,12 +43,32 @@ module Smash
           # Returns
           # +String+
           def url
-            set_url || Smash::CloudPowers::Synapse::Queue::Resource.new(name: name).best_guess_address
+            set_url || Smash::CloudPowers::Synapse::Queue::Board.new(name: name).best_guess_address
           end
         end
 
-        # This method can be used to parse a queue name from its address.  It can be handy if you need the name
-        # of a queue but you don't want the overhead of creating a QueueResource object.
+        # Gives a best guess at the URL that points toward this Resource's Queue.  It uses a couple params
+        # to build a standard URL for SQS.  The only problem with using this last resort is you may need
+        # to use a Queue from a different region, account or name but it can be a handy catch-all for the URLs
+        # for most cases.
+        #
+        # Returns
+        # +String+
+        #
+        # Example
+        #   best_guess_address('fooBar')
+        #   => "https://sqs.us-west-2.amazonaws.com/12345678/fooBar"
+        #
+        # Notes
+        # * See <tt>Smash::CloudPowers::Zenv#zfind()</tt> to understand how
+        #   this method finds your region and account number
+        def best_guess_address(board_name = @name)
+          "https://sqs.#{zfind(:aws_region)}.amazonaws.com/#{zfind(:account_number)}/#{board_name}"
+        end
+
+        # This method can be used to parse a queue name from its address.
+        # It can be handy if you need the name of a queue but you don't want
+        # the overhead of creating a QueueResource object.
         #
         # Parameters
         # * url +String+
@@ -57,10 +77,29 @@ module Smash
         # +String+
         #
         # Example
-        #   resource_name('https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
-        #   => fooBar
-        def queue_name(url)
-          url.to_s.split('/').last
+        #   board_name('https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
+        #   => foo_bar_board
+        def board_name(arg)
+          base_name = to_snake(arg.to_s.split('/').last)
+          %r{_board$} =~ base_name ? base_name : "#{base_name}_board"
+        end
+
+        def build_queue(name:, type: :board, **config)
+          build_method_name = "build_#{type}"
+          if self.respond_to? build_method_name
+            self.public_send build_method_name, name: name, **config
+          else
+            build_board(name: name, **config)
+          end
+        end
+
+        def create_queue(name:, type: :board, **config)
+          create_method_name = "build_#{type}"
+          if self.respond_to? create_method_name
+            self.public_send create_method_name, name: name, **config
+          else
+            create_queue(name: name, **config)
+          end
         end
 
         # This method builds a Queue::QueueResource object for you to use but doesn't
@@ -77,8 +116,17 @@ module Smash
         #   queue_object = build_queue('exampleQueue')
         #   queue_object.address
         #   => https://sqs.us-west-2.amazonaws.com/81234567/exampleQueue
-        def build_queue(name)
-          Smash::CloudPowers::Synapse::Queue::Resource.build(name: to_camel(name), sqs)
+        def build_board(name:, client: sqs, **config)
+          board_resource = Smash::CloudPowers::Synapse::Queue::Board.build(
+            name: to_camel(name), client: sqs
+          )
+
+          attr_map(board_resource.call_name => board_resource) do |attribute, resource|
+            instance_attr_accessor attribute
+            resource
+          end
+
+          board_resource
         end
 
         # This method allows you to create a queue on SQS without explicitly creating a QueueResource object
@@ -92,9 +140,17 @@ module Smash
         # Example
         #   create_queue('exampleQueue')
         #   get_queue_message_count
-        def create_queue(name)
-          queue = Smash::CloudPowers::Synapse::Queue::Resource.create!(name: to_camal(name), client: sqs)
-          instance_attr_accessor name: queue.full_name
+        def create_board(name:, client: sqs, **config)
+          board_resource = Smash::CloudPowers::Synapse::Queue::Board.create!(
+            name: to_camel(name), client: sqs
+          )
+
+          attr_map(board_resource.call_name => board_resource) do |attribute, resource|
+            instance_attr_accessor attribute
+            resource
+          end
+
+          board_resource
         end
 
         # Deletes a queue message without caring about reading/interacting with the message.
@@ -142,6 +198,17 @@ module Smash
           ).attributes['ApproximateNumberOfMessages'].to_f
         end
 
+        # Get an Aws::SQS::QueuePoller for a a queue to deal with messages
+        #
+        # Parameters
+        # * name +String+ - name of the queue.  this also becomes the name of
+        # the +Poller+ object
+        # * client <tt>Aws::SQS::Client</tt> (optional) - good for hitting
+        # different regions or even stubbing for testing
+        def get_queue_poller(name, client = sqs)
+          queue_poller(url: best_guess_address(name), client: client)
+        end
+
         # Get a message from a Queue
         #
         # Parameters
@@ -162,7 +229,7 @@ module Smash
         def pluck_queue_message(resource)
           poll(resource) do |msg, poller|
             poller.delete_message(msg)
-            return valid_json?(msg.body) ? JSON.parse(msg.body) : msg.body
+            return valid_json?(msg.body) ? from_json(msg.body) : msg.body
           end
         end
 
@@ -170,9 +237,8 @@ module Smash
         # the message that is retrieved from the queue
         #
         # Parameters
-        # * +resource+ +String+ - the name of the queue you want to poll
-        # * +opts+ +Hash+ - costomizes the Aws::SQS::QueuePoller's <tt>#poll(<b>opts</b>)</tt> method
-        # and can have any +AWS::SQS:QueuePoller+ polling configuration option(s)
+        # * :queue_name +String+ - the name of the queue that you want to poll
+        # * :sqs +AWS::SQS:QueuePoller+ polling configuration option(s)
         # * +block+ is the block that is used to interact with the message that was retrieved
         #
         # Returns
@@ -185,54 +251,14 @@ module Smash
         #     demo_job = Job.new(msg.body)
         #     demo_job.run
         #   end
-        def poll(queue_name, opts = {})
-          this_poller = queue_poller(queue_name)
+        def poll(queue_name, client: sqs, poller: get_queue_poller(queue_name), **config)
           results = nil
-          this_poller.poll(opts) do |msg|
-            results = yield msg, this_poller if block_given?
-            this_poller.delete_message(msg)
+          poller.poll(config) do |msg|
+            results = yield msg, poller if block_given?
+            poller.delete_message(msg)
             throw :stop_polling
           end
           results
-        end
-
-        def queue_name(base_name)
-          %r{_queue$} =~ base_name ? base_name : "#{base_name}_queue"
-        end
-
-        # This method can be used to gain a SQS::QueuePoller.  It creates a
-        # QueueResource object, the QueueResource then sends the API call to
-        # SQS to create the queue and sets an instance variable, using the
-        # resource's name, to the QueueResource object itself
-        #
-        # Parameters
-        # * resource_name +String+ - name of the Queue you want to gain a QueuePoller for
-        #
-        # Returns
-        # <tt>resource_name:Queue::QueueResource</tt>
-        #
-        # Notes
-        # * An instance variable is set with this method, if one doesn't exist
-        # for the resource. The instance variable that is created/used is named
-        # the same name that was given as
-        # a parameter.
-        #
-        # Example
-        #   # these are equivalent after @exp_queue_poller is set but before it is set,
-        #   # exp_queue_poller
-        #   queue_poller('exampleQueue').poll { |msg| Job.new(msg.body).run }
-        #   @example_queue.poll { |msg| Job.new(msg.body).run }
-        def queue_poller(queue_name)
-          i_var_name = to_i_var("#{queue_name}_poller")
-          unless instance_variable_defined?(i_var_name)
-            resource = Smash::CloudPowers::Queue::Resource.create!(
-              name: queue_name,
-              client: sqs
-            )
-            instance_variable_set(i_var_name, resource.poller)
-          end
-
-          instance_variable_get(i_var_name)
         end
 
         # Checks SQS for the existence of this queue using the <tt>#queue_search()</tt> method
@@ -244,9 +270,45 @@ module Smash
         # Boolean
         #
         # Notes
-        #   * see <tt>#queue_search()</tt>
+        # * See <tt>#queue_search()</tt>
         def queue_exists?(name)
           !queue_search(name).empty?
+        end
+
+        # This method can be used to parse a queue name from its address.
+        # It can be handy if you need the name of a queue but you don't want
+        # the overhead of creating a QueueResource object.
+        #
+        # Parameters
+        # * url +String+
+        #
+        # Returns
+        # +String+
+        #
+        # Example
+        #   resource_name('https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
+        #   => fooBar
+        def queue_name(arg)
+          base_name = to_snake(arg.to_s.split('/').last)
+          %r{_queue$} =~ base_name ? base_name : "#{base_name}_queue"
+        end
+
+        # This method can be used to parse a queue poller name from its queue
+        # name or <tt>@url</tt>.  It can be handy if you need the name of a
+        # queue but you don't want the overhead of creating a QueueResource object.
+        #
+        # Parameters
+        # * url +String+
+        #
+        # Returns
+        # +String+
+        #
+        # Example
+        #   resource_name('https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
+        #   => fooBar
+        def queue_poller_name(arg)
+          base_name = to_snake(arg.to_s.split('/').last)
+          %r{_queue_poller$} =~ base_name ? base_name : "#{base_name}_queue_poller"
         end
 
         # Searches for a queue based on the name
@@ -258,10 +320,17 @@ module Smash
         # queue_urls +String+
         #
         # Example
-        #   results = queue_search('exampleQueue') # returns related URLs
-        #   results.first =~ /exampleQueue/ # regex match against the URL
+        #     results = queue_search('exampleQueue') # returns related URLs
+        #     results.first =~ /exampleQueue/ # regex match against the URL
         def queue_search(name)
-          sqs.list_queues(queue_name_prefix: name).queue_urls
+          urls = sqs.list_queues(queue_name_prefix: name).queue_urls
+          urls.map do |url|
+            build_board(name: queue_name(url), client: sqs) do |board|
+              board.instance_attr_accessor :url
+              board.url = url
+              board
+            end
+          end
         end
 
         # Sends a given message to a given queue

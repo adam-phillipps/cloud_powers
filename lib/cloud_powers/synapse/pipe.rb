@@ -1,3 +1,5 @@
+require 'cloud_powers/synapse/pipe/stream'
+
 module Smash
   module CloudPowers
     module Synapse
@@ -6,7 +8,23 @@ module Smash
         include Smash::CloudPowers::Helpers
         include Smash::CloudPowers::Zenv
 
-        def create_resource(name:, **opts)
+        def build_pipe(name:, type: :stream, **config)
+          build_method_name = "build_#{type}"
+          if self.respond_to? build_method_name
+            self.public_send build_method_name, name: name, **config
+          else
+            build_stream(name: name, **config)
+          end
+        end
+
+        def create_pipe(name:, type: :stream, **config)
+          create_method_name = "create_#{type}"
+          if self.respond_to? create_method_name
+            self.public_send create_method_name, name: name, **config
+          else
+            create_stream(name: name, **config)
+          end
+        end
 
         # Create a Kinesis stream or wait until the stream with the given name is
         # through being created.
@@ -18,27 +36,30 @@ module Smash
         # * returns true or false if the request was successful or not
         # * returns true if the stream has already been created
         # * returns false if the stream was not created
-        def create_stream(name)
-          begin
-            config = stream_config(stream_name: name)
-            resp = kinesis.create_stream(config)
-            kinesis.wait_until(:stream_exists, stream_name: config[:stream_name])
-            resp.successful? # (http request successful && stream created)?
-          rescue Exception => e
-            if e.kind_of? Aws::Kinesis::Errors::ResourceInUseException
-              logger.info "#{name} already created"
-              return if stream_status(name) == 'ACTIVE'
-              logger.info "Not ready for traffic.  Wait for 30 seconds..."
-              sleep 1
-              true # acts like it would if it had to create the stream
-            else
-              error_message = format_error_message(e)
-              logger.error error_message
-              false # the request was not successful
-            end
+        def build_stream(name:, client: kinesis, **config)
+          stream_resource = Smash::CloudPowers::Synapse::Pipe::Stream.build(
+            name: name, client: client, **config
+          )
+
+          self.attr_map(stream_resource.call_name => stream_resource) do |attribute, resource|
+            instance_attr_accessor attribute
+            resource
           end
+
+          stream_resource
         end
 
+        def create_stream(name:, client: kinesis, **config)
+          stream_resource =
+            Smash::CloudPowers::Synapse::Pipe::Stream.create!(name: name, client: client, **config)
+
+          self.attr_map(stream_resource.call_name => stream_resource) do |attribute, resource|
+            instance_attr_accessor attribute
+            resource
+          end
+
+          stream_resource
+        end
         # Use the KCL and LangDaemon to read from a stream
         #
         # Parameters stream String
@@ -135,7 +156,7 @@ module Smash
         #   end
         def pipe_to(stream)
           message = ''
-          create_stream() unless stream_exists?(zfind(stream) || stream)
+          create_stream() unless stream_exists?(stream)
           message = yield if block_given?
           body = update_message_body(message)
           resp = kinesis.put_record pipe_message_body(stream_name: stream, data: body.to_json)
@@ -164,6 +185,8 @@ module Smash
         # Returns
         # +Boolean+
         def stream_exists?(name)
+          return true unless zfind(name).nil?
+
           begin
             kinesis.describe_stream(stream_name: name)
             true
@@ -179,7 +202,7 @@ module Smash
         #
         # Returns
         # +String+ - stream status, one of: CREATING, DELETING, ACTIVE or UPDATING
-        def stream_status(name)
+        def pipe_status(name)
           kinesis.describe_stream(stream_name: name).stream_description.stream_status
         end
       end

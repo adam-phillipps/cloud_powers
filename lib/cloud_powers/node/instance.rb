@@ -1,24 +1,20 @@
-require 'cloud_powers/node/node'
+require 'cloud_powers/node'
+require 'cloud_powers/resource'
 
 module Smash
   module CloudPowers
     module Node
-      class Resource
-        extend Smash::CloudPowers::Creatable
-        include Smash::CloudPowers::AwsResources
-        include Smash::CloudPowers::Helper
+      class Instance < Smash::CloudPowers::Resource
         include Smash::CloudPowers::Node
-        include Smash::CloudPowers::Zenv
 
-        attr_accessor :tags
         # The name of the Aws::EC2 instance
         attr_accessor :name
         # An Aws::EC2::Client. See <tt>Smash::CloudPowers::AwsResources#ec2()</tt>
+        attr_accessor :ec2
 
         def initialize(name:, client: ec2, **config)
-          @name = name
+          super(name: name)
           @ec2 = client
-          @tags = []
         end
 
         # Uses +Aws::EC2#run_instances()+ to create nodes (Neurons or Cerebrums), at
@@ -32,9 +28,9 @@ module Smash
         #   an optional instance configuration hash can be passed, which will override
         #   the values in the default configuration returned by #instance_config()
         def create_resource
-          response = ec2.run_instances(
-            node_config(max_count: 1, to_h)
-          ).instances.first
+          # response = ec2.run_instances(
+          #   node_config(max_count: 1, self.to_h)
+          # ).instances.first
 
           instance_attr_accessor response
           # id = @response[:instance_id]

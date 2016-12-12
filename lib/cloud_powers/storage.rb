@@ -6,7 +6,11 @@ module Smash
     module Storage
       include Smash::CloudPowers::AwsResources
 
-      # Searches a local task storage location for the given +file+ name
+      def local_job_file_exists?(file)
+        File.exists?(job_path(to_ruby_file_name(file)))
+      end
+
+      # Searches a local job storage location for the given +file+ name
       # if it exists - exit the method
       # if it does <i>not</i> exist - get the file from s3 and place it in
       # the directory that was just searched bucket using +#zfind()+
@@ -22,31 +26,32 @@ module Smash
       #     project_root- |
       #                   |_sub_directory
       #                   |              |_current_file.rb
-      #                   |_task_storage
+      #                   |_job_storage
       #                   |             |_demorific.rb
       #                   |             |_foobar.rb
       # * code:
-      #     source_task('demorific')
+      #     source_job('demorific')
       #     # file tree doesn't change because this file exists
-      #     source_task('custom_greetings')
+      #     source_job('custom_greetings')
       #     # file tree now looks like this
       # * new file tree
       #     project_root- |
       #                   |_sub_directory
       #                   |              |_current_file.rb
-      #                   |_task_storage
+      #                   |_job_storage
       #                   |             |_demorific.rb
       #                   |             |_foobar.rb
       #                   |             |_custom_greetings.js # could be an after effects JS script
-      def source_task(file)
+      def source_job(file)
         # TODO: better path management
-        bucket = zfind('task storage')
-        if task_path(to_ruby_file_name(file)).nil?
+        bucket = zfind('job storage')
+        if job_path(to_ruby_file_name(file)).nil?
           objects = s3.list_objects(bucket: bucket).contents.select do |f|
             /#{Regexp.escape file}/i =~ f.key
           end
+
           objects.each do |obj|
-            s3.get_object(bucket: bucket, key: obj.key, response_target: task_path(file))
+            s3.get_object(bucket: bucket, key: obj.key, response_target: job_path(file))
           end
         end
       end
@@ -59,7 +64,7 @@ module Smash
       #   search
       #
       # Example
-      #   matches = search('neuronTasks', /[Dd]emo\w*/)
+      #   matches = search('neuronJobs', /[Dd]emo\w*/)
       #   # => ['Aws::S3::Type::ListObjectOutPut','Aws::S3::Type::ListObjectOutPut',...] # anything that matched that regex
       #   matches.first.contents.size
       #   # => 238934 # integer representation of the file size

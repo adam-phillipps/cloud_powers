@@ -1,3 +1,5 @@
+require 'cloud_powers/synapse/broadcast/channel'
+
 module Smash
   module CloudPowers
     module Synapse
@@ -6,27 +8,23 @@ module Smash
         include Smash::CloudPowers::AwsResources
         include Smash::CloudPowers::Zenv
 
-        # A simple Struct to bind the name with the arn of the topic
-        Channel = Struct.new(:set_name, :set_arn, :set_endpoint) do
-          include Smash::CloudPowers::Zenv
-
-          # Prefers the given arn but it can make a best guess if none is given
-          #
-          # Returns
-          # arn +String+ - arn for this resource
-          def arn
-            set_arn || "arn:aws:sns:#{zfind(:region)}:#{zfind(:accound_number)}:#{set_name}"
-          end
-
-          # Prefers the given name but it can parse the arn to find one
-          #
-          # Returns
-          # name +String+ - name for this resource
-          def name
-            set_name || set_arn.split(':').last
-          end
-        end # end Channel
-        #################
+        # This method can be used to parse a queue name from its address.
+        # It can be handy if you need the name of a queue but you don't want
+        # the overhead of creating a QueueResource object.
+        #
+        # Parameters
+        # * url +String+
+        #
+        # Returns
+        # +String+
+        #
+        # Example
+        #   board_name('https://sqs.us-west-53.amazonaws.com/001101010010/fooBar')
+        #   => foo_bar_board
+        def channel_name(arg)
+          base_name = to_snake(arg.to_s.split('/').last)
+          %r{_channel$} =~ base_name ? base_name : "#{base_name}_channel"
+        end
 
         # Creates a connection point for 1..N nodes to create a connection with the Broadcast
         # <b>Not Implimented</b>
@@ -47,9 +45,18 @@ module Smash
         #
         # Returns
         # +Broadcast::Channel+ - representing the created channel
-        def create_channel!(name)
-          resp = sns.create_topic(name: name)
-          Channel.new(nil, resp.topic_arn)
+        def create_channel(name, **config)
+          channel_resource =
+            Smash::CloudPowers::Synapse::Broadcast::Channel.create!(
+              name: name, client: sns, **config
+            )
+
+          self.attr_map(channel_resource.call_name => channel_resource) do |attribute, resource|
+            instance_attr_accessor attribute
+            resource
+          end
+
+          channel_resource
         end
 
         # Deletes a topic from SNS-land

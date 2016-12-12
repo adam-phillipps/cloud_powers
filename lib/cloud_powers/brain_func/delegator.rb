@@ -19,14 +19,14 @@ module Smash
       # Predicate method to return true for valid job titles and false for invalid ones
       #
       # Parameters
-      # * name +String+ (optional) - name of the task in snake_case
+      # * name +String+ (optional) - name of the job in snake_case
       #
       # Returns
       # +Boolean+
       #
       # Notes
       # * TODO: needs improvement
-      def approved_task?(name = nil)
+      def approved_job?(name = nil)
         ['demo', 'testinz', 'true_roas'].include? to_snake(name)
       end
 
@@ -48,21 +48,22 @@ module Smash
       # Example
       #   class Job; include Smash::CloudPowers::Delegator; end
       #   job = Job.new
-      #   # the message responds to +#body()+ with "ExampleTask"
+      #   # the message responds to +#body()+ with "Examplejob"
       #   job.build('abc-1234', Aws::SQS::Message)
-      #   # => +ExampleTask:Object+
+      #   # => +Examplejob:Object+
       def build_job(id, msg)
         body = decipher_message(msg)
         begin
-          task = body['task']
-          if approved_task? task
-            source_task(task)
-            require_relative task_require_path(task)
-            create_resource!(task, body)
+          job = body['job']
+          if approved_job? job
+            source_job(job)
+            require_relative job_require_path(job)
+            create_resource(job, body)
           else
-            Smash::Task.new(id, body) # returns a default Task
+            byebug
+            Smash::Job.new(id, **body) # returns a default job
           end
-        rescue JSON::ParserError
+        rescue JSON::ParserError => e
           message = [msg.body, format_error_message(e)].join("\n")
           logger.info "Message in backlog is ill-formatted: #{message}"
           pipe_to(:status_stream) { sitrep(extraInfo: { message: message }) }
@@ -70,15 +71,16 @@ module Smash
       end
 
       # Create any Constant
-      def create_resource!(resource_name, opts = {})
-        Smash.const_get(to_pascal(resource_name)).create_resource! opts
+      def create_resource(name, config = {})
+        config = modify_keys_with(config) { |k| k.to_sym }
+        Smash.const_get(to_pascal(name)).create!(name: name, **config)
       end
 
       # Get the body of the message out from a few different types of objects.
       # The idea is to allow JSON, a String or some object that responds to :body
       # through while continually attempting to decipher other types of objects
       # finally giving up.  But wait, after it gives up, it just turns it into a
-      # Hash and assumes that the value is a Task name.
+      # Hash and assumes that the value is a job name.
       #
       # Parameters
       # * msg +String+
@@ -87,18 +89,18 @@ module Smash
       # +Hash+
       #
       # Example
-      #   # given hash_message = { task: 'example' }
-      #   # givem json_message = "\{"task":"example"\}"
+      #   # given hash_message = { job: 'example' }
+      #   # givem json_message = "\{"job":"example"\}"
       #   # given message_with_body = <Object @body="stuff stuff stuff">
       #
       #   decipher_message(hash_message)
-      #   # => { task: 'example' }
+      #   # => { job: 'example' }
       #   decipher_message(json_message)
-      #   # => { task: 'example' }
+      #   # => { job: 'example' }
       #   decipher_message(message_with_body)
-      #   # => { task: 'example' }
+      #   # => { job: 'example' }
       #   decipher_message('some ridiculous string')
-      #   # => { task: 'some_ridiculous_string'}
+      #   # => { job: 'some_ridiculous_string'}
       #
       # Notes
       # See +#to_snake()+
@@ -107,10 +109,10 @@ module Smash
           if msg.respond_to? :body
             decipher_message(msg.body)
           else
-            msg.kind_of?(Hash) ? msg : JSON.parse(msg)
+            msg.kind_of?(Hash) ? msg : from_json(msg)
           end
         rescue Exception
-          { task: to_snake(msg.to_s) }
+          { job: to_snake(msg.to_s) }
         end
       end
     end

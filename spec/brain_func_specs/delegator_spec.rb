@@ -8,27 +8,30 @@ describe 'Delegator' do
 
   before(:all) do
     Dotenv.load("#{project_root}/spec/.test.env")
-    FileUtils::mkdir_p task_path
-    FileUtils::touch(task_path('testinz.rb'))
-    class Task; end
-    class Testinz < Task; def initialize(*args); end; def self.create(*args); new; end; end
-    @message = OpenStruct.new(body: { task: 'testinz' }.to_json)
+    FileUtils::mkdir_p job_path
+    FileUtils::touch(job_path('testinz.rb'))
+    class Smash::Job; end
+    class Smash::Testinz < Smash::Job
+      def initialize(*args); end
+      def self.create!(*args); new(*args); end
+    end
+    @message = OpenStruct.new(body: { job: 'testinz' }.to_json)
   end
 
-  it 'should build a default Task if no Task is found' do
-    test_task = build('abcd-1234', @message)
-    expect(test_task.kind_of? Testinz).to be true
+  it 'should build a default Job if no Job is found' do
+    test_job = build_job('abcd-1234', @message)
+    expect(test_job).to be_kind_of Smash::Testinz
   end
 
-  it 'should be able to determine if the task is in the approved list' do
-    expect(approved_task?('testinz')).to be true
+  it 'should be able to determine if the Job is in the approved list' do
+    expect(approved_job?('testinz')).to be true
   end
 
-  it 'should be able to determine if the task is NOT in the approved list' do
-    expect(approved_task?('fake-aroo')).to be false
+  it 'should be able to determine if the Job is NOT in the approved list' do
+    expect(approved_job?('fake-aroo')).to be false
   end
 
   after(:all) do
-    FileUtils::rm_rf(task_path)
+    FileUtils::rm_rf(job_path)
   end
 end

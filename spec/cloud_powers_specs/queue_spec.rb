@@ -16,21 +16,23 @@ describe 'Synapse::Queue' do
 
   before(:each) do
     @temp_name = "testBoard#{rand(9999)}"
-    sqs(Smash::CloudPowers::AwsStubs.queue_stub(name: @temp_name))
+    @stub = Smash::CloudPowers::AwsStubs.queue_stub(name: @temp_name)
+    @temp_url = @stub[:stub_responses][:create_queue][:queue_url]
+    sqs(@stub)
   end
 
   it 'should be able to get the count in a given queue' do
-    board = build_queue(@temp_name)
-    @test_queues << board
-    expect(get_queue_message_count(board.address)).to be >= 0
+    actual = @stub[:stub_responses][:get_queue_attributes][:attributes]['ApproximateNumberOfMessages'].to_f
+    board = build_board(name: @temp_name, client: @sqs)
+    expect(board.message_count).to eq(actual)
   end
 
   it 'should be able to return a queue name from the URL' do
-    expect(board_name(build_queue(@temp_name).address)).to eql(to_camel(@temp_name))
+    expect(board_name(@temp_url)).to eql(to_snake(@temp_name) + '_board')
   end
 
-  it 'should be able to create an appropriately named queue' do
-    @test_queues << create_queue!(@temp_name)
+  it 'should be able to create an appropriately named Queue::Board' do
+    @test_queues << create_board(name: @temp_name, client: @sqs)
     expect(queue_search(to_camel(@temp_name))).not_to be_empty
   end
 
@@ -42,7 +44,7 @@ describe 'Synapse::Queue' do
 
   context 'plucking' do
     before(:each) do
-      build_queue(@temp_name).send_message(@valid_message)
+      build_board(name: @temp_name, client: @sqs).send_message(@valid_message)
     end
 
     it 'should be able to poll without a Queue::Board to assist' do
@@ -50,6 +52,13 @@ describe 'Synapse::Queue' do
         msg.body
       end
       expect(message).to eql @valid_message.to_json
+    end
+  end
+
+  context '#create_queue' do
+    it 'sould be able to create a default queue if no type is given' do
+      board = build_board(name: @temp_name, client: @sqs)
+      expect(board).to be_kind_of Smash::CloudPowers::Synapse::Queue::Board
     end
   end
 end

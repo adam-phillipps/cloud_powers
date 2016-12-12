@@ -89,6 +89,23 @@ module Smash
         @kinesis ||= Aws::Kinesis::Client.new(config)
       end
 
+      # Create a QueuePoller for an already created SQS Queue
+      # (CloudPowers::Synapse::Board)
+      #
+      # Parameters
+      # * :url +String+ - the url for the Queue/Board
+      # * :client <tt>Aws::SQS::Client</tt>
+      #
+      # Returns
+      # <tt>Aws::SQS::QueuePoller</tt>
+      #
+      # Notes
+      # * this is different from the other methods in here, in that it doesn't
+      # create an i-var on your class.
+      def queue_poller(url:, client: sqs)
+        Aws::SQS::QueuePoller.new(url, client: client)
+      end
+
       # Get or create an S3 client and cache that client so that a Context is more well tied together
       #
       # Parameters

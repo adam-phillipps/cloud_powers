@@ -1,24 +1,25 @@
+require 'cloud_powers/aws_resources'
+require 'cloud_powers/helpers'
+require 'cloud_powers/resource'
+require 'cloud_powers/synapse/queue'
+require 'cloud_powers/zenv'
+
 module Smash
   module CloudPowers
     module Synapse
       module Queue
         # The Queue::Resource class helps wrap up information and functionality of a Queue on SQS.
         # It is basically just an abstraction to make using SQS simpler
-        class Resource
-          extend Smash::CloudPowers::Creatable
+        class Board < Smash::CloudPowers::Resource
           include Smash::CloudPowers::AwsResources
           include Smash::CloudPowers::Synapse::Queue
-          include Smash::CloudPowers::Helper
+          include Smash::CloudPowers::Helpers
           include Smash::CloudPowers::Zenv
 
           # The URL the Aws::SQS::Queue uses
           attr_accessor :address
-          # The name the Aws::SQS::Queue uses
-          attr_accessor :name
-          # Same as <tt>@name</tt> except '_queue' is appended.  This is useful
-          # for other objects that use this class, so they can gain an easy means
-          # to name this, uniquely from other resource(s) with similar name(s)
-          attr_accessor :full_name
+          # +Hash+ response from Aws SDK <tt>Aws::SQS::Client#create_resource()</tt>
+          attr_reader :response
           # An Aws::SQS::Client.  See <tt>Smash::CloudPowers::AwsResources#sqs()<tt>
           attr_accessor :sqs
 
@@ -33,9 +34,8 @@ module Smash
           # Returns
           # +Queue::Resource+
           def initialize(name:, client: sqs, **config)
+            super
             @sqs = client
-            @name = name
-            @full_name = queue_name(@name)
           end
 
           # Gives the Queue address (URL).  First the environment is searched, using Zenv and if nothing is
@@ -44,18 +44,7 @@ module Smash
           # Returns
           #   * queue address <String>
           def address
-            zfind(@name) || best_guess_address
-          end
-
-          # Gives a best guess at the URL that points toward this Resource's Queue.  It uses a couple params
-          # to build a standard URL for SQS.  The only problem with using this last resort is you may need
-          # to use a Queue from a different region, account or name but it can be a handy catch-all for the URLs
-          # for most cases.
-          #
-          # Returns String
-          # * exp. "https://sqs.us-west-2.amazonaws.com/12345678/fooBar"
-          def best_guess_address
-            "https://sqs.#{zfind(:aws_region)}.amazonaws.com/#{zfind(:account_number)}/#{@name}"
+            @address ||= best_guess_address(name)
           end
 
           # Creates an actual Queue in SQS using the standard format for <b><i>this</i></b> queue name (camel case)
@@ -64,7 +53,7 @@ module Smash
           # +Queue::Resource+
           def create_resource
             begin
-              sqs.create_queue(queue_name: to_camel(@name))
+              @response = sqs.create_queue(queue_name: to_camel(@name))
               yield self if block_given?
               self
             rescue Aws::SQS::Errors::QueueDeletedRecently
@@ -103,6 +92,23 @@ module Smash
             queue_exists?(@name)
           end
 
+          def link
+            if exists?
+              urls = queue_search(call_name)
+
+              if urls.size > 1
+                logger.info sitrep(content: "multiple matching #{name} queues to link to")
+                return @linked = false
+              end
+
+              # @url = urls.first
+              @url = sqs.get_queue_url(queue_name: @name).queue_url
+            else
+              save!
+            end
+            @linked = @url.eql? urls.first
+          end
+
           # Gets the approximate message count for a Queue using the 'ApproximateMessageCount' attribute
           #
           # Returns
@@ -120,27 +126,12 @@ module Smash
           # * Provide an existing SQS Client if one exists.  This is used to sort out development
           # production work.
           def poller
-            @poller ||= Aws::SQS::QueuePoller.new(address)
+            @poller ||= Aws::SQS::QueuePoller.new(queue_url: address, client: sqs)
           end
 
           # Retrieves a message from the Queue and deletes it from the Queue in SQS
           def pluck_message
-            pluck_queue_message(@name)
-          end
-
-          # This method creates the queue in SQS for the given Resource instance
-          # It can be coupled with the #build() method in order to use a queue without
-          # making the call to create it on AWS
-          #
-          # Example
-          #   resource = Resource.build('example')
-          #   resource.exists?
-          #   # => false
-          #   resource.save!
-          #   resource.exists?
-          #   # => true
-          def save!
-            create_queue!
+            pluck_queue_message(name)
           end
 
           # Sends the given message to the queue

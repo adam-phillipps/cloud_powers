@@ -8,10 +8,10 @@ describe 'Broadcast' do
 
   before(:all) do
     Dotenv.load("#{project_root}/.test.env")
-    @channel_name = 'testChannel'
+    @channel_name = 'test'
     sns(Smash::CloudPowers::AwsStubs.broadcast_stub)
-    @channel = create_channel!(@channel_name)
-    @channels = [@channel]
+    create_channel(@channel_name)
+    @channels = [test_channel]
   end
 
   context 'Sending messages' do
@@ -27,10 +27,9 @@ describe 'Broadcast' do
   end
 
   it 'should be able to create a channel to broadcast through' do
-    resp = create_channel!(@channel_name)
-    @channels << resp
-    expect(resp.arn).to be_truthy
-    expect(resp.name).to be_eql(@channel_name)
+    @channels << create_channel(@channel_name)
+    expect(test_channel.remote_id).to be_truthy
+    expect(test_channel.name).to be_eql(@channel_name)
   end
 
   after(:all) do

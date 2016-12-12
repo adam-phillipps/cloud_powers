@@ -1,6 +1,58 @@
 module Smash
   module CloudPowers
     module LogicHelp
+      # Sets an Array of instance variables, individually to a value that a
+      # user given block returns.
+      #
+      # Parameters
+      #
+      # * keys +Array+
+      # * * each object will be used as the name for the instance variable that
+      #     your block returns
+      # +block+ (optional)
+      #   * this block is called for each object in the Array and is used as the value
+      #   for the instance variable that is being named and created for each key
+      # Returns +Array+ - each object will either be the result of
+      # <tt>#instance_variable_set(key, value)</tt> => +value+
+      #     or instance_variable_get(key)
+      # Example
+      #   keys = ['foo', 'bar', 'yo']
+      #
+      #   attr_map!(keys) { |key| sleep 1; "#{key}:#{Time.now.to_i}" }
+      #   # => ['foo:1475434058', 'bar:1475434059', 'yo:1475434060']
+      #
+      #   puts @bar
+      #   # => 'bar:1475434059'
+      def attr_map(attributes)
+        attributes = [attributes, nil] unless attributes.respond_to? :map
+
+        attributes.inject(self) do |this, (attribute, before_value)|
+          first_place, second_place = yield attribute, before_value if block_given?
+
+          results = if second_place.nil?
+            [attribute, first_place]
+          else
+            [first_place, second_place]
+          end
+
+          this.instance_variable_set(to_i_var(results.first), results.last)
+          this
+        end
+      end
+
+      # Does its best job at guessing where this method was called from, in terms
+      # of where it is located on the file system.  It helps track down where a
+      # project root is etc.
+      #
+      # Returns
+      # +String+
+      #
+      # Notes
+      # * Uses +$0+ to figure out what the current file is
+      def called_from
+        File.expand_path(File.dirname($0))
+      end
+
       # Create an <tt>attr_accessor</tt> feeling getter and setter for an instance
       # variable.  The method doesn't create a getter or setter if it is already
       # defined.
@@ -28,7 +80,7 @@ module Smash
       def instance_attr_accessor(base_name)
         i_var_name = to_i_var(base_name)
         getter_signature = to_snake(base_name)
-        setter_signature = "#{getter}="
+        setter_signature = "#{getter_signature}="
 
         unless respond_to? getter_signature
           define_singleton_method(getter_signature) do
@@ -41,67 +93,6 @@ module Smash
             instance_variable_set(i_var_name, argument)
           end
         end
-      end
-
-      # Sets an Array of instance variables, individually to a value that a
-      # user given block returns.
-      #
-      # Parameters
-      #
-      # * keys +Array+
-      # * * each object will be used as the name for the instance variable that
-      #     your block returns
-      # +block+ (optional)
-      #   * this block is called for each object in the Array and is used as the value
-      #   for the instance variable that is being named and created for each key
-      # Returns Array
-      #   * each object will either be the result of `#instance_variable_set(key, value)`
-      #     or instance_variable_get(key)
-      # Example
-      #   keys = ['foo', 'bar', 'yo']
-      #
-      #   attr_map!(keys) { |key| sleep 1; "#{key}:#{Time.now.to_i}" }
-      #   # => ['foo:1475434058', 'bar:1475434059', 'yo:1475434060']
-      #
-      #   puts @bar
-      #   # => 'bar:1475434059'
-      def attr_map!(attributes)
-        attributes.map do |attribute|
-          new_i_var_name = to_i_var(attribute)
-
-          value = block_given? ? (yield attribute) : attribute
-
-          # create getter and setter for the i-var
-          instance_attr_accessor to_snake(attribute)
-          # set the i-var to the value that was obtained above
-          instance_variable_set(new_i_var_name, value)
-        end
-      end
-
-      # This is a way to find out if you are trying to work with a resource
-      # available to CloudPowers
-      #
-      # Returns <Array>
-      # Use +.constants+ to find all the modules and classes available.
-      #
-      # Notes
-      # * TODO: make this smartly pick up all the objects, within reason and
-      #   considering need, that we have access to
-      def available_resources
-        [:Task].concat(Smash::CloudPowers.constants)
-      end
-
-      # Does its best job at guessing where this method was called from, in terms
-      # of where it is located on the file system.  It helps track down where a
-      # project root is etc.
-      #
-      # Returns
-      # +String+
-      #
-      # Notes
-      # * Uses +$0+ to figure out what the current file is
-      def called_from
-        File.expand_path(File.dirname($0))
       end
 
       # Lets you retry a piece of logic with 1 second sleep in between attempts

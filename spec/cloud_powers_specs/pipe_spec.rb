@@ -10,13 +10,13 @@ describe 'Pipe' do
     Dotenv.load("#{project_root}/.test.env")
     kinesis(
       Smash::CloudPowers::AwsStubs.pipe_stub(
-        name: 'testStream', sequence_number: '1234'
+        name: 'test', sequence_number: '1234'
       )
     )
   end
 
   it '#create_stream() should be able to create a Pipe' do
-    expect(create_stream('testStream')).to eql true # #create_stream() returns true on success
+    expect(create_stream(name: 'test')).to be_kind_of Smash::CloudPowers::Synapse::Pipe::Stream
   end
 
   it '#pipe_to() should be able to send a single message through the Pipe' do
@@ -31,6 +31,6 @@ describe 'Pipe' do
   end
 
   it '#stream_status() should be able to check the status for a Pipe' do
-    expect(stream_status(:test_stream)).to eql 'ACTIVE'
+    expect(pipe_status(:test_stream)).to eql 'ACTIVE'
   end
 end

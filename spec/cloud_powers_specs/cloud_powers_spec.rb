@@ -37,10 +37,6 @@ describe CloudPowers do
     expect(Smash::CloudPowers.included_modules).to include(Smash::CloudPowers::Synapse::Queue)
   end
 
-  it 'should have a SelfAwareness module' do
-    expect(Smash::CloudPowers.included_modules).to include(Smash::CloudPowers::SelfAwareness)
-  end
-
   it 'should have a Storage module' do
     expect(Smash::CloudPowers.included_modules).to include(Smash::CloudPowers::Synapse)
   end

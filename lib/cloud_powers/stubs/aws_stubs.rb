@@ -74,7 +74,7 @@ module Smash
       #   for your own custom configuration
       def self.node_stub(opts = {})
         time = opts[:launch_time] || Time.new((Time.now.utc.to_i / 86400 * 86400)) # midnight
-        tags = [{key: 'task', value: 'test'}]
+        tags = [{key: 'job', value: 'test'}]
         {
           stub_responses: {
             create_tags: {},
@@ -250,14 +250,14 @@ module Smash
       #   for your own custom configuration
       def self.queue_stub(opts = {})
         msg_body = if opts[:body]
-          if opts[:body].kind_of? Hash
-            opts[:body] = opts[:body].to_json
-          elsif JSON.parse(opts[:body])
-            begin
-              opts[:body]
-            rescue JSON::ParserError
-              {foo: 'bar'}.to_json
+          begin
+            if opts[:body].kind_of? Hash
+              opts[:body] = opts[:body].to_json
+            elsif JSON.parse(opts[:body])
+                opts[:body]
             end
+          rescue JSON::ParserError
+            {foo: 'bar'}.to_json
           end
         end
         {

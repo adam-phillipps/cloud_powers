@@ -51,12 +51,16 @@ module Smash
       # Returns
       # the value of the +key+ searched for
       def i_vars(key = '')
+        name = to_i_var(key)
+
+        # if no key is given, return a +Hash+ of all i-var/value pairs
         if key.empty?
-          return self.instance_variables.inject({}) do |r,v|
-            r.tap { |h| h[to_snake(v)] = self.instance_variable_get(to_i_var(v)) }
+          return self.instance_variables.inject({}) do |r, v|
+            r.tap { |h| h[name] = self.instance_variable_get(name) }
           end
         end
-        self.instance_variable_get(to_i_var(key))
+
+        self.instance_variable_get(name)
       end
 
       # PROJECT_ROOT should be set as early as possible in this Node's initilize
@@ -119,6 +123,7 @@ module Smash
       # with this structure +{ key => value, ... }+ is returned for all keys with a value.
       # Keys with no value are ommitted from the result.
       def system_vars(key = '')
+        name = to_snake(key).upcase
         if key.empty?
           # Separate key-value pairs from the large string received by `ENV`
           separate_pairs = `ENV`.split(/\n/).map do |string_pair|
@@ -131,14 +136,13 @@ module Smash
             res.tap { |h_res| h_res[pair.first] = pair.last unless (pair.first == pair.last) }
           end
         else
-          res = `printf "#{to_snake(key).upcase}"`
-          return res.empty? ? nil : res
+          Object::ENV.has_key?(name) ? Object::ENV.fetch(name) : nil
         end
       end
 
       # ZFind looks for the key in a preditermined order of importance:
       # * i-vars are considered first becuase they might be tracking different
-      #   locations for multiple tasks or something like that.
+      #   locations for multiple jobs or something like that.
       # * dotenv files are second because they were manually set, so for sure
       #   it's important
       # * System Env[@] variables are up next.  Hopefully by this time we've found
@@ -154,10 +158,7 @@ module Smash
       # * TODO: implement a search for all 3 that can find close matches
       def zfind(key)
         project_root if @project_root.nil?
-        res = (i_vars[to_snake(key).upcase] or
-          env_vars[to_snake(key).upcase] unless @project_root.nil?) or
-          system_vars[to_snake(key).upcase]
-        (res.nil? or res.empty?) ? nil : res
+        i_vars(key) || env_vars(key) || system_vars(key)
       end
     end
   end
