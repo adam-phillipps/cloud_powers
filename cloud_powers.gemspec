@@ -12,6 +12,8 @@ Gem::Specification.new do |spec|
   spec.summary                =     %q{Cloud providers wrapper.  Currently only AWS is supported.}
   spec.description            =     <<-EOF
     CloudPowers is a wrapper around AWS and in the future, other cloud service Providers.
+    There's also a good chunk of functionality in the worker/job realm.  We have
+    Dynamic workflows, context communication and more to get you up and running.
     It was developed specifically for the Brain project but hopefully can be used
     in any other ruby project that needs to use cloud service providers' resources.
 
@@ -20,7 +22,7 @@ Gem::Specification.new do |spec|
     AWS RESTful API calls.  That can come in handy for local testing and extra setup on
     AWS resource clients.
 
-    The next versions will have more Kinesis, Workflow integration and IoT.
+    The next versions will have more Kinesis, IoT, .
 
     This project is actively being developed, so more additions, specs and docs
     will be added and updated frequently with new funcionality but the gem will

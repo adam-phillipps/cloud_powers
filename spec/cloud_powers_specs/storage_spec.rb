@@ -26,17 +26,23 @@ describe 'Storage' do
 
   context 'in remote storage' do
     it '#search() should be able to use Regex to match the name of the file' do
-      pending 'need to add stubbing'
-      expect(search(zfind('job_storage'), %r[.*])).not_to be_empty
+      expect(search(zfind('job storage'), %r[.*])).not_to be_empty
     end
 
     it '#search() should be able to use a String to match the name of the file' do
-      pending 'need to add stubbing'
-      expect(search(zfind('job_storage'), @test_file)).not_to be_empty
+      expect(search(zfind('job storage'), @test_file)).not_to be_empty
     end
 
     it '#search() should be able to return negative results with an empty Array' do
-      expect(search(zfind('job_storage'), 'zned')).to be_empty
+      expect(search(zfind('job storage'), 'zned')).to be_empty
+    end
+
+    it '#search() should return nil and log argument error if the bucket does not exist' do
+      expect(search(zfind('snardbarstic'), @test_file)).to be_empty
+    end
+
+    it '#search() should return nil and log argument error if the args are bad' do
+      expect(search(zfind('snardbarstic'), 1234)).to be_empty
     end
 
     it '#source_job() to be able to force getting a file from remote storage' do

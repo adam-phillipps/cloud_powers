@@ -28,10 +28,6 @@ describe 'Smash::BrainFunc::Context' do
       pipe: [{ name: 'status', client: kinesis }]
     }
   end
-  let(:arr_config) { [:job, 'demo', :board, :name, 'backlog', :name, 'sned', :pipe, :name, 'status_stream'] }
-  let(:two_d_arr_config) { [[:job, 'demo'],[:board,[[[:name, 'backlog']],[:name, 'sned']]],[:pipe,[:name, 'status_stream']]] }
-  let(:json_config) { "{\"job\":\"demo\",\"board\":[\"backlog\",\"sned\"],\"pipe\":[\"status_stream\"]}" }
-  let(:name) { 'test' }
 
   module Smash
     class A

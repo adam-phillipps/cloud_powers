@@ -223,7 +223,25 @@ module Smash
       def self.storage_stub(opts = {})
         {
           stub_responses: {
-            head_bucket: {}
+            head_bucket: {
+
+            },
+            list_objects: {
+              is_truncated: false,
+              contents: [
+                key: 'testinz',
+                last_modified: Time.now,
+                etag: 'asdf1234',
+                size: 123,
+                storage_class: 'STANDARD',
+                owner: {display_name: 'snargle', id: 'id-bargle132'}
+              ],
+              name: 'testFile',
+              prefix: 'test',
+              delimiter: ' ',
+              max_keys: 1234,
+              common_prefixes: [{ prefix: 'test' }]
+            }
           }
         }
       end

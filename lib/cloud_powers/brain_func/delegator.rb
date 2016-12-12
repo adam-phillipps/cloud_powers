@@ -52,16 +52,16 @@ module Smash
       #   job.build('abc-1234', Aws::SQS::Message)
       #   # => +Examplejob:Object+
       def build_job(id, msg)
-        body = decipher_message(msg)
+        body = decipher_delegator_message(msg)
+
         begin
           job = body['job']
           if approved_job? job
             source_job(job)
             require_relative job_require_path(job)
-            create_resource(job, body)
+            create_resource_from(job, body)
           else
-            byebug
-            Smash::Job.new(id, **body) # returns a default job
+            Smash::Job.new(id, body) # returns a default job
           end
         rescue JSON::ParserError => e
           message = [msg.body, format_error_message(e)].join("\n")
@@ -71,7 +71,7 @@ module Smash
       end
 
       # Create any Constant
-      def create_resource(name, config = {})
+      def create_resource_from(name, config = {})
         config = modify_keys_with(config) { |k| k.to_sym }
         Smash.const_get(to_pascal(name)).create!(name: name, **config)
       end
@@ -93,21 +93,21 @@ module Smash
       #   # givem json_message = "\{"job":"example"\}"
       #   # given message_with_body = <Object @body="stuff stuff stuff">
       #
-      #   decipher_message(hash_message)
+      #   decipher_delegator_message(hash_message)
       #   # => { job: 'example' }
-      #   decipher_message(json_message)
+      #   decipher_delegator_message(json_message)
       #   # => { job: 'example' }
-      #   decipher_message(message_with_body)
+      #   decipher_delegator_message(message_with_body)
       #   # => { job: 'example' }
-      #   decipher_message('some ridiculous string')
+      #   decipher_delegator_message('some ridiculous string')
       #   # => { job: 'some_ridiculous_string'}
       #
       # Notes
       # See +#to_snake()+
-      def decipher_message(msg)
+      def decipher_delegator_message(msg)
         begin
           if msg.respond_to? :body
-            decipher_message(msg.body)
+            decipher_delegator_message(msg.body)
           else
             msg.kind_of?(Hash) ? msg : from_json(msg)
           end

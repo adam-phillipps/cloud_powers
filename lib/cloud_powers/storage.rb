@@ -60,8 +60,8 @@ module Smash
       #
       # Parameters
       # * bucket +String+ - the bucket to search through in AWS
-      # * pattern +Regex+ - the Regex pattern you want to use for the
-      #   search
+      # * pattern +Regexp+|+nil+ - the Regex pattern you want to use for the
+      #   search.  nil doesn't cause an exception but probably returns <tt>[]</tt>
       #
       # Example
       #   matches = search('neuronJobs', /[Dd]emo\w*/)
@@ -69,8 +69,16 @@ module Smash
       #   matches.first.contents.size
       #   # => 238934 # integer representation of the file size
       def search(bucket, pattern)
-        s3.list_objects(bucket: bucket).contents.select do |o|
-          o.key =~ pattern
+        return [] if bucket.nil?
+
+        begin
+          pattern = /#{pattern}/ unless pattern.kind_of? Regexp
+          s3.list_objects(bucket: bucket).contents.select do |o|
+            o.key =~ pattern || /#{o.key}/ =~ pattern.to_s
+          end
+        rescue Aws::S3::Errors::NoSuchBucket => e
+          logger.info format_error_message e
+          return # log that the bucket doesn't exist but don't explode
         end
       end
 
