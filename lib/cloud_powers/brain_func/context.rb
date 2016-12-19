@@ -96,6 +96,9 @@ module Smash
       #       => ['test', {board: [{name: 'updates'}]}]
       def separate_args(args)
         case args
+        when self.class
+          byebug
+          [args.job, args.description]
         when Enumerable
           find_and_remove('job', to_basic_hash(args))
         when String

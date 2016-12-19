@@ -46,49 +46,76 @@ module Smash
       def create_context(*args)
         context_resource = build_context(*args)
 
-        attr_map(context: context_resource) do |attr_name, context_resource|
-          instance_attr_accessor attr_name
-          [attr_name, context_resource]
+        attr_map(context: context_resource) do |c_name, context|
+          instance_attr_accessor c_name
+          [c_name, context]
         end
 
-        create_resources(context_resource.description)
+        context_resource.description.each do |type, descriptions|
+          next unless descriptions.respond_to? :each
+          resource = create_resource(type) if descriptions.empty?
+          descriptions.each { |config| create_resource(type, config) }
+        end
+
+        # create_resources(context_resource.description)
         context
       end
 
-      # Create all the resources in a description.  This method relies heavily
-      # on an active record-like pattern.  Each resource is contained in a module
-      # with similar resources.  The module has the ability to _create_ resources
-      # of a certain type with the same method signature.  As long as your
-      # resource can adhere to one or more of the following rules, you should be
-      # able to create all the resources in the description with this one method
-      # call
+      # Create a resource of the given type and description
       #
       # Parameters
-      # * description +Hash+ - see <tt>Smash::BrainFunc::Context</tt> ->
-      #   +new+ and <tt>@description</tt>
+      # * type +String+|+Symbol+
+      # * description +Hash+
       #
       # Returns
-      # * description
-      #
-      # Notes
-      # * See <tt>Smash::CloudPowers::Resource</tt> for <tt>create!</tt> usage
-      # * See <tt>Smash::CloudPowers::Context</tt> for valid description
-      # * See documentation for a full description of the interface and how it
-      #   is used here.
-      def create_resources(description)
-        description.each do |type, configs|
-          method_name = "create_#{type}"
+      # description
+      def create_resource(type, description = {})
+        resource = try_to_instantiate_or_not(type, description)
+        r_name = resource.name || type rescue type
+        attr_map(r_name => resource) do |r_name, r|
+          instance_attr_accessor r_name
+          [r_name, r]
+        end
+      end
 
-          configs.each do |config|
-            if self.respond_to? method_name
-              self.public_send method_name, config
-            else
-              resource = self.class.const_get(to_pascal(type))
-              if resource.respond_to? :create!
-                resource.create!(name: config.delete(:name), **config)
-              end
-            end
+      private
+      # Attempt to create a resource with supported interfaces and finally
+      # try with a .new() method call.  If all else fails, return +nil+
+      def try_to_instantiate_or_not(type, config)
+        send_interface_create(type, config)   ||
+          send_resource_create(type, config)  ||
+          send_new(type, config)              ||
+          config
+      end
+
+      # Attempt to make a resource using the interface or return +nil+
+      def send_interface_create(type, config)
+        method_name = "create_#{type}"
+        resource = nil # hoisting for scope
+
+        if self.respond_to? method_name
+          self.public_send(method_name, **config)
+        end
+      end
+
+      # Attempt to make a resource using the Resource module or return +nil+
+      def send_resource_create(type, config)
+        begin
+          resource = Smash.const_get(to_pascal(type))
+          if resource.respond_to? :create!
+            resource.create!(name: config.delete(:name), **config)
           end
+        rescue NameError => e
+          logger.info format_error_message e
+        end
+      end
+
+      # Attempt to find the appropriate class and instantiate like normal
+      def send_new(type, config)
+        begin
+          Smash.const_get(to_pascal(type)).new(config)
+        rescue NameError => e
+          logger.info format_error_message e
         end
       end
     end

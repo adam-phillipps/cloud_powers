@@ -72,6 +72,7 @@ module Smash
 
       # Create any Constant
       def create_resource_from(name, config = {})
+        # TODO: check for available_types.include?(k) to avoid memory leaks with .to_sym
         config = modify_keys_with(config) { |k| k.to_sym }
         Smash.const_get(to_pascal(name)).create!(name: name, **config)
       end
