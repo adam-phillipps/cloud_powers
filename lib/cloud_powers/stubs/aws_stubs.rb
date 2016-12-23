@@ -179,7 +179,7 @@ module Smash
             },
             describe_stream: {
               stream_description: {
-                stream_creation_timestamp: Time.now,
+                stream_creation_timestamp: Time.now - 10,
                 stream_name: opts[:name] || 'testPipe',
                 stream_arn:  'arnarnarnarnar',
                 stream_status: 'ACTIVE',
