@@ -143,18 +143,22 @@ module Smash
         stub.merge(opts.select { |k,v| stub.key? k })
       end
 
-      # Get or create an Kinesis client and cache that client so that a Context is more well tied together
+      # Get or create an Kinesis client and cache that client so that a Context
+      # is more well tied together
       # Parameters
       # * opts <tt>Hash</tt>
-      # * * stub_responses: defaulted to false but it can be overriden with the desired responses for local testing
-      # * * region: defaulted to use the `#region()` method
-      # * * AWS::Credentials object, which will also scour the context and environment for your keys
+      #   * stub_responses: defaulted to false but it can be overriden with the
+      #     desired responses for local testing
+      #   * region: defaulted to use the `#region()` method
+      #   * AWS::Credentials object, which will also scour the context and
+      #     environment for your keys
       #
       # Returns
       # AWS::Kinesis client
       #
       # Example
-      #   # sets and gets an Kinesis client.  No need to set a variable because one was
+      #   # sets and gets an Kinesis client.  No need to set a variable because
+      #     one was
       #   # just created as +@kinesis+ and is set to the client
       #   kinesis(Smash::CloudPowers::AwsStubs.pipe_stub)
       #
@@ -175,6 +179,7 @@ module Smash
             },
             describe_stream: {
               stream_description: {
+                stream_creation_timestamp: Time.now,
                 stream_name: opts[:name] || 'testPipe',
                 stream_arn:  'arnarnarnarnar',
                 stream_status: 'ACTIVE',

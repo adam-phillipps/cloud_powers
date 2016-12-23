@@ -2,12 +2,10 @@ require 'cloud_powers/auth'
 require 'cloud_powers/helpers'
 require 'cloud_powers/zenv'
 require 'cloud_powers/node/instance'
-# require 'cloud_powers/brain_func/self_awareness'
 
 module Smash
   module CloudPowers
     module Node
-      # include Smash::BrainFunc::SelfAwareness
       include Smash::CloudPowers::Auth
       include Smash::CloudPowers::Helpers
       include Smash::CloudPowers::Zenv
