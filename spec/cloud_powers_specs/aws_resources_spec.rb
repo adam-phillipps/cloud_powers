@@ -9,6 +9,7 @@ describe 'AwsResources' do
     Dotenv.load("#{project_root}/.test.env")
     @test_name = 'test'
     sqs(Smash::CloudPowers::AwsStubs.queue_stub(name: @test_name))
+    ec2(Smash::CloudPowers::AwsStubs.node_stub(name: @test_name))
   end
 
   it '#ec2() should be able to create an EC2 object' do
