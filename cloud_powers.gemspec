@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'cloud_powers/version'
 
 Gem::Specification.new do |spec|
-  spec.required_ruby_version  =     '~> 2.3.0'
+  spec.required_ruby_version  =     '~> 2.4.0'
   spec.name                   =     'cloud_powers'
   spec.version                =     CloudPowers::VERSION
   spec.authors                =     ['Adam Phillipps', 'Faisal Irfan', 'Gerardo Parajeles']
@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
     Input is always welcome. :thumbsup:
     Enjoy!
   EOF
-  spec.homepage               =     'https://github.com/adam-phillipps/cloud_powers'
+  spec.homepage               =     'https://bitbucket.org/smashanalytics/cloud_powers'
   spec.license                =     'MIT'
 
   spec.files                  =     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
@@ -45,8 +45,8 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency       'websocket-eventmachine-client'
   spec.add_runtime_dependency       'workflow'
 
-  spec.add_development_dependency   'bundler', '~> 1.13.5'
+  spec.add_development_dependency   'bundler', '~> 1.14.3'
   spec.add_development_dependency   'byebug', '~> 9'
-  spec.add_development_dependency   'rake', '~> 10.0'
-  spec.add_development_dependency   'rspec', '~> 3.0'
+  spec.add_development_dependency   'rake', '~> 12.0'
+  spec.add_development_dependency   'rspec', '~> 3.5'
 end
