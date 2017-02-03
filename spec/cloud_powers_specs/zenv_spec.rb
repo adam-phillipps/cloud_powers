@@ -12,7 +12,7 @@ describe 'Zenv' do
   end
 
   it 'should be able to use the .env file' do
-    expect(env_vars('TESTING')).to be_truthy
+    expect(env_vars('TEST')).to be_truthy
   end
 
   it 'should be able to return nil for any unfound variable' do
@@ -20,7 +20,7 @@ describe 'Zenv' do
   end
 
   it 'should be able to find a variable from any set' do
-    expect(zfind('testing')).to be_truthy
+    expect(zfind('test')).to be_truthy
     expect(zfind('USER')).to be_kind_of String
   end
 end
