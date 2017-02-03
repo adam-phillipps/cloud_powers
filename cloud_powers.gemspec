@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
     Input is always welcome. :thumbsup:
     Enjoy!
   EOF
-  spec.homepage               =     'https://bitbucket.org/smashanalytics/cloud_powers'
+  spec.homepage               =     'https://github.com/adam-phillipps/cloud_powers'
   spec.license                =     'MIT'
 
   spec.files                  =     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
