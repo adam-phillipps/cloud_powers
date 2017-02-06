@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'cloud_powers/stubs/aws_stubs'
 
 describe 'Queue::Board' do
   include Smash::CloudPowers::Synapse::Queue

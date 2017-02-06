@@ -1,7 +1,7 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'cloud_powers'
 require 'cloud_powers/helpers'
-require 'cloud_powers/stubs/aws_stubs'
+require 'stubs/aws_stubs'
 require 'byebug'
 require 'fileutils'
 require 'json'

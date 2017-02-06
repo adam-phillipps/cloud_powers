@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'cloud_powers/stubs/aws_stubs'
 
 describe 'Broadcast' do
   extend Smash::CloudPowers::AwsStubs

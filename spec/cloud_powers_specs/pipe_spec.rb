@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'cloud_powers/stubs/aws_stubs'
 
 describe 'Pipe' do
   extend Smash::CloudPowers::AwsStubs
